@@ -1,0 +1,19 @@
+{
+  "presets": [
+    ["env", {
+        "targets": {
+          "browsers": ["last 2 versions", "safari >= 7"]
+        },
+        "_debug": true,
+        "modules": "commonjs"
+      }
+    ],
+    "stage-2"
+  ],
+  "plugins": ["transform-runtime"],
+  "comments": false,
+  "ignore": [
+    "dist/*.js"
+  ],
+  "compact" : true
+}
