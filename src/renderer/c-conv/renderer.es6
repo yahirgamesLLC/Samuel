@@ -171,7 +171,6 @@ function CreateFrames (
     }
   };
 
-  let phase1 = 0;
   let X = new UInt8(0);
   let i = 0;
   while(i < 256) {
@@ -188,7 +187,7 @@ function CreateFrames (
     }
 
     // get the stress amount (more stress = higher pitch)
-    phase1 = tab47492[stressOutput[i] + 1];
+    let phase1 = tab47492[stressOutput[i] + 1];
 
     // get number of frames to write
     let phase2 = phonemeLengthOutput[i];
