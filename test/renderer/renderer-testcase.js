@@ -27,6 +27,10 @@ export default function (files, renderer) {
 
               const output = renderer.karmaOutput;
 
+              assert.deepEqual([].slice.call(output.freq1data).slice(0, 80), value.freq1data, "freq1data mismatch");
+              assert.deepEqual([].slice.call(output.freq2data).slice(0, 80), value.freq2data, "freq2data mismatch");
+              assert.deepEqual([].slice.call(output.freq3data).slice(0, 80), value.freq3data, "freq3data mismatch");
+
               // Seek first empty line in result.
               let p1;
               for (p1 = 0; p1 < output.sampledConsonantFlag.length; p1++) {

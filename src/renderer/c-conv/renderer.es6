@@ -62,26 +62,34 @@ function trans(mem39212, mem39213) {
 }
 
 /**
- SAM's voice can be altered by changing the frequencies of the
- mouth formant (F1) and the throat formant (F2). Only the voiced
- phonemes (5-29 and 48-53) are altered.
+ * SAM's voice can be altered by changing the frequencies of the
+ * mouth formant (F1) and the throat formant (F2). Only the voiced
+ * phonemes (5-29 and 48-53) are altered.
+ *
+ * This returns the three base frequency arrays.
+ *
+ * @return {Array}
  */
-function SetMouthThroat(mouth, throat, freqdata) {
-
+function SetMouthThroat(mouth, throat) {
   let initialFrequency;
   let newFrequency = 0;
   let pos = 5;
+  const freqdata = [freq1data.slice(), freq2data.slice(), freq3data];
 
   // recalculate formant frequencies 5..29 for the mouth (F1) and throat (F2)
   while(pos < 30) {
     // recalculate mouth frequency
     initialFrequency = mouthFormants5_29[pos];
-    if (initialFrequency !== 0) newFrequency = trans(mouth, initialFrequency);
+    if (initialFrequency !== 0) {
+      newFrequency = trans(mouth, initialFrequency);
+    }
     freqdata[0][pos] = newFrequency;
 
     // recalculate throat frequency
     initialFrequency = throatFormants5_29[pos];
-    if(initialFrequency !== 0) newFrequency = trans(throat, initialFrequency);
+    if(initialFrequency !== 0) {
+      newFrequency = trans(throat, initialFrequency);
+    }
     freqdata[1][pos] = newFrequency;
     pos++;
   }
@@ -99,6 +107,8 @@ function SetMouthThroat(mouth, throat, freqdata) {
     freqdata[1][pos+48] = newFrequency;
     pos++;
   }
+
+  return freqdata;
 }
 
 /** CREATE FRAMES
@@ -461,8 +471,7 @@ export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mou
   // TODO, check for free the memory, 10 seconds of output should be more than enough
   Output.buffer = new Uint8Array(22050 * 10);
 
-  const freqdata = [freq1data.slice(), freq2data.slice(), freq3data];
-  SetMouthThroat(mouth, throat, freqdata);
+  const freqdata = SetMouthThroat(mouth, throat);
 
   const phonemeIndexOutput  = new Uint8Array(60);
   const stressOutput        = new Uint8Array(60);
@@ -561,7 +570,10 @@ export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mou
         frequency2: frequency[1],
         amplitude3: amplitude[2],
         frequency3: frequency[2],
-        pitches: pitches
+        pitches: pitches,
+        freq1data: freqdata[0],
+        freq2data: freqdata[1],
+        freq3data: freqdata[2],
       };
     }
 
