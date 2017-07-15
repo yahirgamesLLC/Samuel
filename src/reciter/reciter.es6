@@ -349,9 +349,9 @@ function reciterRule (ruleDefinition) {
 // Map all rules and generate processors from them.
 const rules = {};
 tables.rules.forEach((rule => {
-  const r = reciterRule(rule);
-  if (!rules[r.c]) rules[r.c] = [];
-  rules[r.c].push(r);
+  const r = reciterRule(rule), c= r.c;
+  rules[c] = rules[c] || [];
+  rules[c].push(r);
 }));
 const rules2 = tables.rules2.map(reciterRule);
 
