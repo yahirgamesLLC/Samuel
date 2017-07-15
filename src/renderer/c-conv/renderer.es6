@@ -458,18 +458,20 @@ export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mou
       [200, 0, 0, 54, 55],
       [199, 0, 0, 54, 54]
     ];
-    Output.bufferpos = ((Output.bufferpos || 0) + timetable[Output.oldTimeTableIndex || 0][index]) & 0xFFFFFFFF;
+    Output.bufferpos += timetable[Output.oldTimeTableIndex][index];
     if (Output.bufferpos / 50 > Output.buffer.length) {
       throw new Error('Buffer overflow!');
     }
     Output.oldTimeTableIndex = index;
     // write a little bit in advance
     for (let k = 0; k < 5; k++) {
-      Output.buffer[Math.floor(Output.bufferpos / 50) + k] = (A & 15) * 16;
+      Output.buffer[(Output.bufferpos / 50 | 0) + k] = (A & 15) * 16;
     }
   }
   // TODO, check for free the memory, 10 seconds of output should be more than enough
   Output.buffer = new Uint8Array(22050 * 10);
+  Output.bufferpos = 0;
+  Output.oldTimeTableIndex = 0;
 
   const freqdata = SetMouthThroat(mouth, throat);
 
