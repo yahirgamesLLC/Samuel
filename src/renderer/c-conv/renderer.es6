@@ -293,7 +293,7 @@ function CreateTransitions(pitches, frequency, amplitude, phonemeIndexOutput, ph
   const interpolate = (width, table, frame, mem53) => {
     let sign      = (mem53 < 0);
     let remainder = new UInt8(Math.abs(mem53) % width);
-    let div       = new UInt8(Math.floor(mem53 / width));
+    let div       = new UInt8((mem53 / width) | 0);
 
     let error = new UInt8(0);
     let pos   = width;
@@ -322,8 +322,8 @@ function CreateTransitions(pitches, frequency, amplitude, phonemeIndexOutput, ph
     // next phoneme
 
     // half the width of the current and next phoneme
-    let cur_width  = Math.floor(phonemeLengthOutput[pos] / 2);
-    let next_width = Math.floor(phonemeLengthOutput[pos+1] / 2);
+    let cur_width  = phonemeLengthOutput[pos] >> 1;
+    let next_width = phonemeLengthOutput[pos+1] >> 1;
     // sum the values
     width = cur_width + next_width;
     let pitch = pitches[next_width + mem49] - pitches[mem49 - cur_width];
