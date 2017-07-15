@@ -176,10 +176,8 @@ function CreateFrames (
   while(i < 256) {
     // get the phoneme at the index
     let phoneme = phonemeIndexOutput[i];
-
     // if terminal phoneme, exit the loop
     if (phoneme === 255) break;
-
     if (phoneme === PHONEME_PERIOD) {
       AddInflection(RISING_INFLECTION, X.get());
     } else if (phoneme === PHONEME_QUESTION) {
@@ -188,12 +186,9 @@ function CreateFrames (
 
     // get the stress amount (more stress = higher pitch)
     let phase1 = tab47492[stressOutput[i] + 1];
-
     // get number of frames to write
-    let phase2 = phonemeLengthOutput[i];
-
     // copy from the source to the frames list
-    do {
+    for (let frames = phonemeLengthOutput[i];frames > 0;frames--) {
       frequency[0][X.get()] = frequencyData[0][phoneme];     // F1 frequency
       frequency[1][X.get()] = frequencyData[1][phoneme];     // F2 frequency
       frequency[2][X.get()] = frequencyData[2][phoneme];     // F3 frequency
@@ -203,7 +198,7 @@ function CreateFrames (
       sampledConsonantFlag[X.get()] = sampledConsonantFlags[phoneme]; // phoneme data for sampled consonants
       pitches[X.get()] = pitch + phase1;      // pitch
       X.inc();
-    } while(--phase2 > 0);
+    }
     ++i;
   }
 }
