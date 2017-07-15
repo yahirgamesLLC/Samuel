@@ -473,6 +473,12 @@ export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mou
     switch(A) {
       case END:
         Render(phonemeIndexOutput, phonemeLengthOutput, stressOutput);
+        // Hack for PhantomJS which does not have slice() on UintArray8
+        if (process.env.NODE_ENV === 'karma-test') {
+          return Output.buffer.slice
+            ? Output.buffer.slice(0, Math.floor(Output.bufferpos / 50))
+            : new Uint8Array([].slice.call(Output.buffer).slice(0, Math.floor(Output.bufferpos / 50)));
+        }
         return Output.buffer.slice(0, Math.floor(Output.bufferpos / 50));
       case BREAK:
         phonemeIndexOutput[destpos] = END;
@@ -533,8 +539,21 @@ export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mou
     }
     RescaleAmplitude(amplitude);
 
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV === 'development') {
       PrintOutput(pitches, frequency, amplitude, sampledConsonantFlag);
+    }
+    if (process.env.NODE_ENV === 'karma-test') {
+      // Karma run, store data for karma retrieval.
+      Renderer.karmaOutput = {
+        sampledConsonantFlag: sampledConsonantFlag,
+        amplitude1: amplitude[0],
+        frequency1: frequency[0],
+        amplitude2: amplitude[1],
+        frequency2: frequency[1],
+        amplitude3: amplitude[2],
+        frequency3: frequency[2],
+        pitches: pitches
+      };
     }
 
     ProcessFrames(t, speed, frequency, pitches, amplitude, sampledConsonantFlag);

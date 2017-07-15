@@ -5,3 +5,5 @@ require('./reciter/regression.spec.js');
 require('./parser/parser1.spec');
 require('./parser/parser-c.spec.js');
 require('./parser/parser-vs-parser-c.spec.js');
+require('./renderer/renderer-c.spec');
+require('./renderer/renderer.spec');
