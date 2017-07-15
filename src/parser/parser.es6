@@ -25,8 +25,10 @@ import ProlongPlosiveStopConsonantsCode41240 from './prolong-plosive-stop-conson
  */
 export default function Parser (input) {
   const getPhoneme = (pos) => {
-    if (pos<0 || pos>result.phonemeindex.length) {
-      throw new Error('Out of bounds: ' + pos)
+    if (process.env.NODE_ENV === 'development') {
+      if (pos < 0 || pos > result.phonemeindex.length) {
+        throw new Error('Out of bounds: ' + pos)
+      }
     }
     return (pos === result.phonemeindex.length - 1) ? END : result.phonemeindex[pos]
   };
@@ -76,6 +78,9 @@ export default function Parser (input) {
       );
       if ((length & 128) !== 0) {
         throw new Error('Got the flag 0x80, see CopyStress() and SetPhonemeLength() comments!');
+      }
+      if (pos<0 || pos>result.phonemeindex.length) {
+        throw new Error('Out of bounds: ' + pos)
       }
     }
     result.phonemeLength[pos] = length;
