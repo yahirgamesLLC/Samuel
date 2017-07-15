@@ -13,6 +13,12 @@ export const throatFormants5_29 = [
   36, 30, 51, 37, 29, 69, 24, 50, 30, 24, 83, 46, 54, 86,
 ];
 
+// there must be no zeros in this 2 tables
+// formant 1 frequencies (mouth) 48..53
+export const mouthFormants48_53 = [19, 27, 21, 27, 18, 13];
+// formant 2 frequencies (throat) 48..53
+export const throatFormants48_53 = [72, 39, 31, 43, 30, 34];
+
 export const tab48426 = [0x18, 0x1A, 0x17, 0x17, 0x17];
 
 export const tab47492 = [
