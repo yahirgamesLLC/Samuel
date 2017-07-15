@@ -26,17 +26,17 @@ import ProlongPlosiveStopConsonantsCode41240 from './prolong-plosive-stop-conson
 export default function Parser (input) {
   const getPhoneme = (pos) => {
     if (process.env.NODE_ENV === 'development') {
-      if (pos < 0 || pos > result.phonemeindex.length) {
+      if (pos < 0 || pos > phonemeindex.length) {
         throw new Error('Out of bounds: ' + pos)
       }
     }
-    return (pos === result.phonemeindex.length - 1) ? END : result.phonemeindex[pos]
+    return (pos === phonemeindex.length - 1) ? END : phonemeindex[pos]
   };
   const setPhoneme = (pos, value) => {
     if (process.env.NODE_ENV === 'development') {
-      console.log(`${pos} CHANGE: ${PhonemeNameTable[result.phonemeindex[pos]]} -> ${PhonemeNameTable[value]}`);
+      console.log(`${pos} CHANGE: ${PhonemeNameTable[phonemeindex[pos]]} -> ${PhonemeNameTable[value]}`);
     }
-    result.phonemeindex[pos]  = value;
+    phonemeindex[pos]  = value;
   };
 
   /**
@@ -53,57 +53,51 @@ export default function Parser (input) {
     }
     // ML : always keep last safe-guarding 255
     for(let i = 253; i >= pos; i--) {
-      result.phonemeindex[i+1]  = result.phonemeindex[i];
-      result.phonemeLength[i+1] = result.phonemeLength[i];
-      result.stress[i+1]        = result.stress[i];
+      phonemeindex[i+1]  = phonemeindex[i];
+      phonemeLength[i+1] = phonemeLength[i];
+      stress[i+1]        = stress[i];
     }
-    result.phonemeindex[pos]  = value;
-    result.phonemeLength[pos] = length | 0;
-    result.stress[pos]        = stressValue;
+    phonemeindex[pos]  = value;
+    phonemeLength[pos] = length | 0;
+    stress[pos]        = stressValue;
   };
-  const getStress = (pos) => result.stress[pos];
-  const setStress = (pos, stress) => {
+  const getStress = (pos) => stress[pos];
+  const setStress = (pos, stressValue) => {
     if (process.env.NODE_ENV === 'development') {
       console.log(
-        `${pos} "${PhonemeNameTable[result.phonemeindex[pos]]}" SET STRESS: ${result.stress[pos]} -> ${stress}`
+        `${pos} "${PhonemeNameTable[phonemeindex[pos]]}" SET STRESS: ${stress[pos]} -> ${stressValue}`
       );
     }
-    result.stress[pos] = stress;
+    stress[pos] = stressValue;
   };
-  const getLength = (pos) => result.phonemeLength[pos];
+  const getLength = (pos) => phonemeLength[pos];
   const setLength = (pos, length) => {
     if (process.env.NODE_ENV === 'development') {
       console.log(
-        `${pos} "${PhonemeNameTable[result.phonemeindex[pos]]}" SET LENGTH: ${result.phonemeLength[pos]} -> ${length}`
+        `${pos} "${PhonemeNameTable[phonemeindex[pos]]}" SET LENGTH: ${phonemeLength[pos]} -> ${length}`
       );
       if ((length & 128) !== 0) {
         throw new Error('Got the flag 0x80, see CopyStress() and SetPhonemeLength() comments!');
       }
-      if (pos<0 || pos>result.phonemeindex.length) {
+      if (pos<0 || pos>phonemeindex.length) {
         throw new Error('Out of bounds: ' + pos)
       }
     }
-    result.phonemeLength[pos] = length;
+    phonemeLength[pos] = length;
   };
 
-  const result = {
-    stress : new Uint8Array(256), //numbers from 0 to 8
-    phonemeLength: new Uint8Array(256), //tab40160
-    phonemeindex: new Uint8Array(256)
-  };
-
-  const stress = []; //numbers from 0 to 8
-  const phonemeLength = [];
-  const phonemeindex = [];
+  const stress = new Uint8Array(256); //numbers from 0 to 8
+  const phonemeLength = new Uint8Array(256);
+  const phonemeindex = new Uint8Array(256);
 
   // Clear the stress table.
-  for(let i=0; i<256; i++) { result.stress[i] = 0; }
+  for(let i=0; i<256; i++) { stress[i] = 0; }
 
   let pos = 0;
   Parser1(
     input,
     (value) => {
-      result.phonemeindex[pos++] = value;
+      phonemeindex[pos++] = value;
     },
     (value) => {
       if (process.env.NODE_ENV === 'development') {
@@ -111,13 +105,13 @@ export default function Parser (input) {
           throw new Error('Got the flag 0x80, see CopyStress() and SetPhonemeLength() comments!');
         }
       }
-      result.stress[pos - 1] = value; /* Set stress for prior phoneme */
+      stress[pos - 1] = value; /* Set stress for prior phoneme */
     }
   );
-  result.phonemeindex[pos] = END;
+  phonemeindex[pos] = END;
 
   if (process.env.NODE_ENV === 'development') {
-    PrintPhonemes(result.phonemeindex, result.phonemeLength, result.stress);
+    PrintPhonemes(phonemeindex, phonemeLength, stress);
   }
   Parser2(insertPhoneme, setPhoneme, getPhoneme, getStress);
   CopyStress(getPhoneme, getStress, setStress);
@@ -125,9 +119,9 @@ export default function Parser (input) {
   AdjustLengths(getPhoneme, setLength, getLength);
   ProlongPlosiveStopConsonantsCode41240(getPhoneme, insertPhoneme, getStress);
 
-  for (let i = 0;i<result.phonemeindex.length;i++) {
-    if (result.phonemeindex[i] > 80) {
-      result.phonemeindex[i] = END;
+  for (let i = 0;i<phonemeindex.length;i++) {
+    if (phonemeindex[i] > 80) {
+      phonemeindex[i] = END;
       break; // error: delete all behind it
     }
   }
@@ -135,13 +129,13 @@ export default function Parser (input) {
   InsertBreath(getPhoneme, setPhoneme, insertPhoneme, getStress, getLength, setLength);
 
   if (process.env.NODE_ENV === 'development') {
-    PrintPhonemes(result.phonemeindex, result.phonemeLength, result.stress);
+    PrintPhonemes(phonemeindex, phonemeLength, stress);
   }
 
   return {
-    phonemeindex: result.phonemeindex,
-    phonemeLength: result.phonemeLength,
-    stress: result.stress,
+    phonemeindex: phonemeindex,
+    phonemeLength: phonemeLength,
+    stress: stress,
   };
 }
 
