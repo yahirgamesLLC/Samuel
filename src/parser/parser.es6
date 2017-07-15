@@ -106,8 +106,10 @@ export default function Parser (input) {
       result.phonemeindex[pos++] = value;
     },
     (value) => {
-      if ((value & 128) !== 0) {
-        throw new Error('Got the flag!');
+      if (process.env.NODE_ENV === 'development') {
+        if ((value & 128) !== 0) {
+          throw new Error('Got the flag 0x80, see CopyStress() and SetPhonemeLength() comments!');
+        }
       }
       result.stress[pos - 1] = value; /* Set stress for prior phoneme */
     }
