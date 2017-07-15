@@ -297,9 +297,9 @@ function CreateTransitions(pitches, frequency, amplitude, phonemeIndexOutput, ph
 
     let error = new UInt8(0);
     let pos   = width;
-    let val   = new UInt8(Read(table, frame) + div.get());
 
     while (--pos > 0) {
+      let val   = new UInt8(Read(table, frame) + div.get());
       error.inc(remainder.get());
       if (error.get() >= width) {
         // accumulated a whole integer error, so adjust output
