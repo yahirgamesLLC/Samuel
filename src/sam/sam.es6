@@ -2,8 +2,8 @@ import {PlayBuffer, RenderBuffer} from '../util/player.es6';
 
 import Parser from '../parser/parser.es6';
 //import Parser from '../parser/parser-c.es6';
-// import Renderer from '../renderer/renderer.es6';
-import Renderer from '../renderer/c-conv/renderer.es6';
+import Renderer from '../renderer/renderer.es6';
+//import Renderer from '../renderer/c-conv/renderer.es6';
 
 export default class Sam {
   /**

@@ -1,4 +1,8 @@
 import {
+  mouthFormants5_29,
+  throatFormants5_29,
+  mouthFormants48_53,
+  throatFormants48_53,
   freq1data,
   freq2data,
   freq3data,
@@ -26,53 +30,66 @@ const PHONEME_QUESTION = 2;
 const RISING_INFLECTION = 1;
 const FALLING_INFLECTION = 255;
 
+function trans(mem39212, mem39213) {
+  // return ((((mem39212 & 0xFF) * (mem39213 & 0xFF)) >> 8) & 0xFF) << 1;
+  let carry;
+  let temp;
+  let mem39214 = 0, mem39215 = 0;
+  let A = 0;
+  let X = 8;
+  do {
+    carry = mem39212 & 0x01;
+    mem39212 = mem39212 >> 1;
+    if (carry !== 0)
+    {
+      carry = 0;
+      A = mem39215;
+      temp = (A + mem39213) & 0xFFFF;
+      A = A + mem39213;
+      if (temp > 255) carry = 1;
+      mem39215 = A & 0xFF;
+    }
+    temp = mem39215 & 0x01;
+    mem39215 = (mem39215 >> 1) | (carry?0x80:0);
+    carry = temp;
+    X--;
+  } while (X !== 0);
+  temp = mem39214 & 0x80;
+  carry = temp;
+  mem39215 = (mem39215 << 1) | (carry?0x01:0);
+
+  return mem39215;
+}
 
 /**
- SAM's voice can be altered by changing the frequencies of the
- mouth formant (F1) and the throat formant (F2). Only the voiced
- phonemes (5-29 and 48-53) are altered.
+ * SAM's voice can be altered by changing the frequencies of the
+ * mouth formant (F1) and the throat formant (F2). Only the voiced
+ * phonemes (5-29 and 48-53) are altered.
+ *
+ * This returns the three base frequency arrays.
+ *
+ * @return {Array}
  */
-function SetMouthThroat(mouth, throat, freqdata) {
-  const trans = (a, b) => {
-    return ((((a & 0xFF) * (b & 0xFF)) >> 8) & 0xFF) << 1;
-  };
-
+function SetMouthThroat(mouth, throat) {
   let initialFrequency;
   let newFrequency = 0;
-
-  // mouth formants (F1) 5..29
-  let mouthFormants5_29 = [
-    0, 0, 0, 0, 0, 10,
-    14, 19, 24, 27, 23, 21, 16, 20, 14, 18, 14, 18, 18,
-    16, 13, 15, 11, 18, 14, 11, 9, 6, 6, 6
-  ];
-
-  // throat formants (F2) 5..29
-  let throatFormants5_29 = [
-    255, 255,
-    255, 255, 255, 84, 73, 67, 63, 40, 44, 31, 37, 45, 73, 49,
-    36, 30, 51, 37, 29, 69, 24, 50, 30, 24, 83, 46, 54, 86,
-  ];
-
-  // there must be no zeros in this 2 tables
-  // formant 1 frequencies (mouth) 48..53
-  let mouthFormants48_53 = [19, 27, 21, 27, 18, 13];
-
-  // formant 2 frequencies (throat) 48..53
-  let throatFormants48_53 = [72, 39, 31, 43, 30, 34];
-
   let pos = 5;
+  const freqdata = [freq1data.slice(), freq2data.slice(), freq3data];
 
   // recalculate formant frequencies 5..29 for the mouth (F1) and throat (F2)
   while(pos < 30) {
     // recalculate mouth frequency
     initialFrequency = mouthFormants5_29[pos];
-    if (initialFrequency !== 0) newFrequency = trans(mouth, initialFrequency);
+    if (initialFrequency !== 0) {
+      newFrequency = trans(mouth, initialFrequency);
+    }
     freqdata[0][pos] = newFrequency;
 
     // recalculate throat frequency
     initialFrequency = throatFormants5_29[pos];
-    if(initialFrequency !== 0) newFrequency = trans(throat, initialFrequency);
+    if(initialFrequency !== 0) {
+      newFrequency = trans(throat, initialFrequency);
+    }
     freqdata[1][pos] = newFrequency;
     pos++;
   }
@@ -90,6 +107,8 @@ function SetMouthThroat(mouth, throat, freqdata) {
     freqdata[1][pos+48] = newFrequency;
     pos++;
   }
+
+  return freqdata;
 }
 
 /** CREATE FRAMES
@@ -152,7 +171,6 @@ function CreateFrames (
     }
   };
 
-  let phase1 = 0;
   let X = new UInt8(0);
   let i = 0;
   while(i < 256) {
@@ -169,7 +187,7 @@ function CreateFrames (
     }
 
     // get the stress amount (more stress = higher pitch)
-    phase1 = tab47492[stressOutput[i] + 1];
+    let phase1 = tab47492[stressOutput[i] + 1];
 
     // get number of frames to write
     let phase2 = phonemeLengthOutput[i];
@@ -275,13 +293,13 @@ function CreateTransitions(pitches, frequency, amplitude, phonemeIndexOutput, ph
   const interpolate = (width, table, frame, mem53) => {
     let sign      = (mem53 < 0);
     let remainder = new UInt8(Math.abs(mem53) % width);
-    let div       = new UInt8(Math.floor(mem53 / width));
+    let div       = new UInt8((mem53 / width) | 0);
 
     let error = new UInt8(0);
     let pos   = width;
-    let val   = new UInt8(Read(table, frame) + div.get());
 
     while (--pos > 0) {
+      let val   = new UInt8(Read(table, frame) + div.get());
       error.inc(remainder.get());
       if (error.get() >= width) {
         // accumulated a whole integer error, so adjust output
@@ -304,8 +322,8 @@ function CreateTransitions(pitches, frequency, amplitude, phonemeIndexOutput, ph
     // next phoneme
 
     // half the width of the current and next phoneme
-    let cur_width  = Math.floor(phonemeLengthOutput[pos] / 2);
-    let next_width = Math.floor(phonemeLengthOutput[pos+1] / 2);
+    let cur_width  = phonemeLengthOutput[pos] >> 1;
+    let next_width = phonemeLengthOutput[pos+1] >> 1;
     // sum the values
     width = cur_width + next_width;
     let pitch = pitches[next_width + mem49] - pitches[mem49 - cur_width];
@@ -410,7 +428,6 @@ function RescaleAmplitude (amplitude) {
     amplitude[2][i] = amplitudeRescale[amplitude[2][i]];
   }
 }
-
 /**
  * @param {Uint8Array} phonemeindex
  * @param {Uint8Array} phonemeLength
@@ -440,21 +457,22 @@ export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mou
       [200, 0, 0, 54, 55],
       [199, 0, 0, 54, 54]
     ];
-    Output.bufferpos = ((Output.bufferpos || 0) + timetable[Output.oldTimeTableIndex || 0][index]) & 0xFFFFFFFF;
+    Output.bufferpos += timetable[Output.oldTimeTableIndex][index];
     if (Output.bufferpos / 50 > Output.buffer.length) {
       throw new Error('Buffer overflow!');
     }
     Output.oldTimeTableIndex = index;
     // write a little bit in advance
     for (let k = 0; k < 5; k++) {
-      Output.buffer[Math.floor(Output.bufferpos / 50) + k] = (A & 15) * 16;
+      Output.buffer[(Output.bufferpos / 50 | 0) + k] = (A & 15) * 16;
     }
   }
   // TODO, check for free the memory, 10 seconds of output should be more than enough
   Output.buffer = new Uint8Array(22050 * 10);
+  Output.bufferpos = 0;
+  Output.oldTimeTableIndex = 0;
 
-  const freqdata = [freq1data.slice(), freq2data.slice(), freq3data];
-  SetMouthThroat(mouth, throat, freqdata);
+  const freqdata = SetMouthThroat(mouth, throat);
 
   const phonemeIndexOutput  = new Uint8Array(60);
   const stressOutput        = new Uint8Array(60);
@@ -474,6 +492,12 @@ export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mou
     switch(A) {
       case END:
         Render(phonemeIndexOutput, phonemeLengthOutput, stressOutput);
+        // Hack for PhantomJS which does not have slice() on UintArray8
+        if (process.env.NODE_ENV === 'karma-test') {
+          return Output.buffer.slice
+            ? Output.buffer.slice(0, Math.floor(Output.bufferpos / 50))
+            : new Uint8Array([].slice.call(Output.buffer).slice(0, Math.floor(Output.bufferpos / 50)));
+        }
         return Output.buffer.slice(0, Math.floor(Output.bufferpos / 50));
       case BREAK:
         phonemeIndexOutput[destpos] = END;
@@ -537,7 +561,7 @@ export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mou
     if (process.env.NODE_ENV === 'development') {
       PrintOutput(pitches, frequency, amplitude, sampledConsonantFlag);
     }
-    if (process.env.NODE_ENV === undefined) {
+    if (process.env.NODE_ENV === 'karma-test') {
       // Karma run, store data for karma retrieval.
       Renderer.karmaOutput = {
         sampledConsonantFlag: sampledConsonantFlag,
@@ -547,9 +571,13 @@ export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mou
         frequency2: frequency[1],
         amplitude3: amplitude[2],
         frequency3: frequency[2],
-        pitches: pitches
+        pitches: pitches,
+        freq1data: freqdata[0],
+        freq2data: freqdata[1],
+        freq3data: freqdata[2],
       };
     }
+
     ProcessFrames(t, speed, frequency, pitches, amplitude, sampledConsonantFlag);
   }
 
