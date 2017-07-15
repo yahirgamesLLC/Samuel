@@ -1,4 +1,6 @@
 import {
+  mouthFormants5_29,
+  throatFormants5_29,
   freq1data,
   freq2data,
   freq3data,
@@ -39,20 +41,6 @@ function SetMouthThroat(mouth, throat, freqdata) {
 
   let initialFrequency;
   let newFrequency = 0;
-
-  // mouth formants (F1) 5..29
-  let mouthFormants5_29 = [
-    0, 0, 0, 0, 0, 10,
-    14, 19, 24, 27, 23, 21, 16, 20, 14, 18, 14, 18, 18,
-    16, 13, 15, 11, 18, 14, 11, 9, 6, 6, 6
-  ];
-
-  // throat formants (F2) 5..29
-  let throatFormants5_29 = [
-    255, 255,
-    255, 255, 255, 84, 73, 67, 63, 40, 44, 31, 37, 45, 73, 49,
-    36, 30, 51, 37, 29, 69, 24, 50, 30, 24, 83, 46, 54, 86,
-  ];
 
   // there must be no zeros in this 2 tables
   // formant 1 frequencies (mouth) 48..53
