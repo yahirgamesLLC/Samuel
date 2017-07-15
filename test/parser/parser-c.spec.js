@@ -38,13 +38,9 @@ describe('parser-c', () => {
         assert.equal(p1, value.output.length, 'Length mismatch');
 
         for (let i = 0; i < p1; i++) {
-          assert.equal(result.phonemeindex[i], result.phonemeindex[i], `phonemeindex mismatch at ${i}`);
-        }
-        for (let i = 0;i<p1;i++) {
-          assert.equal(result.stress[i], result.stress[i], `stress mismatch at ${i}`);
-        }
-        for (let i = 0;i<p1;i++) {
-          assert.equal(result.phonemeLength[i], result.phonemeLength[i], `phonemeLength mismatch at ${i}`);
+          assert.equal(value.output[i], result.phonemeindex[i], `phonemeindex mismatch at ${i}`);
+          assert.equal(value.stress[i], result.stress[i], `stress mismatch at ${i}`);
+          assert.equal(value.length[i], result.phonemeLength[i], `phonemeLength mismatch at ${i}`);
         }
       });
     });
