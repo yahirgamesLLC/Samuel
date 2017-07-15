@@ -1,5 +1,5 @@
 import {END} from '../common/constants.es6'
-import {phonemeLengthTable} from './tables.es6';
+import {combinedPhonemeLengthTable} from './tables.es6';
 import {FLAG_0008, FLAG_STOPCONS, FLAG_PLOSIVE} from './constants.es6'
 import { phonemeHasFlag } from './util.es6';
 
@@ -36,8 +36,8 @@ export default function ProlongPlosiveStopConsonantsCode41240(getPhoneme, insert
         continue;
       }
     }
-    insertPhoneme(pos + 1, index + 1, getStress(pos), phonemeLengthTable[index + 1]);
-    insertPhoneme(pos + 2, index + 2, getStress(pos), phonemeLengthTable[index + 2]);
+    insertPhoneme(pos + 1, index + 1, getStress(pos), combinedPhonemeLengthTable[index + 1] & 0xFF);
+    insertPhoneme(pos + 2, index + 2, getStress(pos), combinedPhonemeLengthTable[index + 2] & 0xFF);
     pos += 2;
   }
 }
