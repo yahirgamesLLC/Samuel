@@ -118,17 +118,21 @@ export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mou
    * 3. Offset the pitches by the fundamental frequency.
    *
    * 4. Render the each frame.
+   *
+   * @param {Array} phonemeindex
+   * @param {Array} phonemeLength
+   * @param {Array} stress
    */
-  function Render (phonemeIndexOutput, phonemeLengthOutput, stressOutput) {
-    if (phonemeIndexOutput[0] === 255) {
+  function Render (phonemeindex, phonemeLength, stress) {
+    if (phonemeindex.length === 1) {
       return; //exit if no data
     }
 
     const [pitches, frequency, amplitude, sampledConsonantFlag] = CreateFrames(
       pitch,
-      phonemeIndexOutput,
-      phonemeLengthOutput,
-      stressOutput,
+      phonemeindex,
+      phonemeLength,
+      stress,
       freqdata
     );
 
@@ -136,8 +140,8 @@ export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mou
       pitches,
       frequency,
       amplitude,
-      phonemeIndexOutput,
-      phonemeLengthOutput
+      phonemeindex,
+      phonemeLength
     );
 
     if (!singmode) {
