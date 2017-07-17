@@ -5,7 +5,7 @@ import {
   sampledConsonantFlags,
   tab47492,
 } from './tables.es6';
-
+import {END} from '../common/constants.es6'
 import {PHONEME_PERIOD, PHONEME_QUESTION} from '../parser/constants.es6';
 
 const RISING_INFLECTION = 1;
@@ -83,7 +83,7 @@ export default function CreateFrames (
     // get the phoneme at the index
     let phoneme = phonemeIndexOutput[i];
     // if terminal phoneme, exit the loop
-    if (phoneme === 255) break;
+    if (phoneme === END) break;
     if (phoneme === PHONEME_PERIOD) {
       AddInflection(RISING_INFLECTION, X);
     } else if (phoneme === PHONEME_QUESTION) {
