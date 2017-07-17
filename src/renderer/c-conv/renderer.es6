@@ -533,6 +533,19 @@ export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mou
     if (phonemeIndexOutput[0] === 255) {
       return; //exit if no data
     }
+    if (process.env.NODE_ENV === 'karma-test') {
+      // Ensure we have empty buffers in testing to be able to compare them.
+      for (let i = 0; i < 256; i++) {
+        pitches[i] = 0;
+        amplitude[0][i] = 0;
+        frequency[0][i] = 0;
+        amplitude[1][i] = 0;
+        frequency[1][i] = 0;
+        amplitude[2][i] = 0;
+        frequency[2][i] = 0;
+        sampledConsonantFlag[i] = 0;
+      }
+    }
 
     CreateFrames(
       pitch,
