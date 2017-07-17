@@ -13,6 +13,7 @@ import UInt8 from '../types/UInt8.es6';
 import SetMouthThroat from './set-mouth-throat.es6'
 import CreateTransitions from './create-transitions.es6';
 import CreateFrames from './create-frames.es6';
+import CreateOutputBuffer from './output-buffer.es6';
 
 /** ASSIGN PITCH CONTOUR
  *
@@ -68,30 +69,8 @@ export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mou
   speed = (speed || 72) & 0xFF;
   singmode = singmode || false;
 
-  // Writer to buffer.
-  function Output (index, A) {
-    // timetable for more accurate c64 simulation
-    const timetable = [
-      [162, 167, 167, 127, 128],
-      [226, 60, 60, 0, 0],
-      [225, 60, 59, 0, 0],
-      [200, 0, 0, 54, 55],
-      [199, 0, 0, 54, 54]
-    ];
-    Output.bufferpos += timetable[Output.oldTimeTableIndex][index];
-    if (Output.bufferpos / 50 > Output.buffer.length) {
-      throw new Error('Buffer overflow!');
-    }
-    Output.oldTimeTableIndex = index;
-    // write a little bit in advance
-    for (let k = 0; k < 5; k++) {
-      Output.buffer[(Output.bufferpos / 50 | 0) + k] = (A & 15) * 16;
-    }
-  }
   // TODO, check for free the memory, 10 seconds of output should be more than enough
-  Output.buffer = new Uint8Array(22050 * 10);
-  Output.bufferpos = 0;
-  Output.oldTimeTableIndex = 0;
+  const Output = new CreateOutputBuffer(22050 * 10);
 
   const freqdata = SetMouthThroat(mouth, throat);
 
@@ -108,13 +87,7 @@ export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mou
     switch(A) {
       case END:
         Render(phonemeIndexOutput, phonemeLengthOutput, stressOutput);
-        // Hack for PhantomJS which does not have slice() on UintArray8
-        if (process.env.NODE_ENV === 'karma-test') {
-          return Output.buffer.slice
-            ? Output.buffer.slice(0, Math.floor(Output.bufferpos / 50))
-            : new Uint8Array([].slice.call(Output.buffer).slice(0, Math.floor(Output.bufferpos / 50)));
-        }
-        return Output.buffer.slice(0, Math.floor(Output.bufferpos / 50));
+        return Output.get();
       case BREAK:
         phonemeIndexOutput[destpos] = END;
         Render(phonemeIndexOutput, phonemeLengthOutput, stressOutput);
