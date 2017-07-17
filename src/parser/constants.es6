@@ -2,6 +2,9 @@ export const pR    = 23;
 export const pD    = 57;
 export const pT    = 69;
 
+export const PHONEME_PERIOD = 1;
+export const PHONEME_QUESTION = 2;
+
 /**
  * unknown: ' *', '.*', '?*', ',*', '-*'
  */
