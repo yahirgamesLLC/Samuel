@@ -432,11 +432,11 @@ function RescaleAmplitude (amplitude) {
  * @param {Uint8Array} phonemeindex
  * @param {Uint8Array} phonemeLength
  * @param {Uint8Array} stress
- * @param {Number} pitch
- * @param {Number} mouth
- * @param {Number} throat
- * @param {Number} speed
- * @param {Boolean} singmode
+ * @param {Number} [pitch]
+ * @param {Number} [mouth]
+ * @param {Number} [throat]
+ * @param {Number} [speed]
+ * @param {Boolean} [singmode]
  *
  * @return Uint8Array
  */
