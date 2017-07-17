@@ -33,28 +33,27 @@ const FALLING_INFLECTION = 255;
  *
  * The parameters are copied from the phoneme to the frame verbatim.
  *
- * @param {Number} pitch
- * @param {Uint8Array} pitches
- * @param {Uint8Array} frequency
- * @param {Uint8Array} amplitude
- * @param {Uint8Array} phonemeIndexOutput
- * @param {Uint8Array} phonemeLengthOutput
- * @param {Uint8Array} stressOutput
- * @param {Uint8Array} sampledConsonantFlag
- * @param {Uint8Array[]} frequencyData
  *
- * @return undefined
+ * @param {Number}       pitch                Input
+ * @param {Uint8Array}   phonemeIndexOutput   Input
+ * @param {Uint8Array}   phonemeLengthOutput  Input
+ * @param {Uint8Array}   stressOutput         Input
+ * @param {Uint8Array[]} frequencyData        Input
+ * @param {Uint8Array}   pitches              Output
+ * @param {Uint8Array}   frequency            Output
+ * @param {Uint8Array}   amplitude            Output
+ * @param {Uint8Array}   sampledConsonantFlag Output
  */
 function CreateFrames (
   pitch,
-  pitches,
-  frequency,
-  amplitude,
   phonemeIndexOutput,
   phonemeLengthOutput,
   stressOutput,
-  sampledConsonantFlag,
-  frequencyData) {
+  frequencyData,
+  pitches,
+  frequency,
+  amplitude,
+  sampledConsonantFlag) {
   /**
    * Create a rising or falling inflection 30 frames prior to index X.
    * A rising inflection is used for questions, and a falling inflection is used for statements.
@@ -445,14 +444,14 @@ export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mou
 
     CreateFrames(
       pitch,
-      pitches,
-      frequency,
-      amplitude,
       phonemeIndexOutput,
       phonemeLengthOutput,
       stressOutput,
-      sampledConsonantFlag,
-      freqdata
+      freqdata,
+      pitches,
+      frequency,
+      amplitude,
+      sampledConsonantFlag
     );
     let t = CreateTransitions(
       pitches,
