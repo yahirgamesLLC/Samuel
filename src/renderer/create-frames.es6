@@ -58,19 +58,19 @@ function AddInflection (inflection, pos, pitches) {
  *      sampledConsonantFlag
  *   ]
  *
- * @param {Number}       pitch                Input
- * @param {Uint8Array}   phonemeIndexOutput   Input
- * @param {Uint8Array}   phonemeLengthOutput  Input
- * @param {Uint8Array}   stressOutput         Input
- * @param {Uint8Array[]} frequencyData        Input
+ * @param {Number}       pitch          Input
+ * @param {Array}        phonemeIndex   Input
+ * @param {Array}        phonemeLength  Input
+ * @param {Array}        stress         Input
+ * @param {Uint8Array[]} frequencyData  Input
  *
  * @return Array
  */
 export default function CreateFrames (
   pitch,
-  phonemeIndexOutput,
-  phonemeLengthOutput,
-  stressOutput,
+  phonemeIndex,
+  phonemeLength,
+  stress,
   frequencyData) {
   const pitches              = new Uint8Array(256);
   const frequency            = [new Uint8Array(256), new Uint8Array(256), new Uint8Array(256)];
@@ -78,12 +78,9 @@ export default function CreateFrames (
   const sampledConsonantFlag = new Uint8Array(256);
 
   let X = 0;
-  let i = 0;
-  while(i < 256) {
+  for (let i=0;i<phonemeIndex.length;i++) {
     // get the phoneme at the index
-    let phoneme = phonemeIndexOutput[i];
-    // if terminal phoneme, exit the loop
-    if (phoneme === END) break;
+    let phoneme = phonemeIndex[i];
     if (phoneme === PHONEME_PERIOD) {
       AddInflection(RISING_INFLECTION, X, pitches);
     } else if (phoneme === PHONEME_QUESTION) {
@@ -91,10 +88,10 @@ export default function CreateFrames (
     }
 
     // get the stress amount (more stress = higher pitch)
-    let phase1 = tab47492[stressOutput[i] + 1];
+    let phase1 = tab47492[stress[i] + 1];
     // get number of frames to write
     // copy from the source to the frames list
-    for (let frames = phonemeLengthOutput[i];frames > 0;frames--) {
+    for (let frames = phonemeLength[i];frames > 0;frames--) {
       frequency[0][X] = frequencyData[0][phoneme];     // F1 frequency
       frequency[1][X] = frequencyData[1][phoneme];     // F2 frequency
       frequency[2][X] = frequencyData[2][phoneme];     // F3 frequency
@@ -105,7 +102,6 @@ export default function CreateFrames (
       pitches[X] = pitch + phase1;      // pitch
       X++;
     }
-    ++i;
   }
 
   return [

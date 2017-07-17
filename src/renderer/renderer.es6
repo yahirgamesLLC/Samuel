@@ -84,11 +84,9 @@ export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mou
     let A = phonemeindex[srcpos];
     switch(A) {
       case END:
-        phonemeIndexOutput.push(A);
         Render(phonemeIndexOutput, phonemeLengthOutput, stressOutput);
         return Output.get();
       case BREAK:
-        phonemeIndexOutput.push(END);
         Render(phonemeIndexOutput, phonemeLengthOutput, stressOutput);
         phonemeIndexOutput.length = 0;
         phonemeLengthOutput.length = 0;
@@ -124,7 +122,7 @@ export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mou
    * @param {Array} stress
    */
   function Render (phonemeindex, phonemeLength, stress) {
-    if (phonemeindex.length === 1) {
+    if (phonemeindex.length === 0) {
       return; //exit if no data
     }
 

@@ -40,12 +40,12 @@ import UInt8 from '../types/UInt8.es6';
  * @param {Uint8Array} pitches
  * @param {Uint8Array} frequency
  * @param {Uint8Array} amplitude
- * @param {Uint8Array} phonemeIndexOutput
- * @param {Uint8Array} phonemeLengthOutput
+ * @param {Array} phonemeIndex
+ * @param {Array} phonemeLength
  *
  * @return {Number}
  */
-export default function CreateTransitions(pitches, frequency, amplitude, phonemeIndexOutput, phonemeLengthOutput) {
+export default function CreateTransitions(pitches, frequency, amplitude, phonemeIndex, phonemeLength) {
   //written by me because of different table positions.
   // mem[47] = ...
   // 168=pitches
@@ -116,8 +116,8 @@ export default function CreateTransitions(pitches, frequency, amplitude, phoneme
     // next phoneme
 
     // half the width of the current and next phoneme
-    let cur_width  = phonemeLengthOutput[pos] >> 1;
-    let next_width = phonemeLengthOutput[pos+1] >> 1;
+    let cur_width  = phonemeLength[pos] >> 1;
+    let next_width = phonemeLength[pos+1] >> 1;
     // sum the values
     width = cur_width + next_width;
     let pitch = pitches[next_width + mem49] - pitches[mem49 - cur_width];
@@ -127,14 +127,9 @@ export default function CreateTransitions(pitches, frequency, amplitude, phoneme
   let phase1;
   let phase2;
   let mem49 = new UInt8(0);
-  let pos = new UInt8(0);
-  while(1) {
-    let phoneme      = phonemeIndexOutput[pos.get()];
-    let next_phoneme = phonemeIndexOutput[pos.get()+1];
-
-    if (next_phoneme === 255) {
-      break; // 255 == end_token
-    }
+  for (let pos=0;pos<phonemeIndex.length - 1;pos++) {
+    let phoneme      = phonemeIndex[pos];
+    let next_phoneme = phonemeIndex[pos+1];
 
     // get the ranking of each phoneme
     let next_rank = blendRank[next_phoneme];
@@ -156,14 +151,14 @@ export default function CreateTransitions(pitches, frequency, amplitude, phoneme
       phase2 = inBlendLength[phoneme];
     }
 
-    mem49.inc(phonemeLengthOutput[pos.get()]);
+    mem49.inc(phonemeLength[pos]);
 
     let speedcounter = new UInt8(mem49.get() + phase2);
     let phase3       = new UInt8(mem49.get() - phase1);
     let transition   = new UInt8(phase1 + phase2); // total transition?
 
     if (((transition.get() - 2) & 128) === 0) {
-      interpolate_pitch(transition.get(), pos.get(), mem49.get(), phase3.get());
+      interpolate_pitch(transition.get(), pos, mem49.get(), phase3.get());
       let table = 169;
       while (table < 175) {
         // tables:
@@ -180,9 +175,8 @@ export default function CreateTransitions(pitches, frequency, amplitude, phoneme
         table++;
       }
     }
-    pos.inc();
   }
 
   // add the length of this phoneme
-  return (mem49.get() + phonemeLengthOutput[pos.get()]) & 0xFF;
+  return (mem49.get() + phonemeLength[phonemeLength.length - 1]) & 0xFF;
 }
