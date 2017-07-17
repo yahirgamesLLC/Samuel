@@ -33,27 +33,33 @@ const FALLING_INFLECTION = 255;
  *
  * The parameters are copied from the phoneme to the frame verbatim.
  *
+ * Returns:
+ *   [
+ *      pitches,
+ *      frequency,
+ *      amplitude,
+ *      sampledConsonantFlag
+ *   ]
  *
  * @param {Number}       pitch                Input
  * @param {Uint8Array}   phonemeIndexOutput   Input
  * @param {Uint8Array}   phonemeLengthOutput  Input
  * @param {Uint8Array}   stressOutput         Input
  * @param {Uint8Array[]} frequencyData        Input
- * @param {Uint8Array}   pitches              Output
- * @param {Uint8Array}   frequency            Output
- * @param {Uint8Array}   amplitude            Output
- * @param {Uint8Array}   sampledConsonantFlag Output
+ *
+ * @return Array
  */
 function CreateFrames (
   pitch,
   phonemeIndexOutput,
   phonemeLengthOutput,
   stressOutput,
-  frequencyData,
-  pitches,
-  frequency,
-  amplitude,
-  sampledConsonantFlag) {
+  frequencyData) {
+  const pitches              = new Uint8Array(256);
+  const frequency            = [new Uint8Array(256), new Uint8Array(256), new Uint8Array(256)];
+  const amplitude            = [new Uint8Array(256), new Uint8Array(256), new Uint8Array(256)];
+  const sampledConsonantFlag = new Uint8Array(256);
+
   /**
    * Create a rising or falling inflection 30 frames prior to index X.
    * A rising inflection is used for questions, and a falling inflection is used for statements.
@@ -114,6 +120,13 @@ function CreateFrames (
     }
     ++i;
   }
+
+  return [
+    pitches,
+    frequency,
+    amplitude,
+    sampledConsonantFlag
+  ];
 }
 
 /**
@@ -433,26 +446,18 @@ export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mou
    * 4. Render the each frame.
    */
   function Render (phonemeIndexOutput, phonemeLengthOutput, stressOutput) {
-    const pitches              = new Uint8Array(256);
-    const frequency            = [new Uint8Array(256), new Uint8Array(256), new Uint8Array(256)];
-    const amplitude            = [new Uint8Array(256), new Uint8Array(256), new Uint8Array(256)];
-    const sampledConsonantFlag = new Uint8Array(256);
-
     if (phonemeIndexOutput[0] === 255) {
       return; //exit if no data
     }
 
-    CreateFrames(
+    const [pitches, frequency, amplitude, sampledConsonantFlag] = CreateFrames(
       pitch,
       phonemeIndexOutput,
       phonemeLengthOutput,
       stressOutput,
-      freqdata,
-      pitches,
-      frequency,
-      amplitude,
-      sampledConsonantFlag
+      freqdata
     );
+
     let t = CreateTransitions(
       pitches,
       frequency,
