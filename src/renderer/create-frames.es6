@@ -5,7 +5,6 @@ import {
   sampledConsonantFlags,
   tab47492,
 } from './tables.es6';
-import {END} from '../common/constants.es6'
 import {PHONEME_PERIOD, PHONEME_QUESTION} from '../parser/constants.es6';
 
 const RISING_INFLECTION = 1;
@@ -36,7 +35,7 @@ function AddInflection (inflection, pos, pitches) {
     A += inflection;
 
     // set the inflection
-    pitches[pos] = A;
+    pitches[pos] = A & 0xFF;
 
     while ((++pos !== end) && pitches[pos] === 255) { /* keep looping */}
   }
@@ -72,10 +71,10 @@ export default function CreateFrames (
   phonemeLength,
   stress,
   frequencyData) {
-  const pitches              = new Uint8Array(256);
-  const frequency            = [new Uint8Array(256), new Uint8Array(256), new Uint8Array(256)];
-  const amplitude            = [new Uint8Array(256), new Uint8Array(256), new Uint8Array(256)];
-  const sampledConsonantFlag = new Uint8Array(256);
+  const pitches              = [];
+  const frequency            = [[], [], []];
+  const amplitude            = [[], [], []];
+  const sampledConsonantFlag = [];
 
   let X = 0;
   for (let i=0;i<phonemeIndex.length;i++) {
@@ -92,14 +91,14 @@ export default function CreateFrames (
     // get number of frames to write
     // copy from the source to the frames list
     for (let frames = phonemeLength[i];frames > 0;frames--) {
-      frequency[0][X] = frequencyData[0][phoneme];     // F1 frequency
-      frequency[1][X] = frequencyData[1][phoneme];     // F2 frequency
-      frequency[2][X] = frequencyData[2][phoneme];     // F3 frequency
-      amplitude[0][X] = ampl1data[phoneme];     // F1 amplitude
-      amplitude[1][X] = ampl2data[phoneme];     // F2 amplitude
-      amplitude[2][X] = ampl3data[phoneme];     // F3 amplitude
+      frequency[0][X]         = frequencyData[0][phoneme];      // F1 frequency
+      frequency[1][X]         = frequencyData[1][phoneme];      // F2 frequency
+      frequency[2][X]         = frequencyData[2][phoneme];      // F3 frequency
+      amplitude[0][X]         = ampl1data[phoneme];             // F1 amplitude
+      amplitude[1][X]         = ampl2data[phoneme];             // F2 amplitude
+      amplitude[2][X]         = ampl3data[phoneme];             // F3 amplitude
       sampledConsonantFlag[X] = sampledConsonantFlags[phoneme]; // phoneme data for sampled consonants
-      pitches[X] = pitch + phase1;      // pitch
+      pitches[X]              = (pitch + phase1) & 0xFF;        // pitch
       X++;
     }
   }

@@ -7,11 +7,9 @@ import RendererC from '../../src/renderer/c-conv/renderer.es6';
 process.env.NODE_ENV = 'karma-test';
 
 function assertUint8ArraySame(actual, expected, message) {
-  for (let i = 0;i<expected.length+1;i++) {
+  for (let i = 0;i<actual.length;i++) {
     assert.equal(actual[i], expected[i], `${message} at ${i}`);
   }
-
-  assert.deepEqual([].slice.call(actual), [].slice.call(expected), message);
 }
 
 describe('renderer vs renderer-c', () => {

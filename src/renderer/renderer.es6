@@ -26,7 +26,7 @@ import CreateOutputBuffer from './output-buffer.es6';
  *
  */
 function AssignPitchContour (pitches, frequency1) {
-  for(let i = 0; i < 256; i++) {
+  for(let i = 0; i < pitches.length; i++) {
     // subtract half the frequency of the formant 1.
     // this adds variety to the voice
     pitches[i] -= (frequency1[i] >> 1);
@@ -44,7 +44,7 @@ function RescaleAmplitude (amplitude) {
     0x04, 0x05, 0x06, 0x08, 0x09, 0x0B, 0x0D, 0x0F,
     0x00  //17 elements?
   ];
-  for(let i = 255; i >= 0; i--) {
+  for(let i = amplitude[0].length - 1; i >= 0; i--) {
     amplitude[0][i] = amplitudeRescale[amplitude[0][i]];
     amplitude[1][i] = amplitudeRescale[amplitude[1][i]];
     amplitude[2][i] = amplitudeRescale[amplitude[2][i]];
