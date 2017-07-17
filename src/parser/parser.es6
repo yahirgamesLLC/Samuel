@@ -9,19 +9,13 @@ import InsertBreath from './insert-breath.es6';
 import ProlongPlosiveStopConsonantsCode41240 from './prolong-plosive-stop-consonants.es6';
 
 /**
- * Parsed speech data.
- * @typedef {Object} ParsedSpeechData
- * @property {Array} stress
- * @property {Array} phonemeLength
- * @property {Array} phonemeindex
- */
-
-/**
  * Parses speech data.
+ *
+ * Returns array of [phoneme, length, stress]
  *
  * @param {string} input
  *
- * @return {ParsedSpeechData|Boolean} The parsed data.
+ * @return {Array|Boolean} The parsed data.
  */
 export default function Parser (input) {
   const getPhoneme = (pos) => {
@@ -53,7 +47,7 @@ export default function Parser (input) {
     }
     for(let i = phonemeindex.length - 1; i >= pos; i--) {
       phonemeindex[i+1]  = phonemeindex[i];
-      phonemeLength[i+1] = phonemeLength[i];
+      phonemeLength[i+1] = getLength(i);
       stress[i+1]        = getStress(i);
     }
     phonemeindex[pos]  = value;
@@ -69,7 +63,7 @@ export default function Parser (input) {
     }
     stress[pos] = stressValue;
   };
-  const getLength = (pos) => phonemeLength[pos];
+  const getLength = (pos) => phonemeLength[pos] | 0;
   const setLength = (pos, length) => {
     if (process.env.NODE_ENV === 'development') {
       console.log(
@@ -131,11 +125,7 @@ export default function Parser (input) {
     PrintPhonemes(phonemeindex, phonemeLength, stress);
   }
 
-  return {
-    phonemeindex: phonemeindex,
-    phonemeLength: phonemeLength,
-    stress: stress,
-  };
+  return phonemeindex.map((v, i) => [v, phonemeLength[i], stress[i]]);
 }
 
 /**

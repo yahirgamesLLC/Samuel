@@ -54,16 +54,21 @@ describe('renderer vs renderer-c', () => {
   ].forEach((test) => {
     it(`should render ${test}`, () => {
       const parsed = Parser(test);
-      RendererC(parsed.phonemeindex, parsed.phonemeLength, parsed.stress);
-      Renderer(parsed.phonemeindex, parsed.phonemeLength, parsed.stress);
+
+      const phonemeindex = new Uint8Array(256), phonemeLength = new Uint8Array(256), stress = new Uint8Array(256);
+      parsed.forEach((v, i) => {
+        phonemeindex[i] = v[0];
+        phonemeLength[i] = v[1];
+        stress[i] = v[2];
+      });
 
       assert.notEqual(
-        RendererC(parsed.phonemeindex, parsed.phonemeLength, parsed.stress),
+        RendererC(phonemeindex, phonemeLength, stress),
         false,
         'RendererC did not succeed'
       );
       assert.notEqual(
-        Renderer(parsed.phonemeindex, parsed.phonemeLength, parsed.stress),
+        Renderer(parsed),
         false,
         'Renderer did not succeed'
       );

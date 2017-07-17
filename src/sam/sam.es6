@@ -68,9 +68,7 @@ export default class Sam {
     }
 
     return Renderer(
-      parsed.phonemeindex,
-      parsed.phonemeLength,
-      parsed.stress,
+      parsed,
       this.getOptions().pitch,
       this.getOptions().mouth,
       this.getOptions().throat,

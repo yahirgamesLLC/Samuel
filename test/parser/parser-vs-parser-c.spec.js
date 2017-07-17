@@ -53,37 +53,20 @@ describe('parser-vs-parser-c', () => {
 
         // Seek 255 in result
         let p1, p2;
-        for (p1 = 0;p1<result.phonemeindex.length;p1++) { if (result.phonemeindex[p1] === 255) break;}
+        p1 = result.length - 1;
         for (p2 = 0;p2<resultC.phonemeindex.length;p2++) { if (resultC.phonemeindex[p2] === 255) break;}
 
         assert.equal(p1, p2, 'Length mismatch');
 
         for (let i = 0;i<p1;i++) {
-          assert.equal(result.phonemeindex[i], resultC.phonemeindex[i], `phonemeindex mismatch at ${i}`);
+          assert.equal(result[i][0], resultC.phonemeindex[i], `phonemeindex mismatch at ${i}`);
         }
         for (let i = 0;i<p1;i++) {
-          assert.equal(result.stress[i], resultC.stress[i], `stress mismatch at ${i}`);
+          assert.equal(result[i][1], resultC.phonemeLength[i], `phonemeLength mismatch at ${i}`);
         }
         for (let i = 0;i<p1;i++) {
-          assert.equal(result.phonemeLength[i], resultC.phonemeLength[i], `phonemeLength mismatch at ${i}`);
+          assert.equal(result[i][2], resultC.stress[i], `stress mismatch at ${i}`);
         }
-
-        assert.deepEqual(
-          result.phonemeindex.slice(0, p1),
-          [].slice.call(resultC.phonemeindex.subarray(0, p2)),
-          'phonemeindex mismatches'
-        );
-
-        assert.deepEqual(
-          result.stress.slice(0, p1),
-          [].slice.call(resultC.stress.subarray(0, p2)),
-          'stress mismatches'
-        );
-        assert.deepEqual(
-          result.phonemeLength.slice(0, p1),
-          [].slice.call(resultC.phonemeLength.subarray(0, p2)),
-          'phonemeLength mismatches'
-        );
       });
     });
   });

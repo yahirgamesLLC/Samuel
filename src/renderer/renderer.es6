@@ -51,9 +51,7 @@ function RescaleAmplitude (amplitude) {
   }
 }
 /**
- * @param {Uint8Array} phonemeindex
- * @param {Uint8Array} phonemeLength
- * @param {Uint8Array} stress
+ * @param {Array} phonemes
  * @param {Number} [pitch]
  * @param {Number} [mouth]
  * @param {Number} [throat]
@@ -62,7 +60,7 @@ function RescaleAmplitude (amplitude) {
  *
  * @return Uint8Array
  */
-export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mouth, throat, speed, singmode) {
+export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode) {
   pitch = (pitch || 64) & 0xFF;
   mouth = (mouth || 128) & 0xFF;
   throat = (throat || 128) & 0xFF;
@@ -81,8 +79,8 @@ export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mou
   // Main render loop.
   let srcpos  = 0; // Position in source
   while(1) {
-    let A = phonemeindex[srcpos];
-    switch(A) {
+    let A = phonemes[srcpos];
+    switch(A[0]) {
       case END:
         Render(phonemeIndexOutput, phonemeLengthOutput, stressOutput);
         return Output.get();
@@ -95,9 +93,9 @@ export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mou
       case 0:
         break;
       default:
-        phonemeIndexOutput.push(A);
-        phonemeLengthOutput.push(phonemeLength[srcpos]);
-        stressOutput.push(stress[srcpos]);
+        phonemeIndexOutput.push(A[0]);
+        phonemeLengthOutput.push(A[1]);
+        stressOutput.push(A[2]);
     }
     ++srcpos;
   }
