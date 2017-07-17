@@ -69,19 +69,19 @@ describe('parser-vs-parser-c', () => {
         }
 
         assert.deepEqual(
-          result.phonemeindex.subarray(0, p1),
-          resultC.phonemeindex.subarray(0, p2),
+          result.phonemeindex.slice(0, p1),
+          [].slice.call(resultC.phonemeindex.subarray(0, p2)),
           'phonemeindex mismatches'
         );
 
         assert.deepEqual(
-          result.stress.subarray(0, p1),
-          resultC.stress.subarray(0, p2),
+          result.stress.slice(0, p1),
+          [].slice.call(resultC.stress.subarray(0, p2)),
           'stress mismatches'
         );
         assert.deepEqual(
-          result.phonemeLength.subarray(0, p1),
-          resultC.phonemeLength.subarray(0, p2),
+          result.phonemeLength.slice(0, p1),
+          [].slice.call(resultC.phonemeLength.subarray(0, p2)),
           'phonemeLength mismatches'
         );
       });

@@ -11,9 +11,9 @@ import ProlongPlosiveStopConsonantsCode41240 from './prolong-plosive-stop-conson
 /**
  * Parsed speech data.
  * @typedef {Object} ParsedSpeechData
- * @property {Uint8Array} stress
- * @property {Uint8Array} phonemeLength
- * @property {Uint8Array} phonemeindex
+ * @property {Array} stress
+ * @property {Array} phonemeLength
+ * @property {Array} phonemeindex
  */
 
 /**
@@ -51,17 +51,16 @@ export default function Parser (input) {
     if (process.env.NODE_ENV === 'development') {
       console.log(`${pos} INSERT: ${PhonemeNameTable[value]}`);
     }
-    // ML : always keep last safe-guarding 255
-    for(let i = 253; i >= pos; i--) {
+    for(let i = phonemeindex.length - 1; i >= pos; i--) {
       phonemeindex[i+1]  = phonemeindex[i];
       phonemeLength[i+1] = phonemeLength[i];
-      stress[i+1]        = stress[i];
+      stress[i+1]        = getStress(i);
     }
     phonemeindex[pos]  = value;
     phonemeLength[pos] = length | 0;
     stress[pos]        = stressValue;
   };
-  const getStress = (pos) => stress[pos];
+  const getStress = (pos) => stress[pos] | 0;
   const setStress = (pos, stressValue) => {
     if (process.env.NODE_ENV === 'development') {
       console.log(
@@ -86,17 +85,16 @@ export default function Parser (input) {
     phonemeLength[pos] = length;
   };
 
-  const stress = new Uint8Array(256); //numbers from 0 to 8
-  const phonemeLength = new Uint8Array(256);
-  const phonemeindex = new Uint8Array(256);
-
-  // Clear the stress table.
-  for(let i=0; i<256; i++) { stress[i] = 0; }
+  const stress = []; //numbers from 0 to 8
+  const phonemeLength = [];
+  const phonemeindex = [];
 
   let pos = 0;
   Parser1(
     input,
     (value) => {
+      stress[pos] = 0;
+      phonemeLength[pos] = 0;
       phonemeindex[pos++] = value;
     },
     (value) => {
@@ -122,6 +120,7 @@ export default function Parser (input) {
   for (let i = 0;i<phonemeindex.length;i++) {
     if (phonemeindex[i] > 80) {
       phonemeindex[i] = END;
+      // FIXME: When will this ever be anything else than END?
       break; // error: delete all behind it
     }
   }
@@ -142,9 +141,9 @@ export default function Parser (input) {
 /**
  * Debug printing.
  *
- * @param {Uint8Array} phonemeindex
- * @param {Uint8Array} phonemeLength
- * @param {Uint8Array} stress
+ * @param {Array} phonemeindex
+ * @param {Array} phonemeLength
+ * @param {Array} stress
  *
  * @return undefined
  */
