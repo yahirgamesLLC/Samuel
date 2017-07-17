@@ -31,34 +31,7 @@ const RISING_INFLECTION = 1;
 const FALLING_INFLECTION = 255;
 
 function trans(mem39212, mem39213) {
-  // return ((((mem39212 & 0xFF) * (mem39213 & 0xFF)) >> 8) & 0xFF) << 1;
-  let carry;
-  let temp;
-  let mem39214 = 0, mem39215 = 0;
-  let A = 0;
-  let X = 8;
-  do {
-    carry = mem39212 & 0x01;
-    mem39212 = mem39212 >> 1;
-    if (carry !== 0)
-    {
-      carry = 0;
-      A = mem39215;
-      temp = (A + mem39213) & 0xFFFF;
-      A = A + mem39213;
-      if (temp > 255) carry = 1;
-      mem39215 = A & 0xFF;
-    }
-    temp = mem39215 & 0x01;
-    mem39215 = (mem39215 >> 1) | (carry?0x80:0);
-    carry = temp;
-    X--;
-  } while (X !== 0);
-  temp = mem39214 & 0x80;
-  carry = temp;
-  mem39215 = (mem39215 << 1) | (carry?0x01:0);
-
-  return mem39215;
+  return ((((mem39212 & 0xFF) * (mem39213 & 0xFF)) >> 8) & 0xFF) << 1;
 }
 
 /**
