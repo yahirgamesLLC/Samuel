@@ -74,31 +74,32 @@ export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mou
 
   const freqdata = SetMouthThroat(mouth, throat);
 
-  const phonemeIndexOutput  = new Uint8Array(60);
-  const stressOutput        = new Uint8Array(60);
-  const phonemeLengthOutput = new Uint8Array(60);
+  const phonemeIndexOutput  = [];
+  const stressOutput        = [];
+  const phonemeLengthOutput = [];
 
   // Main render loop.
   let srcpos  = 0; // Position in source
-  let destpos = 0; // Position in output
   while(1) {
     let A = phonemeindex[srcpos];
-    phonemeIndexOutput[destpos] = A;
     switch(A) {
       case END:
+        phonemeIndexOutput.push(A);
         Render(phonemeIndexOutput, phonemeLengthOutput, stressOutput);
         return Output.get();
       case BREAK:
-        phonemeIndexOutput[destpos] = END;
+        phonemeIndexOutput.push(END);
         Render(phonemeIndexOutput, phonemeLengthOutput, stressOutput);
-        destpos = 0;
+        phonemeIndexOutput.length = 0;
+        phonemeLengthOutput.length = 0;
+        stressOutput.length = 0;
         break;
       case 0:
         break;
       default:
-        phonemeLengthOutput[destpos] = phonemeLength[srcpos];
-        stressOutput[destpos]        = stress[srcpos];
-        ++destpos;
+        phonemeIndexOutput.push(A);
+        phonemeLengthOutput.push(phonemeLength[srcpos]);
+        stressOutput.push(stress[srcpos]);
     }
     ++srcpos;
   }
