@@ -1,11 +1,4 @@
 import {
-  mouthFormants5_29,
-  throatFormants5_29,
-  mouthFormants48_53,
-  throatFormants48_53,
-  freq1data,
-  freq2data,
-  freq3data,
   ampl1data,
   ampl2data,
   ampl3data,
@@ -25,64 +18,12 @@ import {BREAK, END} from '../common/constants.es6'
 
 import UInt8 from '../types/UInt8.es6';
 
+import SetMouthThroat from './set-mouth-throat.es6'
+
 const PHONEME_PERIOD = 1;
 const PHONEME_QUESTION = 2;
 const RISING_INFLECTION = 1;
 const FALLING_INFLECTION = 255;
-
-function trans(mem39212, mem39213) {
-  return ((((mem39212 & 0xFF) * (mem39213 & 0xFF)) >> 8) & 0xFF) << 1;
-}
-
-/**
- * SAM's voice can be altered by changing the frequencies of the
- * mouth formant (F1) and the throat formant (F2). Only the voiced
- * phonemes (5-29 and 48-53) are altered.
- *
- * This returns the three base frequency arrays.
- *
- * @return {Array}
- */
-function SetMouthThroat(mouth, throat) {
-  let initialFrequency;
-  let newFrequency = 0;
-  let pos = 5;
-  const freqdata = [freq1data.slice(), freq2data.slice(), freq3data];
-
-  // recalculate formant frequencies 5..29 for the mouth (F1) and throat (F2)
-  while(pos < 30) {
-    // recalculate mouth frequency
-    initialFrequency = mouthFormants5_29[pos];
-    if (initialFrequency !== 0) {
-      newFrequency = trans(mouth, initialFrequency);
-    }
-    freqdata[0][pos] = newFrequency;
-
-    // recalculate throat frequency
-    initialFrequency = throatFormants5_29[pos];
-    if(initialFrequency !== 0) {
-      newFrequency = trans(throat, initialFrequency);
-    }
-    freqdata[1][pos] = newFrequency;
-    pos++;
-  }
-
-  // recalculate formant frequencies 48..53
-  pos = 0;
-  while(pos < 6) {
-    // recalculate F1 (mouth formant)
-    initialFrequency = mouthFormants48_53[pos];
-    newFrequency = trans(mouth, initialFrequency);
-    freqdata[0][pos+48] = newFrequency;
-    // recalculate F2 (throat formant)
-    initialFrequency = throatFormants48_53[pos];
-    newFrequency = trans(throat, initialFrequency);
-    freqdata[1][pos+48] = newFrequency;
-    pos++;
-  }
-
-  return freqdata;
-}
 
 /** CREATE FRAMES
  *
