@@ -386,11 +386,6 @@ export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mou
   const phonemeIndexOutput  = new Uint8Array(60);
   const stressOutput        = new Uint8Array(60);
   const phonemeLengthOutput = new Uint8Array(60);
-  const pitches             = new Uint8Array(256);
-
-  const frequency = [new Uint8Array(256), new Uint8Array(256), new Uint8Array(256)];
-  const amplitude = [new Uint8Array(256), new Uint8Array(256), new Uint8Array(256)];
-  const sampledConsonantFlag = new Uint8Array(256);
 
   // Main render loop.
   let srcpos  = 0; // Position in source
@@ -439,6 +434,11 @@ export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mou
    * 4. Render the each frame.
    */
   function Render (phonemeIndexOutput, phonemeLengthOutput, stressOutput) {
+    const pitches              = new Uint8Array(256);
+    const frequency            = [new Uint8Array(256), new Uint8Array(256), new Uint8Array(256)];
+    const amplitude            = [new Uint8Array(256), new Uint8Array(256), new Uint8Array(256)];
+    const sampledConsonantFlag = new Uint8Array(256);
+
     if (phonemeIndexOutput[0] === 255) {
       return; //exit if no data
     }
