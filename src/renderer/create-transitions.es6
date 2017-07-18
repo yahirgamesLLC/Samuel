@@ -1,7 +1,5 @@
 import {blendRank, inBlendLength, outBlendLength} from './tables.es6';
 
-import UInt8 from '../types/UInt8.es6';
-
 /**
  * CREATE TRANSITIONS.
  *
@@ -126,7 +124,7 @@ export default function CreateTransitions(pitches, frequency, amplitude, phoneme
 
   let phase1;
   let phase2;
-  let mem49 = new UInt8(0);
+  let mem49 = 0;
   for (let pos=0;pos<phonemeIndex.length - 1;pos++) {
     let phoneme      = phonemeIndex[pos];
     let next_phoneme = phonemeIndex[pos+1];
@@ -151,14 +149,14 @@ export default function CreateTransitions(pitches, frequency, amplitude, phoneme
       phase2 = inBlendLength[phoneme];
     }
 
-    mem49.inc(phonemeLength[pos]);
+    mem49 += phonemeLength[pos];
 
-    let speedcounter = new UInt8(mem49.get() + phase2);
-    let phase3       = new UInt8(mem49.get() - phase1);
-    let transition   = new UInt8(phase1 + phase2); // total transition?
+    let speedcounter = mem49 + phase2;
+    let phase3       = mem49 - phase1;
+    let transition   = phase1 + phase2; // total transition?
 
-    if (((transition.get() - 2) & 128) === 0) {
-      interpolate_pitch(transition.get(), pos, mem49.get(), phase3.get());
+    if (((transition - 2) & 128) === 0) {
+      interpolate_pitch(transition, pos, mem49, phase3);
       let table = 169;
       while (table < 175) {
         // tables:
@@ -170,13 +168,13 @@ export default function CreateTransitions(pitches, frequency, amplitude, phoneme
         // 173  amplitude2
         // 174  amplitude3
 
-        let value = Read(table, speedcounter.get()) - Read(table, phase3.get());
-        interpolate(transition.get(), table, phase3.get(), value);
+        let value = Read(table, speedcounter) - Read(table, phase3);
+        interpolate(transition, table, phase3, value);
         table++;
       }
     }
   }
 
   // add the length of this phoneme
-  return (mem49.get() + phonemeLength[phonemeLength.length - 1]) & 0xFF;
+  return (mem49 + phonemeLength[phonemeLength.length - 1]) & 0xFF;
 }
