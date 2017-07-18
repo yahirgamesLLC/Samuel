@@ -264,7 +264,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
     let mem66 = new UInt8();
     let pos = 0;
     let glottal_pulse = pitches[0];
-    let mem38 = glottal_pulse - (glottal_pulse >> 2); // mem44 * 0.75
+    let mem38 = glottal_pulse * .75 |0;
 
     while(frameCount) {
       let flags = sampledConsonantFlag[pos];
@@ -314,7 +314,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
       }
 
       glottal_pulse = pitches[pos];
-      mem38 = glottal_pulse - (glottal_pulse >> 2); // mem44 * 0.75
+      mem38 = glottal_pulse * .75 |0;
 
       // reset the formant wave generators to keep them in
       // sync with the glottal pulse
