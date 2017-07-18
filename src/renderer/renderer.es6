@@ -262,26 +262,26 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
     let phase2 = new UInt8();
     let phase3 = new UInt8();
     let mem66 = new UInt8();
-    let Y = new UInt8();
+    let pos = 0;
     let glottal_pulse = new UInt8(pitches[0]);
     let mem38 = new UInt8(glottal_pulse.get() - (glottal_pulse.get() >> 2)); // mem44 * 0.75
 
     while(frameCount) {
-      let flags = sampledConsonantFlag[Y.get()];
+      let flags = sampledConsonantFlag[pos];
 
       // unvoiced sampled phoneme?
       if ((flags & 248) !== 0) {
-        mem66.set(RenderSample(mem66.get(), flags, Y.get()));
+        mem66.set(RenderSample(mem66.get(), flags, pos));
         // skip ahead two in the phoneme buffer
-        Y.inc(2);
+        pos += 2;
         frameCount -= 2;
         speedcounter = speed;
       } else {
-        CombineGlottalAndFormants(phase1.get(), phase2.get(), phase3.get(), Y.get());
+        CombineGlottalAndFormants(phase1.get(), phase2.get(), phase3.get(), pos);
 
         speedcounter--;
         if (speedcounter === 0) {
-          Y.inc(); //go to next amplitude
+          pos++; //go to next amplitude
           // decrement the frame count
           frameCount--;
           if(frameCount === 0) {
@@ -300,20 +300,20 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
           // is the count non-zero and the sampled flag is zero?
           if((mem38.get() !== 0) || (flags === 0)) {
             // reset the phase of the formants to match the pulse
-            phase1.inc(frequency[0][Y.get()]);
-            phase2.inc(frequency[1][Y.get()]);
-            phase3.inc(frequency[2][Y.get()]);
+            phase1.inc(frequency[0][pos]);
+            phase2.inc(frequency[1][pos]);
+            phase3.inc(frequency[2][pos]);
             continue;
           }
 
           // voiced sampled phonemes interleave the sample with the
           // glottal pulse. The sample flag is non-zero, so render
           // the sample for the phoneme.
-          mem66.set(RenderSample(mem66.get(), flags, Y.get()));
+          mem66.set(RenderSample(mem66.get(), flags, pos));
         }
       }
 
-      glottal_pulse.set(pitches[Y.get()]);
+      glottal_pulse.set(pitches[pos]);
       mem38.set(glottal_pulse.get() - (glottal_pulse.get() >> 2)); // mem44 * 0.75
 
       // reset the formant wave generators to keep them in
