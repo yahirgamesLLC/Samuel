@@ -47,3 +47,11 @@ if (!Array.prototype.findIndex) {
     return -1;
   };
 }
+
+// https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith
+if (!String.prototype.startsWith) {
+  String.prototype.startsWith = function(searchString, position) {
+    position = position || 0;
+    return this.indexOf(searchString, position) === position;
+  };
+}

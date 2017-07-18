@@ -310,7 +310,7 @@ function reciterRule (ruleDefinition) {
    */
   const matches = function (text, pos) {
     // check if content in brackets matches.
-    if (match !== text.substr(pos, match.length)) {
+    if (!text.startsWith(match, pos)) {
       return false;
     }
 
