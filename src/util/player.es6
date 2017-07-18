@@ -44,8 +44,10 @@ export function PlayBuffer(audiobuffer) {
   }
 
   if (null === context) {
-
-    throw new Error('No player available!');
+    if (process.env.NODE_ENV === 'development') {
+      throw new Error('No player available!');
+    }
+    throw new Error();
   }
 
   return Play(context, audiobuffer);

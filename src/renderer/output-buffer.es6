@@ -14,7 +14,10 @@ export default function CreateOutputBuffer(buffersize) {
     ];
     bufferpos += timetable[oldTimeTableIndex][index];
     if (bufferpos / 50 > buffer.length) {
-      throw new Error('Buffer overflow!');
+      if (process.env.NODE_ENV === 'development') {
+        throw new Error('Buffer overflow!');
+      }
+      throw new Error();
     }
     oldTimeTableIndex = index;
     // write a little bit in advance
