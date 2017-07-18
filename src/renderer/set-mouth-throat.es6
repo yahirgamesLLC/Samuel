@@ -1,4 +1,4 @@
-import {freq1data, freq2data, freq3data} from './tables.es6';
+import {frequencyData} from './tables.es6';
 
 // mouth formants (F1) 5..29
 const mouthFormants5_29 = [
@@ -35,7 +35,13 @@ export default function SetMouthThroat(mouth, throat) {
   let initialFrequency;
   let newFrequency = 0;
   let pos = 5;
-  const freqdata = [freq1data.slice(), freq2data.slice(), freq3data];
+
+  const freqdata = [[],[],[]];
+  frequencyData.map((v, i) => {
+    freqdata[0][i] = v & 0xFF;
+    freqdata[1][i] = (v >> 8) & 0xFF;
+    freqdata[2][i] = (v >> 16) & 0xFF;
+  });
 
   // recalculate formant frequencies 5..29 for the mouth (F1) and throat (F2)
   while(pos < 30) {
