@@ -178,7 +178,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
    * To simulate them being driven by the glottal pulse, the waveforms are
    * reset at the beginning of each glottal pulse.
    */
-  function ProcessFrames(mem48, speed, frequency, pitches, amplitude, sampledConsonantFlag) {
+  function ProcessFrames(frameCount, speed, frequency, pitches, amplitude, sampledConsonantFlag) {
     const CombineGlottalAndFormants = (phase1, phase2, phase3, Y) => {
       let tmp; // unsigned int
       tmp   = multtable[sinus[phase1]     | amplitude[0][Y]];
@@ -266,7 +266,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
     let glottal_pulse = new UInt8(pitches[0]);
     let mem38 = new UInt8(glottal_pulse.get() - (glottal_pulse.get() >> 2)); // mem44 * 0.75
 
-    while(mem48) {
+    while(frameCount) {
       let flags = sampledConsonantFlag[Y.get()];
 
       // unvoiced sampled phoneme?
@@ -274,7 +274,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
         mem66.set(RenderSample(mem66.get(), flags, Y.get()));
         // skip ahead two in the phoneme buffer
         Y.inc(2);
-        mem48 -= 2;
+        frameCount -= 2;
         speedcounter.set(speed);
       } else {
         CombineGlottalAndFormants(phase1.get(), phase2.get(), phase3.get(), Y.get());
@@ -283,8 +283,8 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
         if (speedcounter.get() === 0) {
           Y.inc(); //go to next amplitude
           // decrement the frame count
-          mem48--;
-          if(mem48 === 0) {
+          frameCount--;
+          if(frameCount === 0) {
             return;
           }
           speedcounter.set(speed);
