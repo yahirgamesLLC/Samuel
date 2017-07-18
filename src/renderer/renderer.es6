@@ -258,9 +258,9 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
     };
 
     let speedcounter = 72;
-    let phase1 = new UInt8();
-    let phase2 = new UInt8();
-    let phase3 = new UInt8();
+    let phase1 = 0;
+    let phase2 = 0;
+    let phase3 = 0;
     let mem66 = new UInt8();
     let pos = 0;
     let glottal_pulse = pitches[0];
@@ -277,7 +277,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
         frameCount -= 2;
         speedcounter = speed;
       } else {
-        CombineGlottalAndFormants(phase1.get(), phase2.get(), phase3.get(), pos);
+        CombineGlottalAndFormants(phase1, phase2, phase3, pos);
 
         speedcounter--;
         if (speedcounter === 0) {
@@ -300,9 +300,10 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
           // is the count non-zero and the sampled flag is zero?
           if((mem38 !== 0) || (flags === 0)) {
             // reset the phase of the formants to match the pulse
-            phase1.inc(frequency[0][pos]);
-            phase2.inc(frequency[1][pos]);
-            phase3.inc(frequency[2][pos]);
+            // TODO: we should have a switch to disable this, it causes a pretty nice voice without the masking!
+            phase1 = phase1 + frequency[0][pos] & 0xFF;
+            phase2 = phase2 + frequency[1][pos] & 0xFF;
+            phase3 = phase3 + frequency[2][pos] & 0xFF;
             continue;
           }
 
@@ -318,9 +319,9 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
 
       // reset the formant wave generators to keep them in
       // sync with the glottal pulse
-      phase1.set(0);
-      phase2.set(0);
-      phase3.set(0);
+      phase1 = 0;
+      phase2 = 0;
+      phase3 = 0;
     }
   }
 }
