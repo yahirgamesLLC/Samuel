@@ -1,7 +1,5 @@
 import {text2Uint8Array, Uint32ToUint8Array, Uint16ToUint8Array} from '../util/util.es6';
 
-const ENABLE_DEPRECATED_MOZILLA_AUDIO = false;
-
 /**
  *
  * @param {AudioContext} context
@@ -24,33 +22,7 @@ function Play(context, audiobuffer) {
   });
 }
 
-if (ENABLE_DEPRECATED_MOZILLA_AUDIO) {
-function PlayMozilla(context, audiobuffer) {
-  return new Promise((resolve) => {
-    function play () {
-      let written = context.mozWriteAudio(audiobuffer);
-      let diff = audiobuffer.length - written;
-      if (diff <= 0) {
-        resolve(true);
-        return;
-      }
-      let buffer = new Float32Array(diff);
-      for (let i = 0; i<diff; i++) {
-        buffer[i] = audiobuffer[i+written];
-      }
-      window.setTimeout(function(){
-        PlayMozilla(context, buffer)
-      }, 500);
-    }
-    window.setTimeout(function() {
-      play(context, audiobuffer);
-    }, 0);
-  });
-}
-}
-
 let context = null;
-let player = null;
 
 /**
  * Play an audio buffer.
@@ -60,27 +32,23 @@ let player = null;
 export function PlayBuffer(audiobuffer) {
   if (null === context) {
     ((window) => {
-      ['', 'webkit'].some((prefix) => {
+      context = ['', 'webkit'].reduce((pre, prefix) => {
+        if (pre) { return pre;}
         const implementation = prefix + 'AudioContext';
         if (typeof window[implementation] !== "undefined") {
-          context = new window[implementation]();
-          player = Play;
-          return;
+          return new window[implementation]();
         }
-        if (ENABLE_DEPRECATED_MOZILLA_AUDIO) {
-          if (typeof Audio !== "undefined") {
-            context = new Audio();
-            context.mozSetup(1, 22050);
-            player = PlayMozilla;
-          }
-        }
-      });
+        return null;
+      }, null);
     })(window);
   }
 
-  if (null === player) { throw new Error('No player available!'); }
+  if (null === context) {
 
-  return player(context, audiobuffer);
+    throw new Error('No player available!');
+  }
+
+  return Play(context, audiobuffer);
 }
 
 /**
