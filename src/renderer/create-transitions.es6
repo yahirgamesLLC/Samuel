@@ -144,8 +144,7 @@ export default function CreateTransitions(pitches, frequency, amplitude, phoneme
 
     if (((transition - 2) & 128) === 0) {
       interpolate_pitch(transition, pos, mem49, phase3);
-      let table = 1;
-      while (table < 7) {
+      for (let table = 1; table < 7;table++) {
         // tables:
         // 0  pitches[]
         // 1  frequency1
@@ -156,7 +155,6 @@ export default function CreateTransitions(pitches, frequency, amplitude, phoneme
         // 6  amplitude3
         let value = Read(table, speedcounter) - Read(table, phase3);
         interpolate(transition, table, phase3, value);
-        table++;
       }
     }
   }
