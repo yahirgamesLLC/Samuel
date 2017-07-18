@@ -44,43 +44,30 @@ import {blendRank, inBlendLength, outBlendLength} from './tables.es6';
  * @return {Number}
  */
 export default function CreateTransitions(pitches, frequency, amplitude, phonemeIndex, phonemeLength) {
-  //written by me because of different table positions.
-  // mem[47] = ...
-  // 168=pitches
-  // 169=frequency1
-  // 170=frequency[1]
-  // 171=frequency3
-  // 172=amplitude1
-  // 173=amplitude2
-  // 174=amplitude3
+  // 0=pitches
+  // 1=frequency1
+  // 2=frequency[1]
+  // 3=frequency3
+  // 4=amplitude1
+  // 5=amplitude2
+  // 6=amplitude3
+  const tables = [pitches, frequency[0], frequency[1], frequency[2], amplitude[0], amplitude[1], amplitude[2]];
   const Read = (table, pos) => {
-    switch(table) {
-      case 168: return pitches[pos];
-      case 169: return frequency[0][pos];
-      case 170: return frequency[1][pos];
-      case 171: return frequency[2][pos];
-      case 172: return amplitude[0][pos];
-      case 173: return amplitude[1][pos];
-      case 174: return amplitude[2][pos];
-    }
     if (process.env.NODE_ENV === 'development') {
-      throw new Error(`Error invalid table in Read: ${table}`);
+      if (table < 0 || table > tables.length -1 ) {
+        throw new Error(`Error invalid table in Read: ${table}`);
+      }
     }
+    return tables[table][pos];
   };
 
   const Write = (table, pos, value) => {
-    switch (table) {
-      case 168: return pitches[pos] = value;
-      case 169: return frequency[0][pos] = value;
-      case 170: return frequency[1][pos] = value;
-      case 171: return frequency[2][pos] = value;
-      case 172: return amplitude[0][pos] = value;
-      case 173: return amplitude[1][pos] = value;
-      case 174: return amplitude[2][pos] = value;
-    }
     if (process.env.NODE_ENV === 'development') {
-      throw new Error(`Error invalid table in Write: ${table}`);
+      if (table < 0 || table > tables.length -1 ) {
+        throw new Error(`Error invalid table in Read: ${table}`);
+      }
     }
+    return tables[table][pos] = value;
   };
 
   // linearly interpolate values
@@ -121,7 +108,7 @@ export default function CreateTransitions(pitches, frequency, amplitude, phoneme
     // sum the values
     width = cur_width + next_width;
     let pitch = pitches[next_width + mem49] - pitches[mem49 - cur_width];
-    interpolate(width, 168, phase3, pitch);
+    interpolate(width, 0, phase3, pitch);
   };
 
   let phase1;
@@ -150,26 +137,23 @@ export default function CreateTransitions(pitches, frequency, amplitude, phoneme
       phase1 = outBlendLength[phoneme];
       phase2 = inBlendLength[phoneme];
     }
-
     mem49 += phonemeLength[pos];
-
     let speedcounter = mem49 + phase2;
     let phase3       = mem49 - phase1;
     let transition   = phase1 + phase2; // total transition?
 
     if (((transition - 2) & 128) === 0) {
       interpolate_pitch(transition, pos, mem49, phase3);
-      let table = 169;
-      while (table < 175) {
+      let table = 1;
+      while (table < 7) {
         // tables:
-        // 168  pitches[]
-        // 169  frequency1
-        // 170  frequency[1]
-        // 171  frequency3
-        // 172  amplitude1
-        // 173  amplitude2
-        // 174  amplitude3
-
+        // 0  pitches[]
+        // 1  frequency1
+        // 2  frequency[1]
+        // 3  frequency3
+        // 4  amplitude1
+        // 5  amplitude2
+        // 6  amplitude3
         let value = Read(table, speedcounter) - Read(table, phase3);
         interpolate(transition, table, phase3, value);
         table++;
