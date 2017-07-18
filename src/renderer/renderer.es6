@@ -257,7 +257,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
       return mem66;
     };
 
-    let speedcounter = new UInt8(72);
+    let speedcounter = 72;
     let phase1 = new UInt8();
     let phase2 = new UInt8();
     let phase3 = new UInt8();
@@ -275,19 +275,19 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
         // skip ahead two in the phoneme buffer
         Y.inc(2);
         frameCount -= 2;
-        speedcounter.set(speed);
+        speedcounter = speed;
       } else {
         CombineGlottalAndFormants(phase1.get(), phase2.get(), phase3.get(), Y.get());
 
-        speedcounter.dec();
-        if (speedcounter.get() === 0) {
+        speedcounter--;
+        if (speedcounter === 0) {
           Y.inc(); //go to next amplitude
           // decrement the frame count
           frameCount--;
           if(frameCount === 0) {
             return;
           }
-          speedcounter.set(speed);
+          speedcounter = speed;
         }
 
         glottal_pulse.dec();
