@@ -264,7 +264,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
     let mem66 = new UInt8();
     let pos = 0;
     let glottal_pulse = pitches[0];
-    let mem38 = new UInt8(glottal_pulse - (glottal_pulse >> 2)); // mem44 * 0.75
+    let mem38 = glottal_pulse - (glottal_pulse >> 2); // mem44 * 0.75
 
     while(frameCount) {
       let flags = sampledConsonantFlag[pos];
@@ -295,10 +295,10 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
         if(glottal_pulse !== 0) {
           // not finished with a glottal pulse
 
-          mem38.dec();
+          mem38--;
           // within the first 75% of the glottal pulse?
           // is the count non-zero and the sampled flag is zero?
-          if((mem38.get() !== 0) || (flags === 0)) {
+          if((mem38 !== 0) || (flags === 0)) {
             // reset the phase of the formants to match the pulse
             phase1.inc(frequency[0][pos]);
             phase2.inc(frequency[1][pos]);
@@ -314,7 +314,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
       }
 
       glottal_pulse = pitches[pos];
-      mem38.set(glottal_pulse - (glottal_pulse >> 2)); // mem44 * 0.75
+      mem38 = glottal_pulse - (glottal_pulse >> 2); // mem44 * 0.75
 
       // reset the formant wave generators to keep them in
       // sync with the glottal pulse
