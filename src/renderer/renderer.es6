@@ -332,11 +332,9 @@ function PrintOutput(pitches, frequency, amplitude, sampledConsonantFlag) {
   }
   console.log('===========================================');
   console.log('Final data for speech output:');
-  let i = 0;
   console.log(' flags ampl1 freq1 ampl2 freq2 ampl3 freq3 pitch');
   console.log('------------------------------------------------');
-  while(i < 255)
-  {
+  for (let i=0;i<sampledConsonantFlag.length;i++) {
     console.log(
       ' %s %s %s %s %s %s %s %s',
       pad(sampledConsonantFlag[i]),

@@ -143,14 +143,11 @@ function PrintPhonemes (phonemeindex, phonemeLength, stress) {
     return s.substr(s.length - 3);
   }
 
-  let i = 0;
   console.log('==================================');
   console.log('Internal Phoneme presentation:');
   console.log(' pos  idx  phoneme  length  stress');
   console.log('----------------------------------');
-
-  while((phonemeindex[i] !== 255) && (i < 255))
-  {
+  for (let i=0;i<phonemeindex.length;i++) {
     const name = (phoneme) => {
       if (phonemeindex[i] < 81) {
         return PhonemeNameTable[phonemeindex[i]];
