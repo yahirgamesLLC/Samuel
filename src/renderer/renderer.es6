@@ -8,8 +8,6 @@ import {
 
 import {BREAK, END} from '../common/constants.es6'
 
-import UInt8 from '../types/UInt8.es6';
-
 import SetMouthThroat from './set-mouth-throat.es6'
 import CreateTransitions from './create-transitions.es6';
 import CreateFrames from './create-frames.es6';
@@ -78,6 +76,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
 
   // Main render loop.
   let srcpos  = 0; // Position in source
+  // FIXME: should be tuple buffer as well.
   while(1) {
     let A = phonemes[srcpos];
     switch(A[0]) {
@@ -261,7 +260,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
     let phase1 = 0;
     let phase2 = 0;
     let phase3 = 0;
-    let mem66 = new UInt8();
+    let mem66 = 0;
     let pos = 0;
     let glottal_pulse = pitches[0];
     let mem38 = glottal_pulse * .75 |0;
@@ -271,7 +270,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
 
       // unvoiced sampled phoneme?
       if ((flags & 248) !== 0) {
-        mem66.set(RenderSample(mem66.get(), flags, pos));
+        mem66 = RenderSample(mem66, flags, pos);
         // skip ahead two in the phoneme buffer
         pos += 2;
         frameCount -= 2;
@@ -310,7 +309,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
           // voiced sampled phonemes interleave the sample with the
           // glottal pulse. The sample flag is non-zero, so render
           // the sample for the phoneme.
-          mem66.set(RenderSample(mem66.get(), flags, pos));
+          mem66 = RenderSample(mem66, flags, pos);
         }
       }
 
