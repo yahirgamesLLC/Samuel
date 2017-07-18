@@ -13,9 +13,9 @@ export default function CreateOutputBuffer(buffersize) {
       [199, 0, 0, 54, 54]
     ];
     bufferpos += timetable[oldTimeTableIndex][index];
-    if (bufferpos / 50 > buffer.length) {
+    if (((bufferpos / 50) | 0) > buffer.length) {
       if (process.env.NODE_ENV === 'development') {
-        throw new Error('Buffer overflow!');
+        throw new Error(`Buffer overflow, want ${((bufferpos / 50) | 0)} but buffersize is only ${buffer.length}!`);
       }
       throw new Error();
     }
