@@ -1,7 +1,5 @@
 import {
-  ampl1data,
-  ampl2data,
-  ampl3data,
+  ampldata,
   sampledConsonantFlags,
   stressPitch_tab47492,
 } from './tables.es6';
@@ -94,9 +92,9 @@ export default function CreateFrames (
       frequency[0][X]         = frequencyData[0][phoneme];      // F1 frequency
       frequency[1][X]         = frequencyData[1][phoneme];      // F2 frequency
       frequency[2][X]         = frequencyData[2][phoneme];      // F3 frequency
-      amplitude[0][X]         = ampl1data[phoneme];             // F1 amplitude
-      amplitude[1][X]         = ampl2data[phoneme];             // F2 amplitude
-      amplitude[2][X]         = ampl3data[phoneme];             // F3 amplitude
+      amplitude[0][X]         = ampldata[phoneme] & 0xFF;         // F1 amplitude
+      amplitude[1][X]         = (ampldata[phoneme] >> 8) & 0xFF;  // F2 amplitude
+      amplitude[2][X]         = (ampldata[phoneme] >> 16) & 0xFF; // F3 amplitude
       sampledConsonantFlag[X] = sampledConsonantFlags[phoneme]; // phoneme data for sampled consonants
       pitches[X]              = (pitch + phase1) & 0xFF;        // pitch
       X++;
