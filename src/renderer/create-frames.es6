@@ -3,7 +3,7 @@ import {
   ampl2data,
   ampl3data,
   sampledConsonantFlags,
-  tab47492,
+  stressPitch_tab47492,
 } from './tables.es6';
 import {PHONEME_PERIOD, PHONEME_QUESTION} from '../parser/constants.es6';
 
@@ -87,7 +87,7 @@ export default function CreateFrames (
     }
 
     // get the stress amount (more stress = higher pitch)
-    let phase1 = tab47492[stress[i] + 1];
+    let phase1 = stressPitch_tab47492[stress[i] + 1];
     // get number of frames to write
     // copy from the source to the frames list
     for (let frames = phonemeLength[i];frames > 0;frames--) {
