@@ -1,4 +1,4 @@
-import Renderer from './sam/sam.es6';
+import {SamSpeak as Renderer} from './sam/sam.es6';
 
 const lookup_ones = ["WAHN", "TUW5", "THRIY5", "FOHR5", "FAY5V", "SIH5KS", "SEH5VUN", "EY5T", "NAY5N"];
 const lookup_teens = [
@@ -51,13 +51,12 @@ function GuessNum(e) {
     const input  = e.ownerDocument.createElement('input');
     e.appendChild(output);
     e.appendChild(input);
-    const sam = new Renderer({});
     function say(phonemes, raw) {
       let text = phonemes;
       while (text.length < 256) {
         text += ' '
       }
-      sam.speak(phonemes, true);
+      Renderer(phonemes, {phonetic: true});
       if (raw) {
         output.innerText += "\n" + raw;
       }

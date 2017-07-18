@@ -1,18 +1,16 @@
-//import TextToPhonemes from './reciter/c-conv/reciter.es6';
 import TextToPhonemes from './reciter/reciter.es6';
-import Sam from './sam/sam.es6';
+import {SamSpeak} from './sam/sam.es6';
 
-class SamJs {
-  constructor(options) {
-    const opts = options || {};
-    this.getOptions = () => opts;
-    this.renderer = new Sam(opts);
-  }
+function SamJs (options) {
+  const opts = options || {};
 
-  convert(text) {
+  const convert = this.convert = (text) => {
     let input = TextToPhonemes(text);
     if (!input) {
-      throw new Error(`phonetic input: "${text}" could not be converted`);
+      if (process.env.NODE_ENV === 'development') {
+        throw new Error(`phonetic input: "${text}" could not be converted`);
+      }
+      throw new Error();
     }
 
     if (process.env.NODE_ENV === 'development') {
@@ -20,10 +18,9 @@ class SamJs {
     }
 
     return input;
-  }
+  };
 
-  speak (text, phonetic) {
-    const opts = this.getOptions();
+  this.speak = (text, phonetic) => {
     if (process.env.NODE_ENV !== 'production') {
       console.log('text input: ', text);
     }
@@ -31,12 +28,12 @@ class SamJs {
     let input;
 
     if (!(phonetic || opts.phonetic)) {
-      input = this.convert(text);
+      input = convert(text);
     } else {
       input = text.toUpperCase();
     }
 
-    this.renderer.speak(input);
+    return SamSpeak(input, opts);
   };
 }
 
