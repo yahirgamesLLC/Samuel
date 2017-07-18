@@ -53,13 +53,15 @@ const isOneOf = (c, list) => {
 
 /**
  * Generator for self processing rule instances.
- * @param {Array} ruleDefinition First element is the source value, second is the processed destination value.
+ * @param {String} ruleString 'xxx(yyy)zzz=foobar' 'xxx(yyy)zzz' is the source value, 'foobar' is the destination value.
  * @return {result}
  */
-function reciterRule (ruleDefinition) {
+function reciterRule (ruleString) {
+  const splitted = ruleString.split('=');
   const
-    source = ruleDefinition[0],
-    target = ruleDefinition[1],
+    // Must pop and join here because of rule for '=' itself.
+    target = splitted.pop(),
+    source = splitted.join('='),
     start = source.indexOf('(') + 1,
     end = source.indexOf(')'),
     pre = source.substr(0, start - 1),
@@ -348,11 +350,11 @@ function reciterRule (ruleDefinition) {
 
 // Map all rules and generate processors from them.
 const rules = {};
-tables.rules.forEach((rule => {
+tables.rules.map((rule) => {
   const r = reciterRule(rule), c= r.c;
   rules[c] = rules[c] || [];
   rules[c].push(r);
-}));
+});
 const rules2 = tables.rules2.map(reciterRule);
 
 /**
