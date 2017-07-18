@@ -38,12 +38,11 @@ import {blendRank, inBlendLength, outBlendLength} from './tables.es6';
  * @param {Uint8Array} pitches
  * @param {Uint8Array} frequency
  * @param {Uint8Array} amplitude
- * @param {Array} phonemeIndex
- * @param {Array} phonemeLength
+ * @param {Array} tuples
  *
  * @return {Number}
  */
-export default function CreateTransitions(pitches, frequency, amplitude, phonemeIndex, phonemeLength) {
+export default function CreateTransitions(pitches, frequency, amplitude, tuples) {
   // 0=pitches
   // 1=frequency1
   // 2=frequency[1]
@@ -103,8 +102,8 @@ export default function CreateTransitions(pitches, frequency, amplitude, phoneme
     // next phoneme
 
     // half the width of the current and next phoneme
-    let cur_width  = phonemeLength[pos] >> 1;
-    let next_width = phonemeLength[pos+1] >> 1;
+    let cur_width  = tuples[pos][1] >> 1;
+    let next_width = tuples[pos+1][1] >> 1;
     // sum the values
     width = cur_width + next_width;
     let pitch = pitches[next_width + mem49] - pitches[mem49 - cur_width];
@@ -114,9 +113,9 @@ export default function CreateTransitions(pitches, frequency, amplitude, phoneme
   let phase1;
   let phase2;
   let mem49 = 0;
-  for (let pos=0;pos<phonemeIndex.length - 1;pos++) {
-    let phoneme      = phonemeIndex[pos];
-    let next_phoneme = phonemeIndex[pos+1];
+  for (let pos=0;pos<tuples.length - 1;pos++) {
+    let phoneme      = tuples[pos][0];
+    let next_phoneme = tuples[pos+1][0];
 
     // get the ranking of each phoneme
     let next_rank = blendRank[next_phoneme];
@@ -137,7 +136,7 @@ export default function CreateTransitions(pitches, frequency, amplitude, phoneme
       phase1 = outBlendLength[phoneme];
       phase2 = inBlendLength[phoneme];
     }
-    mem49 += phonemeLength[pos];
+    mem49 += tuples[pos][1];
     let speedcounter = mem49 + phase2;
     let phase3       = mem49 - phase1;
     let transition   = phase1 + phase2; // total transition?
@@ -160,5 +159,5 @@ export default function CreateTransitions(pitches, frequency, amplitude, phoneme
   }
 
   // add the length of this phoneme
-  return (mem49 + phonemeLength[phonemeLength.length - 1]) & 0xFF;
+  return (mem49 + tuples[tuples.length - 1][1]) & 0xFF;
 }

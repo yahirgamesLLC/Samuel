@@ -56,18 +56,14 @@ function AddInflection (inflection, pos, pitches) {
  *   ]
  *
  * @param {Number}       pitch          Input
- * @param {Array}        phonemeIndex   Input
- * @param {Array}        phonemeLength  Input
- * @param {Array}        stress         Input
+ * @param {Array}        tuples         Input
  * @param {Uint8Array[]} frequencyData  Input
  *
  * @return Array
  */
 export default function CreateFrames (
   pitch,
-  phonemeIndex,
-  phonemeLength,
-  stress,
+  tuples,
   frequencyData) {
   const pitches              = [];
   const frequency            = [[], [], []];
@@ -75,9 +71,9 @@ export default function CreateFrames (
   const sampledConsonantFlag = [];
 
   let X = 0;
-  for (let i=0;i<phonemeIndex.length;i++) {
+  for (let i=0;i<tuples.length;i++) {
     // get the phoneme at the index
-    let phoneme = phonemeIndex[i];
+    let phoneme = tuples[i][0];
     if (phoneme === PHONEME_PERIOD) {
       AddInflection(RISING_INFLECTION, X, pitches);
     } else if (phoneme === PHONEME_QUESTION) {
@@ -85,10 +81,10 @@ export default function CreateFrames (
     }
 
     // get the stress amount (more stress = higher pitch)
-    let phase1 = stressPitch_tab47492[stress[i] + 1];
+    let phase1 = stressPitch_tab47492[tuples[i][2] + 1];
     // get number of frames to write
     // copy from the source to the frames list
-    for (let frames = phonemeLength[i];frames > 0;frames--) {
+    for (let frames = tuples[i][1];frames > 0;frames--) {
       frequency[0][X]         = frequencyData[0][phoneme];      // F1 frequency
       frequency[1][X]         = frequencyData[1][phoneme];      // F2 frequency
       frequency[2][X]         = frequencyData[2][phoneme];      // F3 frequency

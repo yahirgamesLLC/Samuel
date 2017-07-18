@@ -70,31 +70,24 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
 
   const freqdata = SetMouthThroat(mouth, throat);
 
-  const phonemeIndexOutput  = [];
-  const stressOutput        = [];
-  const phonemeLengthOutput = [];
-
   // Main render loop.
   let srcpos  = 0; // Position in source
   // FIXME: should be tuple buffer as well.
+  let tuples = [];
   while(1) {
     let A = phonemes[srcpos];
     switch(A[0]) {
       case END:
-        Render(phonemeIndexOutput, phonemeLengthOutput, stressOutput);
+        Render(tuples);
         return Output.get();
       case BREAK:
-        Render(phonemeIndexOutput, phonemeLengthOutput, stressOutput);
-        phonemeIndexOutput.length = 0;
-        phonemeLengthOutput.length = 0;
-        stressOutput.length = 0;
+        Render(tuples);
+        tuples = [];
         break;
       case 0:
         break;
       default:
-        phonemeIndexOutput.push(A[0]);
-        phonemeLengthOutput.push(A[1]);
-        stressOutput.push(A[2]);
+        tuples.push(A);
     }
     ++srcpos;
   }
@@ -114,20 +107,16 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
    *
    * 4. Render the each frame.
    *
-   * @param {Array} phonemeindex
-   * @param {Array} phonemeLength
-   * @param {Array} stress
+   * @param {Array} tuples
    */
-  function Render (phonemeindex, phonemeLength, stress) {
-    if (phonemeindex.length === 0) {
+  function Render (tuples) {
+    if (tuples.length === 0) {
       return; //exit if no data
     }
 
     const [pitches, frequency, amplitude, sampledConsonantFlag] = CreateFrames(
       pitch,
-      phonemeindex,
-      phonemeLength,
-      stress,
+      tuples,
       freqdata
     );
 
@@ -135,8 +124,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
       pitches,
       frequency,
       amplitude,
-      phonemeindex,
-      phonemeLength
+      tuples
     );
 
     if (!singmode) {
