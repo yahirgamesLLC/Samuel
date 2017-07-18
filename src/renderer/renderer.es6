@@ -67,8 +67,8 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
   speed = (speed || 72) & 0xFF;
   singmode = singmode || false;
 
-  // TODO, check for free the memory, 10 seconds of output should be more than enough
-  const Output = new CreateOutputBuffer(22050 * 10);
+  // Every frame is 20ms long.
+  const Output = new CreateOutputBuffer(22050 * phonemes.reduce((pre, v) => pre + (v[1] * 0.020), 0));
 
   const freqdata = SetMouthThroat(mouth, throat);
 
