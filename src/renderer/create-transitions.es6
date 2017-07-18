@@ -53,32 +53,34 @@ export default function CreateTransitions(pitches, frequency, amplitude, phoneme
   // 172=amplitude1
   // 173=amplitude2
   // 174=amplitude3
-  const Read = (p, Y) => {
-    switch(p) {
-      case 168: return pitches[Y];
-      case 169: return frequency[0][Y];
-      case 170: return frequency[1][Y];
-      case 171: return frequency[2][Y];
-      case 172: return amplitude[0][Y];
-      case 173: return amplitude[1][Y];
-      case 174: return amplitude[2][Y];
+  const Read = (table, pos) => {
+    switch(table) {
+      case 168: return pitches[pos];
+      case 169: return frequency[0][pos];
+      case 170: return frequency[1][pos];
+      case 171: return frequency[2][pos];
+      case 172: return amplitude[0][pos];
+      case 173: return amplitude[1][pos];
+      case 174: return amplitude[2][pos];
     }
-
-    throw new Error ('Error reading from tables');
+    if (process.env.NODE_ENV === 'development') {
+      throw new Error(`Error invalid table in Read: ${table}`);
+    }
   };
 
-  const Write = (p, Y, value) => {
-    switch (p) {
-      case 168: pitches[Y] = value; return;
-      case 169: frequency[0][Y] = value; return;
-      case 170: frequency[1][Y] = value; return;
-      case 171: frequency[2][Y] = value; return;
-      case 172: amplitude[0][Y] = value; return;
-      case 173: amplitude[1][Y] = value; return;
-      case 174: amplitude[2][Y] = value; return;
+  const Write = (table, pos, value) => {
+    switch (table) {
+      case 168: return pitches[pos] = value;
+      case 169: return frequency[0][pos] = value;
+      case 170: return frequency[1][pos] = value;
+      case 171: return frequency[2][pos] = value;
+      case 172: return amplitude[0][pos] = value;
+      case 173: return amplitude[1][pos] = value;
+      case 174: return amplitude[2][pos] = value;
     }
-
-    throw new Error ('Error writing to tables');
+    if (process.env.NODE_ENV === 'development') {
+      throw new Error(`Error invalid table in Write: ${table}`);
+    }
   };
 
   // linearly interpolate values
