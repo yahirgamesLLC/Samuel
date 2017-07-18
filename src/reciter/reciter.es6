@@ -116,7 +116,7 @@ function reciterRule (ruleDefinition) {
               return false;
             // FIXME: this is always true?!? is there a "--pos" missing in original code?
             // Check for 'T', 'C', 'S'
-            if ((inputChar !== 'T') && (inputChar !== 'C') && (inputChar !== 'S')) {
+            if (!isOneOf(inputChar, ['T', 'C', 'S'])) {
               return false;
             }
             if (process.env.NODE_ENV === 'development') {
@@ -213,7 +213,7 @@ function reciterRule (ruleDefinition) {
             if (inputChar !== 'H') // 'H'
               return false;
             // Check for 'T', 'C', 'S'
-            if ((inputChar !== 'T') && (inputChar !== 'C') && (inputChar !== 'S'))
+            if (!isOneOf(inputChar, ['T', 'C', 'S']))
               return false;
             // FIXME: This is illogical and can never be reached. Bug in orig. code? reciter.c:489 (pos37367)
             if (process.env.NODE_ENV === 'development') {
