@@ -1,4 +1,4 @@
-export const StressTable = ['*', '1', '2', '3', '4', '5', '6', '7', '8'];
+export const StressTable = '*12345678'.split('');
 
 export const PhonemeNameTable = [
   ' *', // 00
