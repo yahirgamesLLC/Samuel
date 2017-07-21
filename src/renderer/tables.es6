@@ -293,11 +293,6 @@ export const sinus = [
   0xF0, 0xF0, 0xF0, 0xF0, 0xF0, 0xF0, 0x00, 0x00
 ];
 
-//tab42496
-// Rectangle table consisting of:
-//   0-128 = 0x90
-// 128-255 = 0x70
-export const rectangle = Array.apply(null, Array(256)).map((n, i) => (i<129) ? 0x90 : 0x70);
 
 //tab42752
 export const multtable = [

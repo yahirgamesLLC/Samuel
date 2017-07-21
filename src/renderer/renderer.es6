@@ -2,8 +2,7 @@ import {
   tab48426,
   sampleTable,
   multtable,
-  sinus,
-  rectangle
+  sinus
 } from './tables.es6';
 
 import {BREAK, END} from '../common/constants.es6'
@@ -175,7 +174,12 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
       tmp   = multtable[sinus[phase1]     | amplitude[0][Y]];
       tmp  += multtable[sinus[phase2]     | amplitude[1][Y]];
       tmp  += tmp > 255 ? 1 : 0; // if addition above overflows, we for some reason add one;
-      tmp  += multtable[rectangle[phase3] | amplitude[2][Y]];
+
+      // Rectangle table consisting of:
+      //   0-128 = 0x90
+      // 128-255 = 0x70
+      // tmp  += multtable[rectangle[phase3] | amplitude[2][Y]];
+      tmp  += multtable[((phase3<129) ? 0x90 : 0x70) | amplitude[2][Y]];
       tmp  += 136;
       tmp >>= 4; // Scale down to 0..15 range of C64 audio.
 
