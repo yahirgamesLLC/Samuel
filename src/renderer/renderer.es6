@@ -79,18 +79,17 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
   let tuples = [];
   while(1) {
     let A = phonemes[srcpos];
-    switch(A[0]) {
-      case END:
+    if (A[0]) {
+      if (A[0] === END) {
         Render(tuples);
         return Output.get();
-      case BREAK:
+      }
+      if (A[0] === BREAK) {
         Render(tuples);
         tuples = [];
-        break;
-      case 0:
-        break;
-      default:
+      } else {
         tuples.push(A);
+      }
     }
     ++srcpos;
   }
