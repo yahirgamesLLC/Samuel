@@ -19,6 +19,7 @@
   s.speak('Hello my name is SAM.').then(() => {
     s.speak('I will sing the national anthem of the united states of America.').then(() => {
       s.speak('The star spangled banner!').then(() => {
+        delete s;
         sing();
       });
     });
