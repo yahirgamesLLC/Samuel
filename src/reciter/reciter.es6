@@ -350,12 +350,12 @@ function reciterRule (ruleString) {
 
 // Map all rules and generate processors from them.
 const rules = {};
-tables.rules.map((rule) => {
+tables.rules.split('|').map((rule) => {
   const r = reciterRule(rule), c= r.c;
   rules[c] = rules[c] || [];
   rules[c].push(r);
 });
-const rules2 = tables.rules2.map(reciterRule);
+const rules2 = tables.rules2.split('|').map(reciterRule);
 
 /**
  * Convert the text to a phoneme string.
