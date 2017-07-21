@@ -78,7 +78,7 @@ function reciterRule (ruleString) {
     for (let rulePos = pre.length - 1; rulePos>-1;rulePos--) {
       const ruleByte = pre[rulePos];
       if (!flags(ruleByte, FLAG_ALPHA_OR_QUOT)) {
-        if ({
+        if (!{
           // '' - previous char must not be alpha or quotation mark.
           ' ': () => !flagsAt(text, --pos, FLAG_ALPHA_OR_QUOT),
           // '#' - previous char must be a vowel or Y.
@@ -120,12 +120,13 @@ function reciterRule (ruleString) {
             return true;
           }
         }[ruleByte]()) {
-          continue;
+          return false;
         }
+      }
+      // Rule char does not match.
+      else if (text[--pos] !== ruleByte) {
         return false;
       }
-      if (text[--pos] !== ruleByte)
-        return false;
     }
     return true;
   };
@@ -142,7 +143,7 @@ function reciterRule (ruleString) {
       // do we have to handle the byte specially?
       if (!flags(ruleByte, FLAG_ALPHA_OR_QUOT)) {
         // pos37226:
-        if ({
+        if (!{
           // ' ' - next char must not be alpha or quotation mark.
           ' ': () => !flagsAt(text, ++pos, FLAG_ALPHA_OR_QUOT),
           // '#' - next char must be a vowel or Y.
@@ -221,13 +222,12 @@ function reciterRule (ruleString) {
             pos += 2;
               return true;
           }
-      }[ruleByte]()) {
-        continue;
-      }
-      return false;
+        }[ruleByte]()) {
+            return false;
+        }
       }
       // Rule char does not match.
-      if (text[++pos] !== ruleByte) {
+      else if (text[++pos] !== ruleByte) {
         return false;
       }
     }
