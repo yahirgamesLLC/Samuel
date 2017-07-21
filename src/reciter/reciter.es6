@@ -61,12 +61,12 @@ function reciterRule (ruleString) {
   const
     // Must pop and join here because of rule for '=' itself.
     target = splitted.pop(),
-    source = splitted.join('='),
-    start = source.indexOf('(') + 1,
-    end = source.indexOf(')'),
-    pre = source.substr(0, start - 1),
-    match = source.substr(start, end - start),
-    post = source.substr(end + 1, source.length);
+    source = splitted.join('=').split('('),
+    tmp=source.pop().split(')'),
+    pre = source[0],
+    match = tmp[0],
+    post = tmp[1]
+  ;
 
   /**
    * Test if the rule prefix matches.
