@@ -142,40 +142,19 @@ function reciterRule (ruleString) {
       // do we have to handle the byte specially?
       if (!flags(ruleByte, FLAG_ALPHA_OR_QUOT)) {
         // pos37226:
-        switch (ruleByte) {
+        if ({
           // ' ' - next char must not be alpha or quotation mark.
-          case ' ': {
-            if (flagsAt(text, ++pos, FLAG_ALPHA_OR_QUOT))
-              return false;
-            continue;
-          }
+          ' ': () => !flagsAt(text, ++pos, FLAG_ALPHA_OR_QUOT),
           // '#' - next char must be a vowel or Y.
-          case '#': {
-            if (!flagsAt(text, ++pos, FLAG_VOWEL_OR_Y)) {
-              return false;
-            }
-            continue;
-          }
+          '#': () => flagsAt(text, ++pos, FLAG_VOWEL_OR_Y),
           // '.' - unknown?
-          case '.': {
-            if (!flagsAt(text, ++pos, FLAG_0X08))
-              return false;
-            continue;
-          }
+          '.': () => flagsAt(text, ++pos, FLAG_0X08),
           // '&' - next char must be a dipthong or next chars must be 'HC' or 'HS'
-          case '&': {
-            if(flagsAt(text, ++pos, FLAG_DIPTHONG)) {
-              continue;
-            }
-            if (isOneOf(text.substr((++pos) - 2, 2), ['HC', 'HS'])) {
-              continue;
-            }
-            return false;
-          }
+          '&': () => flagsAt(text, ++pos, FLAG_DIPTHONG) || isOneOf(text.substr((++pos) - 2, 2), ['HC', 'HS']),
           // '@' - next char must be voiced and not 'H'.
-          case '@': {
+          '@': () => {
             if (flagsAt(text, ++pos, FLAG_VOICED)) {
-              continue;
+              return true;
             }
             const inputChar = text[pos];
             if (inputChar !== 'H') // 'H'
@@ -187,28 +166,19 @@ function reciterRule (ruleString) {
             if (process.env.NODE_ENV === 'development') {
               throw new Error('This should not be possible ', inputChar);
             }
-            continue;
-          }
+            return true;
+          },
           // '^' - next char must be a consonant.
-          case '^': {
-            if(!flagsAt(text, ++pos, FLAG_CONSONANT))
-              return false;
-            continue;
-          }
+          '^': () => flagsAt(text, ++pos, FLAG_CONSONANT),
           // '+' - next char must be either 'E', 'I' or 'Y'.
-          case '+': {
-            if (isOneOf(text[++pos], ['E', 'I', 'Y'])) { // EITHER 'E', 'I' OR 'Y'
-              continue;
-            }
-            return false;
-          }
+          '+': () => isOneOf(text[++pos], ['E', 'I', 'Y']),
           // ':' - walk right in input position until we hit a non consonant.
-          case ':': {
+          ':': () => {
             while (flagsAt(text, pos + 1, FLAG_CONSONANT)) {
               pos++;
             }
-            continue;
-          }
+            return true;
+          },
           /* '%' - check if we have:
             - 'ING'
             - 'E' not followed by alpha or quot
@@ -216,20 +186,20 @@ function reciterRule (ruleString) {
             - 'EFUL'
             - 'ELY'
           */
-          case '%': {
+          '%': () => {
             // If not 'E', check if 'ING'.
             if (text[pos + 1] !== 'E') {
               // Are next chars "ING"?
               if (text.substr(pos + 1, 3) ==='ING') {
                 pos += 3;
-                continue;
+                return true;
               }
               return false;
             }
             // we have 'E' - check if not followed by alpha or quot.
             if (!flagsAt(text, pos + 2, FLAG_ALPHA_OR_QUOT)) {
               pos++;
-              continue;
+              return true;
             }
             // NOT 'ER', 'ES' OR 'ED'
             if (!isOneOf(text[pos + 2], ['R', 'S', 'D'])) {
@@ -238,7 +208,7 @@ function reciterRule (ruleString) {
                 // 'EFUL'
                 if (text.substr(pos + 2, 3) === 'FUL') { // 'FUL'
                   pos += 4;
-                  continue;
+                  return true;
                 }
                 return false;
               }
@@ -246,20 +216,15 @@ function reciterRule (ruleString) {
               if (text[pos + 3] !== 'Y')
                 return false;
               pos += 3;
-              continue;
+              return true;
             }
             pos += 2;
-            continue;
+              return true;
           }
-          // All other is error!
-          default:
-            if (process.env.NODE_ENV === 'development') {
-              throw new Error(
-                `Parse error in rule "${source}" at ${rulePos}`
-              );
-            }
-            throw new Error();
-        }
+      }[ruleByte]()) {
+        continue;
+      }
+      return false;
       }
       // Rule char does not match.
       if (text[++pos] !== ruleByte) {
