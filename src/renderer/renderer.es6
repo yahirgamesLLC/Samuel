@@ -59,9 +59,9 @@ function RescaleAmplitude (amplitude) {
  * @return Uint8Array
  */
 export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode) {
-  pitch = (pitch || 64) & 0xFF;
-  mouth = (mouth || 128) & 0xFF;
-  throat = (throat || 128) & 0xFF;
+  pitch = (pitch === undefined) ? 64 : pitch & 0xFF;
+  mouth = (mouth === undefined) ? 128 : mouth & 0xFF;
+  throat = (throat === undefined) ? 128 : throat & 0xFF;
   speed = (speed || 72) & 0xFF;
   singmode = singmode || false;
 

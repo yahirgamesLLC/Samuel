@@ -79,14 +79,7 @@ function SamProcess (input, options) {
     return false;
   }
 
-  return Renderer(
-    parsed,
-    (options.pitch || 64) & 0xFF,
-    (options.mouth || 128) & 0xFF,
-    (options.throat || 128) & 0xFF,
-    (options.speed || 72) & 0xFF,
-    options.singmode || false
-  );
+  return Renderer(parsed, options.pitch, options.mouth, options.throat, options.speed, options.singmode);
 }
 
 /**
