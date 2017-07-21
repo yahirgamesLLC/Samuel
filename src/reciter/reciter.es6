@@ -78,39 +78,19 @@ function reciterRule (ruleString) {
     for (let rulePos = pre.length - 1; rulePos>-1;rulePos--) {
       const ruleByte = pre[rulePos];
       if (!flags(ruleByte, FLAG_ALPHA_OR_QUOT)) {
-        switch (ruleByte) {
-          // ' ' - previous char must not be alpha or quotation mark.
-          case ' ': {
-            if (flagsAt(text, --pos, FLAG_ALPHA_OR_QUOT))
-              return false;
-            continue;
-          }
+        if ({
+          // '' - previous char must not be alpha or quotation mark.
+          ' ': () => !flagsAt(text, --pos, FLAG_ALPHA_OR_QUOT),
           // '#' - previous char must be a vowel or Y.
-          case '#': {
-            if (!flagsAt(text, --pos, FLAG_VOWEL_OR_Y))
-              return false;
-            continue;
-          }
+          '#': () => flagsAt(text, --pos, FLAG_VOWEL_OR_Y),
           // '.' - unknown?
-          case '.': {
-            if (!flagsAt(text, --pos, FLAG_0X08))
-              return false;
-            continue;
-          }
+          '.': () => flagsAt(text, --pos, FLAG_0X08),
           // '&' - previous char must be a dipthong or previous chars must be 'CH' or 'SH'
-          case '&': {
-            if (flagsAt(text, --pos, FLAG_DIPTHONG)) {
-              continue;
-            }
-            if (isOneOf(text.substr(--pos, 2), ['CH', 'SH'])) {
-              continue;
-            }
-            return false;
-          }
+          '&': () => (flagsAt(text, --pos, FLAG_DIPTHONG)) || (isOneOf(text.substr(--pos, 2), ['CH', 'SH'])),
           // '@' - previous char must be voiced and not 'H'.
-          case '@': {
+          '@': () => {
             if (flagsAt(text, --pos, FLAG_VOICED)) {
-              continue;
+              return true;
             }
             const inputChar = text[pos];
             // 'H'
@@ -124,39 +104,25 @@ function reciterRule (ruleString) {
             if (process.env.NODE_ENV === 'development') {
               throw new Error('Is always false but happened? ' + inputChar);
             }
-            continue;
-          }
+            return true;
+          },
           // '^' - previous char must be a consonant.
-          case '^': {
-            if (!flagsAt(text, --pos, FLAG_CONSONANT))
-              return false;
-            continue;
-          }
+          '^': () => flagsAt(text, --pos, FLAG_CONSONANT),
           // '+' - previous char must be either 'E', 'I' or 'Y'.
-          case '+': {
-            if (isOneOf(text[--pos], ['E', 'I', 'Y'])) {
-              continue;
-            }
-            return false;
-          }
+          '+': () => isOneOf(text[--pos], ['E', 'I', 'Y']),
           // ':' - walk left in input position until we hit a non consonant or begin of string.
-          case ':': {
+          ':': () => {
             while (pos >= 0) {
               if (!flagsAt(text, pos - 1, FLAG_CONSONANT))
                 break;
               pos--;
             }
-            continue;
+            return true;
           }
-          // All other is error!
-          default:
-            if (process.env.NODE_ENV === 'development') {
-              throw new Error(
-                `Parse error in rule "${source}" at ${rulePos}`
-              );
-            }
-            throw new Error();
+        }[ruleByte]()) {
+          continue;
         }
+        return false;
       }
       if (text[--pos] !== ruleByte)
         return false;
