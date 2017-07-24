@@ -17,7 +17,7 @@
     }
     label { width: 30%}
     input { width: 60%}
-    input[type="button"] { width: 100%;}
+    input[type="submit"] { width: 100%;}
   </style>
 </head>
 <body>
@@ -60,12 +60,12 @@ and the refactored versions by
         e.value = opts[name];
       }
     );
+    document.getElementById('playground').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var s = new SamJs(opts);
+      s.speak(this.textfield.value);
+    });
   });
-  function Speak(text)
-  {
-    var s = new SamJs(opts);
-    s.speak(text);
-  }
 </script>
 
 <hr>
@@ -78,7 +78,7 @@ and the refactored versions by
     <label id="speed-lbl" for="speed">Speed:   </label><input type="range" id="speed" min="1" max="255" value="0" style="transform: rotate(180deg);" />
     <label id="mouth-lbl" for="mouth">Mouth:   </label><input type="range" id="mouth" min="0" max="255" value="0" style="transform: rotate(180deg);" />
     <label id="throat-lbl" for="throat">Throat: </label><input type="range" id="throat" min="0" max="255" value="0" style="transform: rotate(180deg);" />
-    <input type="button" name="Text 1" value="Say" onclick="Speak(this.form.textfield.value)">
+    <input type="submit" name="Text 1" value="Say">
   </div>
 </form>
 <hr>
