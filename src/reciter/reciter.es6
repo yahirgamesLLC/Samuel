@@ -68,6 +68,9 @@ function reciterRule (ruleString) {
     post = tmp[1]
   ;
 
+  const TCS = ['T', 'C', 'S'];
+  const EIY = ['E', 'I', 'Y'];
+
   /**
    * Test if the rule prefix matches.
    * @param {string} text The input text.
@@ -98,7 +101,7 @@ function reciterRule (ruleString) {
               return false;
             // FIXME: this is always true?!? is there a "--pos" missing in original code?
             // Check for 'T', 'C', 'S'
-            if (!isOneOf(inputChar, ['T', 'C', 'S'])) {
+            if (!isOneOf(inputChar, TCS)) {
               return false;
             }
             if (process.env.NODE_ENV === 'development') {
@@ -109,7 +112,7 @@ function reciterRule (ruleString) {
           // '^' - previous char must be a consonant.
           '^': () => flagsAt(text, --pos, FLAG_CONSONANT),
           // '+' - previous char must be either 'E', 'I' or 'Y'.
-          '+': () => isOneOf(text[--pos], ['E', 'I', 'Y']),
+          '+': () => isOneOf(text[--pos], EIY),
           // ':' - walk left in input position until we hit a non consonant or begin of string.
           ':': () => {
             while (pos >= 0) {
@@ -161,7 +164,7 @@ function reciterRule (ruleString) {
             if (inputChar !== 'H') // 'H'
               return false;
             // Check for 'T', 'C', 'S'
-            if (!isOneOf(inputChar, ['T', 'C', 'S']))
+            if (!isOneOf(inputChar, TCS))
               return false;
             // FIXME: This is illogical and can never be reached. Bug in orig. code? reciter.c:489 (pos37367)
             if (process.env.NODE_ENV === 'development') {
@@ -172,7 +175,7 @@ function reciterRule (ruleString) {
           // '^' - next char must be a consonant.
           '^': () => flagsAt(text, ++pos, FLAG_CONSONANT),
           // '+' - next char must be either 'E', 'I' or 'Y'.
-          '+': () => isOneOf(text[++pos], ['E', 'I', 'Y']),
+          '+': () => isOneOf(text[++pos], EIY),
           // ':' - walk right in input position until we hit a non consonant.
           ':': () => {
             while (flagsAt(text, pos + 1, FLAG_CONSONANT)) {
