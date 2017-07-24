@@ -18,6 +18,7 @@
     label { width: 30%}
     input { width: 60%}
     input[type="submit"] { width: 100%;}
+    input[type="range"] { transform: rotate(180deg);}
   </style>
 </head>
 <body>
@@ -74,10 +75,10 @@ and the refactored versions by
     <label for="speechinput">Text to speak:</label>
     <input size="60" id="speechinput" name="textfield" value="Hello, my name is SAM.">
   <hr>
-    <label id="pitch-lbl" for="pitch">Pitch:   </label><input type="range" id="pitch" min="0" max="255" value="0" style="transform: rotate(180deg);" />
-    <label id="speed-lbl" for="speed">Speed:   </label><input type="range" id="speed" min="1" max="255" value="0" style="transform: rotate(180deg);" />
-    <label id="mouth-lbl" for="mouth">Mouth:   </label><input type="range" id="mouth" min="0" max="255" value="0" style="transform: rotate(180deg);" />
-    <label id="throat-lbl" for="throat">Throat: </label><input type="range" id="throat" min="0" max="255" value="0" style="transform: rotate(180deg);" />
+    <label id="pitch-lbl" for="pitch">Pitch:   </label><input type="range" id="pitch" min="0" max="255" value="0" />
+    <label id="speed-lbl" for="speed">Speed:   </label><input type="range" id="speed" min="1" max="255" value="0" />
+    <label id="mouth-lbl" for="mouth">Mouth:   </label><input type="range" id="mouth" min="0" max="255" value="0" />
+    <label id="throat-lbl" for="throat">Throat: </label><input type="range" id="throat" min="0" max="255" value="0" />
     <input type="submit" name="Text 1" value="Say">
   </div>
 </form>
