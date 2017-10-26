@@ -64,5 +64,24 @@
     "> 1%",
     "last 2 versions",
     "not ie <= 8"
-  ]
+  ],
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/discordier/sam.git"
+  },
+  "keywords": [
+    "speech",
+    "synthesis",
+    "retro",
+    "c64"
+  ],
+  "license": "SEE LICENSE IN README.md",
+  "bugs": {
+    "url": "https://github.com/discordier/sam/issues"
+  },
+  "homepage": "https://github.com/discordier/sam#readme"
 }
