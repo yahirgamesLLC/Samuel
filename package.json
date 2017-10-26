@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "SAM - The Software Automatic Mouth",
   "author": "Christian Schiffler <c.schiffler@cyberspectrum.de>",
-  "private": true,
+  "private": false,
   "main": "dist/samjs.js",
   "module": "dist/samjs.esm.js",
   "scripts": {
