@@ -2703,96 +2703,16 @@ var ampldata = [
   0x00000F | 0x000000 | 0x100000
 ];
 
-/*
-If SAM would use a perfect sinus wave, it would be like this, however, the table is stretched a little. :/
-export const sinus = Array.apply(null, Array(256)).map((n, i) => {
+var sinus = Array.apply(null, Array(256)).map(function (n, i) {
   // let y = (Math.sin(2*Math.PI*(i/256)) * 255 | 0);
   //const PI=3.14159265;
-  const PI=3.141;
-  let y = ((Math.sin(
+  var PI=3.141;
+  var y = ((Math.sin(
     (2*PI)*
     ((i)/255)
   )*128 | 0)/16|0)*16;
   return y < 0 ? y+255 : y;
 });
-
-Therefore we now pack the values as array of:
-  repetions and value/16
-*/
-var sinus = [
-  // rep   | value*16
-  (0  <<4) | 3,  //  0 * 16 => 0
-  (1  <<4) | 6,  //  1 * 16 => 16
-  (2  <<4) | 6,  //  2 * 16 => 32
-  (3  <<4) | 7,  //  3 * 16 => 48
-  (4  <<4) | 7,  //  4 * 16 => 64
-  (5  <<4) | 8,  //  5 * 16 => 80
-  (6  <<4) | 12, //  6 * 16 => 96
-  (7  <<4) | 31, //  7 * 16 => 112
-  (6  <<4) | 12, //  6 * 16 => 96
-  (5  <<4) | 8,  //  5 * 16 => 80
-  (4  <<4) | 7,  //  4 * 16 => 64
-  (3  <<4) | 7,  //  3 * 16 => 48
-  (2  <<4) | 6,  //  2 * 16 => 32
-  (1  <<4) | 6,  //  1 * 16 => 16
-  (0  <<4) | 5,  //  0 * 16 => 0
-  (15 <<4) | 6,  // -1 * 16 => 240
-  (14 <<4) | 6,  // -2 * 16 => 224
-  (13 <<4) | 7,  // -3 * 16 => 208
-  (12 <<4) | 7,  // -4 * 16 => 192
-  (11 <<4) | 8,  // -5 * 16 => 176
-  (10 <<4) | 12, // -6 * 16 => 160
-  (9  <<4) | 31, // -7 * 16 => 144
-  (10 <<4) | 12, // -6 * 16 => 160
-  (11 <<4) | 8,  // -5 * 16 => 176
-  (12 <<4) | 7,  // -4 * 16 => 192
-  (13 <<4) | 7,  // -3 * 16 => 208
-  (14 <<4) | 6,  // -2 * 16 => 224
-  (15 <<4) | 6,  // -1 * 16 => 240
-  (0  <<4) | 2 ].reduce(function (p,v) {
-    for (var x=0;x<((v&0x0F)===15 ? 31 :(v&0x0F));x++) {
-      p.push((v>>4)*16);
-    }
-    return p;
-  },
-  []
-);
-
-//tab42752
-var multtable = [
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x01, 0x01, 0x02, 0x02, 0x03, 0x03,
-  0x04, 0x04, 0x05, 0x05, 0x06, 0x06, 0x07, 0x07,
-  0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-  0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
-  0x00, 0x01, 0x03, 0x04, 0x06, 0x07, 0x09, 0x0A,
-  0x0C, 0x0D, 0x0F, 0x10, 0x12, 0x13, 0x15, 0x16,
-  0x00, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0C, 0x0E,
-  0x10, 0x12, 0x14, 0x16, 0x18, 0x1A, 0x1C, 0x1E,
-  0x00, 0x02, 0x05, 0x07, 0x0A, 0x0C, 0x0F, 0x11,
-  0x14, 0x16, 0x19, 0x1B, 0x1E, 0x20, 0x23, 0x25,
-  0x00, 0x03, 0x06, 0x09, 0x0C, 0x0F, 0x12, 0x15,
-  0x18, 0x1B, 0x1E, 0x21, 0x24, 0x27, 0x2A, 0x2D,
-  0x00, 0x03, 0x07, 0x0A, 0x0E, 0x11, 0x15, 0x18,
-  0x1C, 0x1F, 0x23, 0x26, 0x2A, 0x2D, 0x31, 0x34,
-  0x00, 0xFC, 0xF8, 0xF4, 0xF0, 0xEC, 0xE8, 0xE4,
-  0xE0, 0xDC, 0xD8, 0xD4, 0xD0, 0xCC, 0xC8, 0xC4,
-  0x00, 0xFC, 0xF9, 0xF5, 0xF2, 0xEE, 0xEB, 0xE7,
-  0xE4, 0xE0, 0xDD, 0xD9, 0xD6, 0xD2, 0xCF, 0xCB,
-  0x00, 0xFD, 0xFA, 0xF7, 0xF4, 0xF1, 0xEE, 0xEB,
-  0xE8, 0xE5, 0xE2, 0xDF, 0xDC, 0xD9, 0xD6, 0xD3,
-  0x00, 0xFD, 0xFB, 0xF8, 0xF6, 0xF3, 0xF1, 0xEE,
-  0xEC, 0xE9, 0xE7, 0xE4, 0xE2, 0xDF, 0xDD, 0xDA,
-  0x00, 0xFE, 0xFC, 0xFA, 0xF8, 0xF6, 0xF4, 0xF2,
-  0xF0, 0xEE, 0xEC, 0xEA, 0xE8, 0xE6, 0xE4, 0xE2,
-  0x00, 0xFE, 0xFD, 0xFB, 0xFA, 0xF8, 0xF7, 0xF5,
-  0xF4, 0xF2, 0xF1, 0xEF, 0xEE, 0xEC, 0xEB, 0xE9,
-  0x00, 0xFF, 0xFE, 0xFD, 0xFC, 0xFB, 0xFA, 0xF9,
-  0xF8, 0xF7, 0xF6, 0xF5, 0xF4, 0xF3, 0xF2, 0xF1,
-  0x00, 0xFF, 0xFF, 0xFE, 0xFE, 0xFD, 0xFD, 0xFC,
-  0xFC, 0xFB, 0xFB, 0xFA, 0xFA, 0xF9, 0xF9, 0xF8
-];
 
 //random data ?
 var sampleTable = [
@@ -3343,6 +3263,12 @@ function CreateOutputBuffer(buffersize) {
   var oldTimeTableIndex = 0;
   // Writer to buffer.
   var writer = function (index, A) {
+    writer.raw(index, (A & 15) * 16);
+  };
+  writer.raw = function (index, A) {
+    writer.ary(index, [A, A, A, A, A]);
+  };
+  writer.ary = function (index, array) {
     // timetable for more accurate c64 simulation
     var timetable = [
       [162, 167, 167, 127, 128],
@@ -3361,7 +3287,7 @@ function CreateOutputBuffer(buffersize) {
     oldTimeTableIndex = index;
     // write a little bit in advance
     for (var k = 0; k < 5; k++) {
-      buffer[(bufferpos / 50 | 0) + k] = (A & 15) * 16;
+      buffer[(bufferpos / 50 | 0) + k] = array[k];
     }
   };
   writer.get = function () {
@@ -3515,20 +3441,37 @@ function Renderer(phonemes, pitch, mouth, throat, speed, singmode) {
    */
   function ProcessFrames(frameCount, speed, frequency, pitches, amplitude, sampledConsonantFlag) {
     var CombineGlottalAndFormants = function (phase1, phase2, phase3, Y) {
-      var tmp; // unsigned int
-      tmp   = multtable[sinus[phase1]     | amplitude[0][Y]];
-      tmp  += multtable[sinus[phase2]     | amplitude[1][Y]];
-      tmp  += tmp > 255 ? 1 : 0; // if addition above overflows, we for some reason add one;
-
       // Rectangle table consisting of:
       //   0-128 = 0x90
       // 128-255 = 0x70
-      // tmp  += multtable[rectangle[phase3] | amplitude[2][Y]];
-      tmp  += multtable[((phase3<129) ? 0x90 : 0x70) | amplitude[2][Y]];
-      tmp  += 136;
-      tmp >>= 4; // Scale down to 0..15 range of C64 audio.
 
-      Output(0, tmp & 0xf);
+      // Remove multtable, replace with logical equivalent.
+      // Multtable stored the result of a 8-bit signed multiply of the upper nibble of sin/rect (interpreted as signed)
+      // and the amplitude lower nibble (interpreted as unsigned), then divided by two.
+      // On the 6510 this made sense, but in modern processors it's way faster and cleaner to simply do the multiply.
+      function char(x) { return (x & 0x7F) - (x & 0x80); }
+      // simulate the glottal pulse and formants
+      var ary = [];
+      var /* unsigned int */ p1 = phase1 * 256; // Fixed point integers because we need to divide later on
+      var /* unsigned int */ p2 = phase2 * 256;
+      var /* unsigned int */ p3 = phase3 * 256;
+      var k;
+      for (k=0; k<5; k++) {
+        var /* signed char */ sp1 = char(sinus[0xff & (p1>>8)]);
+        var /* signed char */ sp2 = char(sinus[0xff & (p2>>8)]);
+        var /* signed char */ rp3 = char(0xff & (((p3>>8)<129) ? 0x90 : 0x70));
+        var /* signed int */ sin1 = sp1 * (/* (unsigned char) */ amplitude[0][Y] & 0x0F);
+        var /* signed int */ sin2 = sp2 * (/* (unsigned char) */ amplitude[1][Y] & 0x0F);
+        var /* signed int */ rect = rp3 * (/* (unsigned char) */ amplitude[2][Y] & 0x0F);
+        var /* signed int */ mux = sin1 + sin2 + rect;
+        mux /= 32;
+        mux += 128; // Go from signed to unsigned amplitude
+        ary[k] = mux |0;
+        p1 += frequency[0][Y] * 256 / 4; // Compromise, this becomes a shift and works well
+        p2 += frequency[1][Y] * 256 / 4;
+        p3 += frequency[2][Y] * 256 / 4;
+      }
+      Output.ary(0, ary);
     };
 
     var RenderSample = function (mem66, consonantFlag, mem49) {
@@ -3611,7 +3554,6 @@ function Renderer(phonemes, pitch, mouth, throat, speed, singmode) {
 
       // unvoiced sampled phoneme?
       if ((flags & 248) !== 0) {
-        // 11111000 == 0xF8
         mem66 = RenderSample(mem66, flags, pos);
         // skip ahead two in the phoneme buffer
         pos += 2;

@@ -4,6 +4,12 @@ export default function CreateOutputBuffer(buffersize) {
   let oldTimeTableIndex = 0;
   // Writer to buffer.
   const writer = (index, A) => {
+    writer.raw(index, (A & 15) * 16)
+  };
+  writer.raw = (index, A) => {
+    writer.ary(index, [A, A, A, A, A])
+  };
+  writer.ary = (index, array) => {
     // timetable for more accurate c64 simulation
     const timetable = [
       [162, 167, 167, 127, 128],
@@ -22,9 +28,9 @@ export default function CreateOutputBuffer(buffersize) {
     oldTimeTableIndex = index;
     // write a little bit in advance
     for (let k = 0; k < 5; k++) {
-      buffer[(bufferpos / 50 | 0) + k] = (A & 15) * 16;
+      buffer[(bufferpos / 50 | 0) + k] = array[k];
     }
-  };
+  }
   writer.get = () => {
     // Hack for PhantomJS which does not have slice() on UintArray8
     if (process.env.NODE_ENV === 'karma-test') {
