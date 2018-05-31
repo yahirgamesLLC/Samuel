@@ -7,13 +7,13 @@ function SamJs (options) {
   const convert = this.convert = (text) => {
     let input = TextToPhonemes(text);
     if (!input) {
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.DEBUG_SAM === true) {
         throw new Error(`phonetic input: "${text}" could not be converted`);
       }
       throw new Error();
     }
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.DEBUG_SAM === true) {
       console.log('phonetic data: "%s"', input);
     }
 
@@ -21,7 +21,7 @@ function SamJs (options) {
   };
 
   this.speak = (text, phonetic) => {
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.DEBUG_SAM === true) {
       console.log('text input: ', text);
     }
 

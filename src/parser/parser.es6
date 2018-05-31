@@ -27,7 +27,7 @@ export default function Parser (input) {
     return (pos === phonemeindex.length - 1) ? END : phonemeindex[pos]
   };
   const setPhoneme = (pos, value) => {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.DEBUG_SAM === true) {
       console.log(`${pos} CHANGE: ${PhonemeNameTable[phonemeindex[pos]]} -> ${PhonemeNameTable[value]}`);
     }
     phonemeindex[pos]  = value;
@@ -42,7 +42,7 @@ export default function Parser (input) {
    * @return {undefined}
    */
   const insertPhoneme = (pos, value, stressValue, length) => {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.DEBUG_SAM === true) {
       console.log(`${pos} INSERT: ${PhonemeNameTable[value]}`);
     }
     for(let i = phonemeindex.length - 1; i >= pos; i--) {
@@ -56,7 +56,7 @@ export default function Parser (input) {
   };
   const getStress = (pos) => stress[pos] | 0;
   const setStress = (pos, stressValue) => {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.DEBUG_SAM === true) {
       console.log(
         `${pos} "${PhonemeNameTable[phonemeindex[pos]]}" SET STRESS: ${stress[pos]} -> ${stressValue}`
       );
@@ -65,7 +65,7 @@ export default function Parser (input) {
   };
   const getLength = (pos) => phonemeLength[pos] | 0;
   const setLength = (pos, length) => {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.DEBUG_SAM === true) {
       console.log(
         `${pos} "${PhonemeNameTable[phonemeindex[pos]]}" SET LENGTH: ${phonemeLength[pos]} -> ${length}`
       );
@@ -92,7 +92,7 @@ export default function Parser (input) {
       phonemeindex[pos++] = value;
     },
     (value) => {
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.DEBUG_SAM === true) {
         if ((value & 128) !== 0) {
           throw new Error('Got the flag 0x80, see CopyStress() and SetPhonemeLength() comments!');
         }
@@ -102,7 +102,7 @@ export default function Parser (input) {
   );
   phonemeindex[pos] = END;
 
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.DEBUG_SAM === true) {
     PrintPhonemes(phonemeindex, phonemeLength, stress);
   }
   Parser2(insertPhoneme, setPhoneme, getPhoneme, getStress);
@@ -121,7 +121,7 @@ export default function Parser (input) {
 
   InsertBreath(getPhoneme, setPhoneme, insertPhoneme, getStress, getLength, setLength);
 
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.DEBUG_SAM === true) {
     PrintPhonemes(phonemeindex, phonemeLength, stress);
   }
 

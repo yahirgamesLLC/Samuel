@@ -83,7 +83,7 @@ function wild_match (sign1) {
 export default function Parser1(input, addPhoneme, addStress) {
   let srcPos   = 0;
   for (let srcPos=0;srcPos<input.length;srcPos++) {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.DEBUG_SAM === true) {
       let tmp = input.toLowerCase();
       console.log(
         `processing "${tmp.substr(0, srcPos)}%c${tmp.substr(srcPos, 2).toUpperCase()}%c${tmp.substr(srcPos + 2)}"`,

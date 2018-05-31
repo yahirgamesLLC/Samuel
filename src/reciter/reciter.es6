@@ -270,7 +270,7 @@ function reciterRule (ruleString) {
    */
   const result = function (text, inputPos, callback) {
     if (matches(text, inputPos)) {
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.DEBUG_SAM === true) {
         console.log(`${source} -> ${target}`)
       }
       callback(target, match.length);
@@ -316,7 +316,7 @@ export function TextToPhonemes (input) {
 
     let c = 0;
     while ((inputPos < text.length) && (c++ < 10000)) {
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.DEBUG_SAM === true) {
         let tmp = text.toLowerCase();
         console.log(
           `processing "${tmp.substr(0, inputPos)}%c${tmp[inputPos].toUpperCase()}%c${tmp.substr(inputPos + 1)}"`,

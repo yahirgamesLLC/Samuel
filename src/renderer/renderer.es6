@@ -134,7 +134,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
     }
     RescaleAmplitude(amplitude);
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.DEBUG_SAM === true) {
       PrintOutput(pitches, frequency, amplitude, sampledConsonantFlag);
     }
     if (process.env.NODE_ENV === 'karma-test') {
