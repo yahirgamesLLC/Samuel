@@ -31,19 +31,10 @@ let context = null;
  */
 export function PlayBuffer(audiobuffer) {
   if (null === context) {
-    ((window) => {
-      context = ['', 'webkit'].reduce((pre, prefix) => {
-        if (pre) { return pre;}
-        const implementation = prefix + 'AudioContext';
-        if (typeof window[implementation] !== "undefined") {
-          return new window[implementation]();
-        }
-        return null;
-      }, null);
-    })(window);
+    context = new AudioContext();
   }
 
-  if (null === context) {
+  if (!context) {
     if (process.env.NODE_ENV === 'development') {
       throw new Error('No player available!');
     }
