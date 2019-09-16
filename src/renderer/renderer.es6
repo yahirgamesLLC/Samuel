@@ -157,26 +157,6 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
    */
   function ProcessFrames(frameCount, speed, frequency, pitches, amplitude, sampledConsonantFlag) {
     const RenderSample = (mem66, consonantFlag, mem49) => {
-
-      const RenderUnvoicedSample = (hi, off, mem53) => {
-        hi = hi & 0xFFFF; // unsigned short
-        off = off & 0xFF; // unsigned char
-        mem53 = mem53 & 0xFF; // unsigned char
-        do {
-          let bit = 8;
-          let sample = sampleTable[hi+off];
-          do {
-            if ((sample & 128) !== 0) {
-              Output(2, 5);
-            }
-            else {
-              Output(1, mem53);
-            }
-            sample <<= 1;
-          } while (--bit !== 0);
-        } while (((++off) & 0xFF) !== 0);
-      };
-
       // mem49 == current phoneme's index - unsigned char
 
       // mask low three bits and subtract 1 get value to
@@ -215,7 +195,24 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
 
         return off;
       }
-      RenderUnvoicedSample(hi, pitch ^ 255, tab48426[hibyte]);
+      // unvoiced
+      hi = hi & 0xFFFF; // unsigned short
+      let off = pitch ^ 255 & 0xFF; // unsigned char
+      let mem53 = tab48426[hibyte] & 0xFF; // unsigned char
+      do {
+        let bit = 8;
+        let sample = sampleTable[hi+off];
+        do {
+          if ((sample & 128) !== 0) {
+            Output(2, 5);
+          }
+          else {
+            Output(1, mem53);
+          }
+          sample <<= 1;
+        } while (--bit !== 0);
+      } while (((++off) & 0xFF) !== 0);
+
       return mem66;
     };
 
