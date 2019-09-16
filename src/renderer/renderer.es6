@@ -10,24 +10,6 @@ import SetMouthThroat from './set-mouth-throat.es6'
 import CreateTransitions from './create-transitions.es6';
 import CreateFrames from './create-frames.es6';
 import CreateOutputBuffer from './output-buffer.es6';
-
-/**
- * RESCALE AMPLITUDE
- *
- * Rescale volume from a linear scale to decibels.
- */
-function RescaleAmplitude (amplitude) {
-  const amplitudeRescale = [
-    0x00, 0x01, 0x02, 0x02, 0x02, 0x03, 0x03, 0x04,
-    0x04, 0x05, 0x06, 0x08, 0x09, 0x0B, 0x0D, 0x0F,
-    0x00  //17 elements?
-  ];
-  for(let i = amplitude[0].length - 1; i >= 0; i--) {
-    amplitude[0][i] = amplitudeRescale[amplitude[0][i]];
-    amplitude[1][i] = amplitudeRescale[amplitude[1][i]];
-    amplitude[2][i] = amplitudeRescale[amplitude[2][i]];
-  }
-}
 /**
  * @param {Array} phonemes
  * @param {Number} [pitch]
@@ -123,8 +105,22 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
         pitches[i] -= (frequency[0][i] >> 1);
       }
     }
+
+    /*
+     * RESCALE AMPLITUDE
+     *
+     * Rescale volume from a linear scale to decibels.
+     */
+    const amplitudeRescale = [
+      0x00, 0x01, 0x02, 0x02, 0x02, 0x03, 0x03, 0x04,
+      0x04, 0x05, 0x06, 0x08, 0x09, 0x0B, 0x0D, 0x0F,
+      0x00  //17 elements?
+    ];
+    for(let i = amplitude[0].length - 1; i >= 0; i--) {
+      amplitude[0][i] = amplitudeRescale[amplitude[0][i]];
+      amplitude[1][i] = amplitudeRescale[amplitude[1][i]];
+      amplitude[2][i] = amplitudeRescale[amplitude[2][i]];
     }
-    RescaleAmplitude(amplitude);
 
     if (process.env.DEBUG_SAM === true) {
       PrintOutput(pitches, frequency, amplitude, sampledConsonantFlag);
