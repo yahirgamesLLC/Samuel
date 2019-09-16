@@ -11,24 +11,6 @@ import CreateTransitions from './create-transitions.es6';
 import CreateFrames from './create-frames.es6';
 import CreateOutputBuffer from './output-buffer.es6';
 
-/** ASSIGN PITCH CONTOUR
- *
- * This subtracts the F1 frequency from the pitch to create a
- * pitch contour. Without this, the output would be at a single
- * pitch level (monotone).
- *
- * @param {Uint8Array} pitches
- * @param {Uint8Array} frequency1
- *
- */
-function AssignPitchContour (pitches, frequency1) {
-  for(let i = 0; i < pitches.length; i++) {
-    // subtract half the frequency of the formant 1.
-    // this adds variety to the voice
-    pitches[i] -= (frequency1[i] >> 1);
-  }
-}
-
 /**
  * RESCALE AMPLITUDE
  *
@@ -129,7 +111,18 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
     );
 
     if (!singmode) {
-      AssignPitchContour(pitches, frequency[0]);
+      /* ASSIGN PITCH CONTOUR
+       *
+       * This subtracts the F1 frequency from the pitch to create a
+       * pitch contour. Without this, the output would be at a single
+       * pitch level (monotone).
+       */
+      for(let i = 0; i < pitches.length; i++) {
+        // subtract half the frequency of the formant 1.
+        // this adds variety to the voice
+        pitches[i] -= (frequency[0][i] >> 1);
+      }
+    }
     }
     RescaleAmplitude(amplitude);
 
