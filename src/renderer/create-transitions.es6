@@ -94,20 +94,6 @@ export default function CreateTransitions(pitches, frequency, amplitude, tuples)
     }
   };
 
-  const interpolate_pitch = (width, pos, mem49, phase3) => {
-    // unlike the other values, the pitches[] interpolates from
-    // the middle of the current phoneme to the middle of the
-    // next phoneme
-
-    // half the width of the current and next phoneme
-    let cur_width  = tuples[pos][1] >> 1;
-    let next_width = tuples[pos+1][1] >> 1;
-    // sum the values
-    width = cur_width + next_width;
-    let pitch = pitches[next_width + mem49] - pitches[mem49 - cur_width];
-    interpolate(width, 0, phase3, pitch);
-  };
-
   let phase1;
   let phase2;
   let mem49 = 0;
@@ -140,7 +126,17 @@ export default function CreateTransitions(pitches, frequency, amplitude, tuples)
     let transition   = phase1 + phase2; // total transition?
 
     if (((transition - 2) & 128) === 0) {
-      interpolate_pitch(transition, pos, mem49, phase3);
+      // unlike the other values, the pitches[] interpolates from
+      // the middle of the current phoneme to the middle of the
+      // next phoneme
+
+      // half the width of the current and next phoneme
+      let cur_width  = tuples[pos][1] >> 1;
+      let next_width = tuples[pos+1][1] >> 1;
+      let pitch = pitches[next_width + mem49] - pitches[mem49 - cur_width];
+      // sum the values
+      interpolate(cur_width + next_width, 0, phase3, pitch);
+
       for (let table = 1; table < 7;table++) {
         // tables:
         // 0  pitches[]
