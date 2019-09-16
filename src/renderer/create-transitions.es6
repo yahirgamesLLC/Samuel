@@ -60,15 +60,6 @@ export default function CreateTransitions(pitches, frequency, amplitude, tuples)
     return tables[table][pos];
   };
 
-  const Write = (table, pos, value) => {
-    if (process.env.NODE_ENV === 'development') {
-      if (table < 0 || table > tables.length -1 ) {
-        throw new Error(`Error invalid table in Read: ${table}`);
-      }
-    }
-    return tables[table][pos] = value;
-  };
-
   // linearly interpolate values
   const interpolate = (width, table, frame, mem53) => {
     let sign      = (mem53 < 0);
@@ -91,7 +82,14 @@ export default function CreateTransitions(pitches, frequency, amplitude, tuples)
           val++;
         }
       }
-      Write(table, ++frame, val); // Write updated value back to next frame.
+
+      // Write updated value back to next frame.
+      if (process.env.NODE_ENV === 'development') {
+        if (table < 0 || table > tables.length -1 ) {
+          throw new Error(`Error invalid table in Read: ${table}`);
+        }
+      }
+      tables[table][++frame] = val;
       val += div;
     }
   };
