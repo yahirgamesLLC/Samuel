@@ -171,44 +171,39 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
       // /X                     4          0x17
 
       const hi = hibyte * 256 & 0xFFFF; // unsigned short
+      let off
       // voiced sample?
       const pitch = consonantFlag & 248; // unsigned char
+
+      function renderSample (index1, value1, index2, value2) {
+        let bit = 8;
+        let sample = sampleTable[hi+off]
+        do {
+          if ((sample & 128) !== 0) {
+            Output(index1, value1);
+          } else {
+            Output(index2, value2);
+          }
+          sample <<= 1;
+        } while(--bit);
+      }
+
       if(pitch === 0) {
         // voiced phoneme: Z*, ZH, V*, DH
         let phase1 = (pitches[mem49 & 0xFF] >> 4) ^ 255 & 0xFF; // unsigned char
-        let off = mem66 & 0xFF; // unsigned char
+        off = mem66 & 0xFF; // unsigned char
         do {
-          let bit = 8;
-          let sample = sampleTable[hi+off];
-          do {
-            if ((sample & 128) !== 0) {
-              Output(3, 26);
-            } else {
-              Output(4, 6);
-            }
-            sample <<= 1;
-          } while(--bit !== 0);
+          renderSample(3, 26, 4, 6)
           off++;
-        } while (((++phase1) & 0xFF) !== 0);
-
+        } while (++phase1 & 0xFF);
         return off;
       }
       // unvoiced
-      let off = pitch ^ 255 & 0xFF; // unsigned char
+      off = pitch ^ 255 & 0xFF; // unsigned char
       let mem53 = tab48426[hibyte] & 0xFF; // unsigned char
       do {
-        let bit = 8;
-        let sample = sampleTable[hi+off];
-        do {
-          if ((sample & 128) !== 0) {
-            Output(2, 5);
-          }
-          else {
-            Output(1, mem53);
-          }
-          sample <<= 1;
-        } while (--bit !== 0);
-      } while (((++off) & 0xFF) !== 0);
+        renderSample(2, 5, 1, mem53)
+      } while (++off & 0xFF);
 
       return mem66;
     };
@@ -242,7 +237,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
           // Multtable stored the result of a 8-bit signed multiply of the upper nibble of sin/rect (interpreted as signed)
           // and the amplitude lower nibble (interpreted as unsigned), then divided by two.
           // On the 6510 this made sense, but in modern processors it's way faster and cleaner to simply do the multiply.
-          function char(x) { return (x & 0x7F) - (x & 0x80); }
+          const char = (x) => (x & 0x7F) - (x & 0x80);
           // simulate the glottal pulse and formants
           let ary = []
           let /* unsigned int */ p1 = phase1 * 256; // Fixed point integers because we need to divide later on
