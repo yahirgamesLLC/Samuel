@@ -351,7 +351,7 @@ will remain until you type "`crtl-N`" again.
 
 ## PHONETIC INPUT TO S.A.M.
 
-###<a name="ch1.0"></a> I. THE PHONETIC SPELLING SYSTEM
+### <a name="ch1.0"></a> I. THE PHONETIC SPELLING SYSTEM
 
 S.A.M. is equipped with a version of the easy-to-learn, very readable
 International Phonetic Alphabet. There are about fifty phonemes which
@@ -699,7 +699,7 @@ because they were presented in fine detail. In reality, the steps become
 automatic and you will soon be able to type in phonetics almost as fast
 as you can type English text.
 
-###<a name="ch5.0"></a> THE USE OF PITCH AND SPEED CONTROLS
+### <a name="ch5.0"></a> THE USE OF PITCH AND SPEED CONTROLS
 
 S.A.M. is capable of speaking in a wide range of tones and at many
 different rates.
@@ -741,7 +741,7 @@ POKE SPEED,M
 
 *see the memory reference chart for these locations
 
-####<a name="ch5.1"></a> WHAT AM I HEARING?
+#### <a name="ch5.1"></a> WHAT AM I HEARING?
 
 In recent years, many new speech synthesizers have appeared in the
 marketplace. The techniques they use vary widely depending on the
@@ -825,7 +825,7 @@ method using all the recorded words, but what we have gained is
 versatility, practicality, and the ability to do it all in real time,
 with very little memory usage, on an inexpensive microcomputer.
 
-####<a name="ch5.2"></a> ENGLISH-TO-PHONETIC SPELLING DICTIONARY
+#### <a name="ch5.2"></a> ENGLISH-TO-PHONETIC SPELLING DICTIONARY
 
 [A](#dictA)
 [B](#dictB)
@@ -859,7 +859,7 @@ with very little memory usage, on an inexpensive microcomputer.
 [STATES AND PROVINCES](#dictStates)
 [UNITS](#dictUnits)
 
-#####<a name="dictA"></a>- A -
+##### <a name="dictA"></a>- A -
 
 - abandon = AHBAE4NDUN
 - ability = AHBIH4LIXTIY
@@ -927,7 +927,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - auxiliary = AOKZIH4LYERIY
 - available = AHVEH4LAXBUL
 
-#####<a name="dictB"></a>- B -
+##### <a name="dictB"></a>- B -
 
 - baby = BEY4BIY
 - back = BAE4K
@@ -982,7 +982,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - by = BAY4
 - byfe = BAY4T
 
-#####<a name="dictC"></a>- C -
+##### <a name="dictC"></a>- C -
 
 - cabinet = KAE4BUNIXT
 - cable KEY4BUL
@@ -1061,7 +1061,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - culture = KAH4LCHER
 - curious = KYUH4RIYAXS
 
-#####<a name="dictD"></a>- D -
+##### <a name="dictD"></a>- D -
 
 - danger = DEY4NJER
 - data = DEY4TAH
@@ -1087,7 +1087,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - drive = DRAY4V
 - dungeon = DAH4NJUN
 
-#####<a name="dictE"></a>- E -
+##### <a name="dictE"></a>- E -
 
 - earth = ER4TH
 - easy = IY4ZIY
@@ -1116,7 +1116,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - expression EHKSPREH4SHUN
 - extra = EH4KSTRAH
 
-#####<a name="dictF"></a>- F -
+##### <a name="dictF"></a>- F -
 
 - face = FEY4S
 - fail = FEY4L
@@ -1162,7 +1162,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - fusion = FYUWSZHUN
 - future = FYUW4CHER
 
-#####<a name="dictG"></a>- G -
+##### <a name="dictG"></a>- G -
 
 - gain = GEY4N
 - galaxy = GAE4LAXKSIY
@@ -1195,7 +1195,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - gun = GAH4N
 - gyroscope = JAY4RAXSKOWP
 
-#####<a name="dictH"></a>- H -
+##### <a name="dictH"></a>- H -
 
 - habit = /HAE4BIXT
 - hacker = /HAE4KER
@@ -1234,7 +1234,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - hyper = /HAY4PER
 - hypothesis = /HAYPAA4THAXSIHS
 
-#####<a name="dictI"></a>- I -
+##### <a name="dictI"></a>- I -
 
 - I = AY4
 - ice = AY4S
@@ -1284,7 +1284,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - issue = IH4SHUW
 - item = AY4TUM
 
-#####<a name="dictJ"></a>- J -
+##### <a name="dictJ"></a>- J -
 
 - jacket = JAE4KIXT
 - jam = JAE4M
@@ -1305,7 +1305,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - jungle JAH4NXGUL
 - junk = JAH4NXK
 
-#####<a name="dictK"></a>- K -
+##### <a name="dictK"></a>- K -
 
 - keep = KIY4P
 - key = KIY4
@@ -1316,7 +1316,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - knight = NAY4T
 - knowledge = NAA4LIXJ
 
-#####<a name="dictL"></a>- L -
+##### <a name="dictL"></a>- L -
 
 - label = LEY4BUL
 - lady = LEY4DIY
@@ -1368,7 +1368,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - lunatic = LUW4NAXTIH6K
 - luxury = LAH4GZHERIY
 
-#####<a name="dictM"></a>- M -
+##### <a name="dictM"></a>- M -
 
 - machine = MAXSHIY4N
 - madam = MAE4DUM
@@ -1461,7 +1461,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - mystery = MIH4STERIY
 
 
-#####<a name="dictN"></a>- N -
+##### <a name="dictN"></a>- N -
 
 - naive = NAY5IY4V
 - name = NEY4M
@@ -1494,7 +1494,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - number= NAH4MBER
 
 
-#####<a name="dictO"></a>- O -
+##### <a name="dictO"></a>- O -
 
 - object = AA4BJEHKT
 - obligation = AA5BLIXGEY4SHUN
@@ -1539,7 +1539,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - own = OW4N
 - oxygen = AA4KSAXJIXN
 
-#####<a name="dictP"></a>- p -
+##### <a name="dictP"></a>- p -
 
 - pack = PAEPAE4K
 - package = PAE4KIXJ
@@ -1663,7 +1663,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - push = PUH4SH
 - put = PUH4T
 
-#####<a name="dictQ"></a>- Q -
+##### <a name="dictQ"></a>- Q -
 
 - quality = KWAA4LIXTIY
 - quantity = KWAA4NTIXTIY
@@ -1676,7 +1676,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - quotient = KWOW4SHUNT
 
 
-#####<a name="dictR"></a>- R -
+##### <a name="dictR"></a>- R -
 
 - race = REY4S
 - radar = REY4DAAR
@@ -1762,7 +1762,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - run = RAH4N
 - rush = RAH4SH
 
-#####<a name="dictS"></a>- S -
+##### <a name="dictS"></a>- S -
 
 - sabotage = SAE5BAXTAA6ZH
 - sacrifice = SAE4KRIXFAYS
@@ -1997,7 +1997,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - system = SIH4STUM
 - synthesizer = SIH4NTHAXSAYZER
 
-#####<a name="dictT"></a>- T -
+##### <a name="dictT"></a>- T -
 
 - tab = TAE4B
 - table = TEY4BUL
@@ -2113,7 +2113,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - type = TAY4P
 - typewriter = TAY4PRAYTER
 
-#####<a name="dictU"></a>- U -
+##### <a name="dictU"></a>- U -
 
 - ugly = AH4GLIY
 - ultimate = AH4LTAX6MIXT
@@ -2131,7 +2131,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - use = YUW4S
 - utility = YUWTIH4LIXTIY
 
-#####<a name="dictV"></a>- V -
+##### <a name="dictV"></a>- V -
 
 - vacation = VEYKEY4SHUN
 - vacuum = VAE4KYUWM
@@ -2178,7 +2178,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - voyage = VOY4IXJ
 - video = VIH4DIYOW
 
-#####<a name="dictW"></a>- W -
+##### <a name="dictW"></a>- W -
 
 - wafer = WEY4FER
 - wage = WEY4J
@@ -2239,13 +2239,13 @@ with very little memory usage, on an inexpensive microcomputer.
 - write = RAY4T
 - wrong = RAO4NX
 
-#####<a name="dictX"></a>- X -
+##### <a name="dictX"></a>- X -
 
 - Zerox = ZIH4RAAKS
 - X-ray = EH4KSREY
 - xylophone = ZAY4LAXFOWN
 
-#####<a name="dictY"></a>- Y -
+##### <a name="dictY"></a>- Y -
 
 - yacht = YAA4T
 - yard = YAA4RD
@@ -2257,7 +2257,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - your = YOH4R
 - youth = YUX4TH
 
-#####<a name="dictX"></a>- Z -
+##### <a name="dictX"></a>- Z -
 
 - zany = ZEY4NIY
 - zero = ZIY4ROW
@@ -2266,7 +2266,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - zodiac = ZOW4DIY6AEK
 - zone = ZOW4N
 
-#####<a name="dictDays"></a>- DAYS OF THE WEEK -
+##### <a name="dictDays"></a>- DAYS OF THE WEEK -
 
 - Monday = MAH4NDEY
 - Tuesday = TUW4ZDEY
@@ -2276,7 +2276,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - Saturday = SAE4TERDEY
 - Sunday = SAH4NDEY
 
-#####<a name="dictMonths"></a>- MONTHS OF THE YEAR -
+##### <a name="dictMonths"></a>- MONTHS OF THE YEAR -
 
 - January = JAE4NYUXEHRIY
 - February = FEH4BRUXEH6RIY
@@ -2291,7 +2291,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - November = NOHVEH4MBER
 - December = DIHSEH4MBER
 
-#####<a name="dictNums"></a>- NUMBERS -
+##### <a name="dictNums"></a>- NUMBERS -
 
 - one = WAH4N
 - two = TUW4
@@ -2312,7 +2312,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - thousand = THAW4ZUND
 - million = MIH4LYUN
 
-#####<a name="dictStates"></a>- STATES AND PROVINCES -
+##### <a name="dictStates"></a>- STATES AND PROVINCES -
 
 - United States = YUWNAY4TIXD STEY4TS
 - Alabama = AE4LAXBAE6MAX
@@ -2377,7 +2377,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - Quebec = KUHBEH4K
 - Saskatchewan = SAESKAE4CHAXWAAN
 
-#####<a name="dictUnits"></a>- UNITS -
+##### <a name="dictUnits"></a>- UNITS -
 
 - units = YUW4NIXTS
 - inches = IH4NCHIXZ
@@ -2399,7 +2399,7 @@ with very little memory usage, on an inexpensive microcomputer.
 - liters = LIY4TERZ
 - degrees = DAXGRIY4Z
 
-####<a name="ch5.3"></a>FINDING PHONEME SPELLING ERRORS
+#### <a name="ch5.3"></a>FINDING PHONEME SPELLING ERRORS
 
 If you have made a phonetic spelling mistake that causes S.A.M. to be
 unable to break your string down into phonemes, he will beep twice at
@@ -2429,7 +2429,7 @@ Here is a sample error-checking and display program:
 The inverse character marks the spot where S.A.M. could no longer
 continue reading the string.
 
-####<a name="ch5.4"></a> TECHNICAL NOTES USE IN BASIC
+#### <a name="ch5.4"></a> TECHNICAL NOTES USE IN BASIC
 
 S.A.M. from BASIC performs all stack housekeeping that is required.
 
@@ -2459,7 +2459,7 @@ mode by POKE-ing a "1" into the "lights" register: <b>8210</b>. There
 are different speed and pitch addresses to be used in this case. To
 return to DMA-disabled speech, POKE a "0" into this register.
 
-####<a name="ch5.5"></a>IMPORTANT ADDRESSES
+#### <a name="ch5.5"></a>IMPORTANT ADDRESSES
 
 |&nbsp;                       |Decimal |Hex  |
 |-----------------------------|--------|-----|
@@ -2475,7 +2475,7 @@ return to DMA-disabled speech, POKE a "0" into this register.
 |ERROR                        |8211    |$2013|
 |ATASCII STRING               |8212    |$2014|
 
-####<a name="ch5.6"></a>LISTING OF GUESSNUM
+#### <a name="ch5.6"></a>LISTING OF GUESSNUM
 
 [![](img/disk.jpg)
 **Download GUESSNUM.BAS (Atari BASIC)**](downloads/GUESSNUM.BAS)
@@ -2537,7 +2537,7 @@ return to DMA-disabled speech, POKE a "0" into this register.
 350 ? :? :? :? :? :GOTO 60
 ```
 
-#####<a name="ch5.6.5"></a>SELDOM-USED PHONEME COMBINATIONS
+##### <a name="ch5.6.5"></a>SELDOM-USED PHONEME COMBINATIONS
 
 |Phoneme Combination|You probably want  |Unless it splitssyllables like|
 |-------------------|-------------------|------------------------------|
@@ -2550,7 +2550,7 @@ return to DMA-disabled speech, POKE a "0" into this register.
 |NC                |NXG e.g. s**inging**|**ing**rate                   |
 |NK                |NXK e.g. ba**nk**   |Su**nk**ist                   |
 
-####<a name="ch5.7"></a> FUTURE IMPROVEMENTS
+#### <a name="ch5.7"></a> FUTURE IMPROVEMENTS
 
 Improvements upon and modifications to the S.A.M. system may occur in
 the future. Such new versions of S.A.M. will be made available at
@@ -2572,7 +2572,7 @@ your comments and suggestions on our software speech synthesis products.
 
 PRINTED IN USA
 
-####<a name="ch5.7"></a> SAM WEB LINKS!
+#### <a name="ch5.7"></a> SAM WEB LINKS!
 
 Well, this little section wasn't in the original manual; however, I
 believe that these links are important enough to be included in the

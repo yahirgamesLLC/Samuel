@@ -1,6 +1,6 @@
-#SAM Software Automatic Mouth
+# SAM Software Automatic Mouth
 
-##What is SAM?
+## What is SAM?
 
 Sam is a very small Text-To-Speech (TTS) program written in C, that
 runs on most popular platforms.
@@ -26,7 +26,7 @@ by Stefan (which weights about 414kb).
 For further details, refer to
 [retrobits.net](http://www.retrobits.net/atari/sam.shtml)
 
-##Usage
+## Usage
 
 Require the module via npm: `npm install sam-js`
 
@@ -39,7 +39,7 @@ sam.speak('Hello world');
 
 ```
 
-###Typical voice values
+### Typical voice values
 
 ```
 DESCRIPTION          SPEED     PITCH     THROAT    MOUTH
@@ -51,12 +51,12 @@ Extra-Terrestrial    100        64        150       200
 SAM                   72        64        128       128
 ```
 
-##Original docs.
+## Original docs.
 
 I have bundled a copy of the original manual in this repository, see
 the [manual](docs/manual.md) file in the [docs](docs) directory.
 
-##License
+## License
 
 The software is a reverse-engineered version of a commercial software
 published more than 30 years ago. The current copyright holder is 
