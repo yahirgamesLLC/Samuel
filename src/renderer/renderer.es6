@@ -157,26 +157,6 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
    */
   function ProcessFrames(frameCount, speed, frequency, pitches, amplitude, sampledConsonantFlag) {
     const RenderSample = (mem66, consonantFlag, mem49) => {
-      const RenderVoicedSample = (hi, off, phase1) => {
-        hi = hi & 0xFFFF; // unsigned short
-        off = off & 0xFF; // unsigned char
-        phase1 = phase1 & 0xFF; // unsigned char
-        do {
-          let sample = sampleTable[hi+off];
-          let bit = 8;
-          do {
-            if ((sample & 128) !== 0) {
-              Output(3, 26);
-            } else {
-              Output(4, 6);
-            }
-            sample <<= 1;
-          } while(--bit !== 0);
-          off++;
-        } while (((++phase1) & 0xFF) !== 0);
-
-        return off;
-      };
 
       const RenderUnvoicedSample = (hi, off, mem53) => {
         hi = hi & 0xFFFF; // unsigned short
@@ -216,7 +196,24 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
       if(pitch === 0) {
         // voiced phoneme: Z*, ZH, V*, DH
         pitch = pitches[mem49 & 0xFF] >> 4;
-        return RenderVoicedSample(hi, mem66, pitch ^ 255);
+        hi = hi & 0xFFFF; // unsigned short
+        let off = mem66 & 0xFF; // unsigned char
+        let phase1 = pitch ^ 255 & 0xFF; // unsigned char
+        do {
+          let sample = sampleTable[hi+off];
+          let bit = 8;
+          do {
+            if ((sample & 128) !== 0) {
+              Output(3, 26);
+            } else {
+              Output(4, 6);
+            }
+            sample <<= 1;
+          } while(--bit !== 0);
+          off++;
+        } while (((++phase1) & 0xFF) !== 0);
+
+        return off;
       }
       RenderUnvoicedSample(hi, pitch ^ 255, tab48426[hibyte]);
       return mem66;
