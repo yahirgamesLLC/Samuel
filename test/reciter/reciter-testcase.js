@@ -1,4 +1,3 @@
-import { describe, it } from 'mocha'
 import { assert } from 'chai'
 import TextToPhonemes from "../../src/reciter/reciter.es6";
 import TextToPhonemesC from "../../src/reciter/c-conv/reciter.es6";

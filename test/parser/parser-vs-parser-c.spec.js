@@ -1,4 +1,3 @@
-import { describe, it } from 'mocha'
 import { assert } from 'chai'
 
 import Parser from '../../src/parser/parser.es6';

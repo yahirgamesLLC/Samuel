@@ -134,12 +134,14 @@ function genConfig (opts) {
       break;
   }
   const config = {
-    entry: opts.entry,
-    dest: opts.dest,
+    input: opts.entry,
+    output: {
+      file: opts.dest,
+      format: opts.format,
+      name: moduleName,
+      banner: opts.banner,
+    },
     external: opts.external,
-    format: opts.format,
-    banner: opts.banner,
-    moduleName: moduleName,
     plugins: [
       replace({
         __VERSION__: version

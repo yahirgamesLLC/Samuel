@@ -37,11 +37,15 @@ function build (builds) {
 }
 
 function buildEntry (config) {
-  const isProd = /min\.js$/.test(config.dest);
-  return rollup.rollup(config).then(bundle => {
-    const code = bundle.generate(config).code;
+  const outConfig = config.output
+  delete config.output
+  const isProd = /min\.js$/.test(outConfig.file);
+  const build = async () => {
+    const bundle = await rollup.rollup(config)
+    const {output} = await bundle.generate(outConfig)
+    const code = output[0].code
     if (isProd) {
-      let result = (/esm\.min$/.test(config.dest) ? uglify : uglifyEs).minify(code, {
+      let result = (/esm\.min$/.test(outConfig.file) ? uglify : uglifyEs).minify(code, {
         mangle: {
           // keep_classnames: true,
         },
@@ -58,21 +62,24 @@ function buildEntry (config) {
           keep_fnames: true
         },
         sourceMap: {
-          filename: path.basename(config.dest),
-          url: path.basename(config.dest) + '.map'
+          filename: path.basename(outConfig.file),
+          url: path.basename(outConfig.file) + '.map'
         }
       });
-      let minimized = (config.banner ? config.banner + '\n' : '') + result.code;
+      let minimized = (outConfig.banner ? outConfig.banner + '\n' : '') + result.code;
       if (result.error) console.error(result.error.message);
       if (result.warnings) console.warn(result.warnings);
 
-      return Promise.all([
-        write(config.dest, minimized, true),
-        write(config.dest + '.map', result.map || '', true)
+      await Promise.all([
+        write(outConfig.file, minimized, true),
+        write(outConfig.file + '.map', result.map || '', true)
       ]);
     } else {
-      return write(config.dest, code)
+      await write(outConfig.file, code)
     }
+  }
+  return new Promise((resolve, reject) => {
+    build().then(() => resolve()).catch(reason => reject(reason))
   })
 }
 

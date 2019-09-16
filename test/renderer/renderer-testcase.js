@@ -1,4 +1,3 @@
-import { describe, it } from 'mocha'
 import { assert } from 'chai'
 import {END} from '../../src/common/constants.es6'
 import loadFixture from '../fixture-reader.js';

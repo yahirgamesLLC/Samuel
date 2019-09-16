@@ -1,4 +1,3 @@
-import { describe, it } from 'mocha'
 import { assert } from 'chai'
 
 import Uint8 from '../../src/types/UInt8.es6';

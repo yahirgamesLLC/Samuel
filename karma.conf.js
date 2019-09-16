@@ -2,7 +2,7 @@ module.exports = function(config) {
   config.set({
     frameworks: ['mocha', 'browserify'],
     // You may use 'ChromeCanary', 'Chromium' or any other supported browser
-    browsers: ['PhantomJS', 'ChromeHeadless', 'Chrome_without_security'/*'Chrome'*/],
+    browsers: ['ChromeHeadless', 'Chrome_without_security'],
     browserDisconnectTimeout: 1000,
     // Need to bump these really high as it times out somehow.
     browserDisconnectTolerance: 2,
@@ -15,7 +15,6 @@ module.exports = function(config) {
       }
     },
     files: [
-      './test/phantomjs-polyfills.js',
       'test/minimum-tests.spec.js',
       'src/**/*.es6',
       // fixtures
