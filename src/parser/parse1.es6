@@ -81,7 +81,6 @@ function wild_match (sign1) {
  * @return {undefined}
  */
 export default function Parser1(input, addPhoneme, addStress) {
-  let srcPos   = 0;
   for (let srcPos=0;srcPos<input.length;srcPos++) {
     if (process.env.DEBUG_SAM === true) {
       let tmp = input.toLowerCase();

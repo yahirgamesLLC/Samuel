@@ -345,7 +345,6 @@ export function TextToPhonemes (input) {
             return false;
           }
           // go to the right rules for this character.
-          const tmp = rules[currentChar];
           rules[currentChar].some((rule) => {
             return rule(text, inputPos, successCallback);
           });
