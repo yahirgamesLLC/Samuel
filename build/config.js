@@ -21,110 +21,59 @@ const resolve = p => {
   return path.resolve(__dirname, '../', p)
 };
 
-const builds = {
-  // runtime-only build (Browser)
-  'dev': {
-    entry: resolve('src/index.es6'),
-    dest: resolve('dist/samjs.js'),
-    format: 'umd',
-    env: 'development',
-    banner
+const buildSrc = [
+  {
+    name: '',
+    entry: 'src/index.es6',
+    dest: 'samjs',
   },
-  // Runtime only (CommonJS). Used by bundlers e.g. Webpack & Browserify
-  'cjs': {
-    entry: resolve('src/index.es6'),
-    dest: resolve('dist/samjs.common.js'),
-    format: 'cjs',
-    env: 'development',
-    banner
+  {
+    name: 'guessnum-demo',
+    entry: 'src/guessnum.es6',
+    dest: 'guessnum',
   },
-  // Runtime only (ES Modules). Used by bundlers that support ES Modules,
-  // e.g. Rollup & Webpack 2
-  'esm': {
-    entry: resolve('src/index.es6'),
-    dest: resolve('dist/samjs.esm.js'),
-    format: 'es',
-    env: 'development',
-    banner
-  },
-  // runtime-only production build (Browser)
-  'prod': {
-    entry: resolve('src/index.es6'),
-    dest: resolve('dist/samjs.min.js'),
-    format: 'umd',
-    env: 'production',
-    banner
-  },
-  // Runtime only production build (CommonJS). Used by bundlers e.g. Webpack & Browserify
-  'prod-cjs': {
-    entry: resolve('src/index.es6'),
-    dest: resolve('dist/samjs.common.min.js'),
-    format: 'cjs',
-    env: 'production',
-    banner
-  },
-  // Runtime only production build (ES Modules). Used by bundlers that support ES Modules,
-  // e.g. Rollup & Webpack 2
-  'prod-esm': {
-    entry: resolve('src/index.es6'),
-    dest: resolve('dist/samjs.esm.min.js'),
-    format: 'es',
-    env: 'production',
-    banner
-  },
+]
 
-  // guessnum-demo build (Browser)
-  'guessnum-demo-dev': {
-    entry: resolve('src/guessnum.es6'),
-    dest: resolve('dist/guessnum.js'),
-    format: 'umd',
-    env: 'development',
-    banner
-  },
-  // guessnum-demo (CommonJS). Used by bundlers e.g. Webpack & Browserify
-  'guessnum-demo-cjs': {
-    entry: resolve('src/guessnum.es6'),
-    dest: resolve('dist/guessnum.common.js'),
-    format: 'cjs',
-    env: 'development',
-    banner
-  },
-  // guessnum-demo (ES Modules). Used by bundlers that support ES Modules,
-  // e.g. Rollup & Webpack 2
-  'guessnum-demo-esm': {
-    entry: resolve('src/guessnum.es6'),
-    dest: resolve('dist/guessnum.esm.js'),
-    format: 'es',
-    env: 'development',
-    banner
-  },
+const builds = {}
 
-  // guessnum-demo production build (Browser)
-  'guessnum-demo-prod': {
-    entry: resolve('src/guessnum.es6'),
-    dest: resolve('dist/guessnum.min.js'),
-    format: 'umd',
-    env: 'production',
-    banner
-  },
-  // guessnum-demo production build (CommonJS). Used by bundlers e.g. Webpack & Browserify
-  'guessnum-demo-prod-cjs': {
-    entry: resolve('src/guessnum.es6'),
-    dest: resolve('dist/guessnum.common.min.js'),
-    format: 'cjs',
-    env: 'production',
-    banner
-  },
-  // guessnum-demo production build (ES Modules). Used by bundlers that support ES Modules,
-  // e.g. Rollup & Webpack 2
-  'guessnum-demo-prod-esm': {
-    entry: resolve('src/guessnum.es6'),
-    dest: resolve('dist/guessnum.esm.min.js'),
-    format: 'es',
-    env: 'production',
-    banner
-  },
-};
+buildSrc.map((file) => {
+  [
+    // Browser build
+    {
+      name: '',
+      suffix: '',
+      format: 'umd',
+    },
+    // CommonJS. Used by bundlers e.g. Webpack & Browserify
+    {
+      name: 'cjs',
+      suffix: '.common',
+      format: 'cjs',
+    },
+    // ES Modules. Used by bundlers that support ES Modules, e.g. Rollup & Webpack 2
+    {
+      name: 'esm',
+      suffix: '.esm',
+      format: 'es',
+    },
+  ].map((build) => {
+    const name = (build.name ? '-' + build.name : '') + (file.name ? '-' + file.name : '')
+    builds['dev' + name] = {
+      entry: resolve(file.entry),
+      dest: resolve(`dist/${file.dest}${build.suffix}.js`),
+      format: build.format,
+      env: 'development',
+      banner
+    }
+    builds['prod' + name] = {
+      entry: resolve(file.entry),
+      dest: resolve(`dist/${file.dest}${build.suffix}.min.js`),
+      format: build.format,
+      env: 'production',
+      banner
+    }
+  })
+})
 
 function genConfig (opts) {
   let moduleName = 'SamJs';
