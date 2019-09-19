@@ -18,6 +18,9 @@ import ProlongPlosiveStopConsonantsCode41240 from './prolong-plosive-stop-conson
  * @return {Array|Boolean} The parsed data.
  */
 export default function Parser (input) {
+  if (!input) {
+    return false;
+  }
   const getPhoneme = (pos) => {
     if (process.env.NODE_ENV === 'development') {
       if (pos < 0 || pos > phonemeindex.length) {
