@@ -48,32 +48,45 @@ function numberToPhonemes(number) {
  */
 function GuessNum(e) {
     const output = e.ownerDocument.createElement('pre');
+    const button = e.ownerDocument.createElement('button');
     const input  = e.ownerDocument.createElement('input');
+    const show = (e) => e.style.display = 'inline-block';
+    const hide = (e) => e.style.display = 'none';
+    let number
     e.appendChild(output);
+    e.appendChild(button);
     e.appendChild(input);
+    hide(input);
+    button.type='button';
+    button.innerText = 'Start game';
+    button.addEventListener('click', function() {
+      output.textContent = '';
+      number = Math.floor((Math.random() * 99) + 1);
+      say(GUESS_A_NUMBER_BETWEEN_0_AND_ONE_HUNDRED);
+      hide(button);
+      show(input);
+    });
     function say(phonemes, raw) {
       let text = phonemes;
       while (text.length < 256) {
         text += ' '
       }
-      Renderer(phonemes, {phonetic: true});
       if (raw) {
         output.innerText += "\n" + raw;
       }
+      Renderer(phonemes, {phonetic: true});
     }
     input.onkeydown = (e) => {
       if (e.keyCode === 13) {
         e.preventDefault();
         if (guess(parseInt(input.value))) {
-          number = Math.floor((Math.random() * 99) + 1);
           output.innerText = "\n" + output.innerText.split("\n").pop();
+          hide(input);
+          show(button);
         }
         input.value = '';
       }
     };
-    output.textContent = '';
-    let number = Math.floor((Math.random() * 99) + 1);
-    say(GUESS_A_NUMBER_BETWEEN_0_AND_ONE_HUNDRED);
 
   /**
    * Guess the number.
