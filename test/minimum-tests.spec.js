@@ -7,3 +7,4 @@ require('./parser/parser-vs-parser-c.spec.js');
 require('./renderer/renderer-c.spec');
 require('./renderer/renderer.spec');
 require('./renderer/renderer-vs-renderer-c.spec.js');
+require('./index.spec.js');

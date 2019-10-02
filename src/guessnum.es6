@@ -74,7 +74,7 @@ function GuessNum(e) {
       if (raw) {
         output.innerText += "\n" + raw;
       }
-      Renderer(phonemes, {phonetic: true});
+      Renderer(phonemes);
     }
     input.onkeydown = (e) => {
       if (e.keyCode === 13) {
