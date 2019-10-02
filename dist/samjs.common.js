@@ -1,15 +1,181 @@
 /**
- * This is SamJs.js v0.0.2
+ * This is SamJs.js v0.1.0
  *
  * A Javascript port of "SAM Software Automatic Mouth".
  *
- * (c) 2017-2018 Christian Schiffler
+ * (c) 2017-2019 Christian Schiffler
  *
  * @link(https://github.com/discordier/sam)
  *
  * @author 2017 Christian Schiffler <c.schiffler@cyberspectrum.de>
  */
 'use strict';
+
+/**
+ * Test if a bit is set.
+ * @param {Number} bits The bits.
+ * @param {Number} mask The mask to test.
+ * @return {boolean}
+ */
+function matchesBitmask (bits, mask) {
+  return (bits & mask) !== 0;
+}
+
+
+function text2Uint8Array (text) {
+  var buffer = new Uint8Array(text.length);
+  text.split('').forEach(function (e, index) {
+    buffer[index] = e.charCodeAt(0);
+  });
+  return buffer;
+}
+
+function Uint32ToUint8Array (uint32) {
+  var result = new Uint8Array(4);
+  result[0]  = uint32;
+  result[1]  = uint32 >>  8;
+  result[2]  = uint32 >> 16;
+  result[3]  = uint32 >> 24;
+
+  return result;
+}
+
+function Uint16ToUint8Array (uint16) {
+  var result = new Uint8Array(2);
+  result[0]  = uint16;
+  result[1]  = uint16 >> 8;
+
+  return result;
+}
+
+/**
+ *
+ * @param {AudioContext} context
+ * @param audiobuffer
+ *
+ * @return {Promise}
+ */
+function Play(context, audiobuffer) {
+  return new Promise(function (resolve) {
+    var source = context.createBufferSource();
+    var soundBuffer = context.createBuffer(1, audiobuffer.length, 22050);
+    var buffer = soundBuffer.getChannelData(0);
+    for(var i=0; i<audiobuffer.length; i++) {
+      buffer[i] = audiobuffer[i];
+    }
+    source.buffer = soundBuffer;
+    source.connect(context.destination);
+    source.onended = function () {
+      resolve(true);
+    };
+    source.start(0);
+  });
+}
+
+var context = null;
+
+/**
+ * Play an audio buffer.
+ *
+ * @param {Float32Array} audiobuffer
+ *
+ * @return {Promise}
+ */
+function PlayBuffer(audiobuffer) {
+  if (null === context) {
+    context = new AudioContext();
+  }
+
+  if (!context) {
+    {
+      throw new Error('No player available!');
+    }
+    throw new Error();
+  }
+
+  return Play(context, audiobuffer);
+}
+
+/**
+ * Convert a Uint8Array wave buffer to a Float32Array WaveBuffer
+ *
+ * @param {Uint8Array} buffer
+ *
+ * @return {Float32Array}
+ */
+function UInt8ArrayToFloat32Array (buffer) {
+  var audio = new Float32Array(buffer.length);
+  for(var i=0; i < buffer.length; i++) {
+    audio[i] = (buffer[i] - 128) / 256;
+  }
+
+  return audio
+}
+
+/**
+ *
+ * @param {Uint8Array} audiobuffer
+ *
+ * @return void
+ */
+function RenderBuffer (audiobuffer) {
+  var filename = 'sam.wav';
+
+  // Calculate buffer size.
+  var realbuffer = new Uint8Array(
+    4 + // "RIFF"
+    4 + // uint32 filesize
+    4 + // "WAVE"
+    4 + // "fmt "
+    4 + // uint32 fmt length
+    2 + // uint16 fmt
+    2 + // uint16 channels
+    4 + // uint32 sample rate
+    4 + // uint32 bytes per second
+    2 + // uint16 block align
+    2 + // uint16 bits per sample
+    4 + // "data"
+    4 + // uint32 chunk length
+    audiobuffer.length
+  );
+
+  var pos=0;
+  var write = function (buffer) {
+    realbuffer.set(buffer, pos);
+    pos+=buffer.length;
+  };
+
+  //RIFF header
+  write(text2Uint8Array('RIFF')); // chunkID
+  write(Uint32ToUint8Array(audiobuffer.length + 12 + 16 + 8 - 8)); // ChunkSize
+  write(text2Uint8Array('WAVE')); // riffType
+  //format chunk
+  write(text2Uint8Array('fmt '));
+  write(Uint32ToUint8Array(16)); // ChunkSize
+  write(Uint16ToUint8Array(1)); // wFormatTag - 1 = PCM
+  write(Uint16ToUint8Array(1)); // channels
+  write(Uint32ToUint8Array(22050)); // samplerate
+  write(Uint32ToUint8Array(22050)); // bytes/second
+  write(Uint16ToUint8Array(1)); // blockalign
+  write(Uint16ToUint8Array(8)); // bits per sample
+  //data chunk
+  write(text2Uint8Array('data'));
+  write(Uint32ToUint8Array(audiobuffer.length)); // buffer length
+  write(audiobuffer);
+
+  var blob = new Blob([realbuffer], {type: 'audio/vnd.wave'});
+
+  var url     = (window.URL || window.webkitURL);
+  var fileURL = url.createObjectURL(blob);
+  var a       = document.createElement('a');
+  a.href        = fileURL;
+  a.target      = '_blank';
+  a.download    = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  url.revokeObjectURL(fileURL);
+}
 
 /**
  * Char flags.
@@ -91,7 +257,7 @@ var charFlags = {
   '`':  0               | 0x20,
 };
 
-var rules$1 =
+var rules =
   ' (A.)=EH4Y. |' +
   '(A) =AH|' +
   ' (ARE) =AAR|' +
@@ -519,9 +685,10 @@ var rules$1 =
   '(Y)=IH|'+
 
   ' (Z) =ZIY4|'+
-  '(Z)=Z';
+  '(Z)=Z'
+;
 
-var rules2$1 =
+var rules2 =
   '(A)=|'+
   '(!)=.|'+
   '(") =-AH5NKWOWT-|'+
@@ -562,7 +729,8 @@ var rules2$1 =
   '(>)= GREY4TER DHAEN|'+
   '(?)=?|'+
   '(@)= AE6T|'+
-  '(^)= KAE4RIXT';
+  '(^)= KAE4RIXT'
+;
 
 var FLAG_NUMERIC       = 0x01;
 var FLAG_RULESET2      = 0x02;
@@ -627,7 +795,8 @@ function reciterRule (ruleString) {
     tmp=source.pop().split(')'),
     pre = source[0],
     match = tmp[0],
-    post = tmp[1];
+    post = tmp[1]
+  ;
 
   var TCS = ['T', 'C', 'S'];
   var EIY = ['E', 'I', 'Y'];
@@ -844,13 +1013,13 @@ function reciterRule (ruleString) {
 }
 
 // Map all rules and generate processors from them.
-var rules$$1 = {};
-rules$1.split('|').map(function (rule) {
+var rules$1 = {};
+rules.split('|').map(function (rule) {
   var r = reciterRule(rule), c= r.c;
-  rules$$1[c] = rules$$1[c] || [];
-  rules$$1[c].push(r);
+  rules$1[c] = rules$1[c] || [];
+  rules$1[c].push(r);
 });
-var rules2$$1 = rules2$1.split('|').map(reciterRule);
+var rules2$1 = rules2.split('|').map(reciterRule);
 
 /**
  * Convert the text to a phoneme string.
@@ -892,7 +1061,7 @@ function TextToPhonemes (input) {
         || (flagsAt(text, inputPos + 1, FLAG_NUMERIC))) {
         //pos36607:
         if (flags(currentChar, FLAG_RULESET2)) {
-          rules2$$1.some(function (rule) {
+          rules2$1.some(function (rule) {
             return rule(text, inputPos, successCallback);
           });
 
@@ -906,8 +1075,7 @@ function TextToPhonemes (input) {
             return false;
           }
           // go to the right rules for this character.
-          var tmp$1 = rules$$1[currentChar];
-          rules$$1[currentChar].some(function (rule) {
+          rules$1[currentChar].some(function (rule) {
             return rule(text, inputPos, successCallback);
           });
           continue;
@@ -923,83 +1091,6 @@ function TextToPhonemes (input) {
     return output;
   })();
 }
-
-/**
- * Test if a bit is set.
- * @param {Number} bits The bits.
- * @param {Number} mask The mask to test.
- * @return {boolean}
- */
-function matchesBitmask (bits, mask) {
-  return (bits & mask) !== 0;
-}
-
-
-
-
-/**
- *
- * @param {Uint8Array} buffer
- * @return {string}
- */
-
-/**
- *
- * @param {AudioContext} context
- * @param audiobuffer
- */
-function Play(context, audiobuffer) {
-  return new Promise(function (resolve) {
-    var source = context.createBufferSource();
-    var soundBuffer = context.createBuffer(1, audiobuffer.length, 22050);
-    var buffer = soundBuffer.getChannelData(0);
-    for(var i=0; i<audiobuffer.length; i++) {
-      buffer[i] = audiobuffer[i];
-    }
-    source.buffer = soundBuffer;
-    source.connect(context.destination);
-    source.onended = function () {
-      resolve(true);
-    };
-    source.start(0);
-  });
-}
-
-var context = null;
-
-/**
- * Play an audio buffer.
- *
- * @param {Float32Array} audiobuffer
- */
-function PlayBuffer(audiobuffer) {
-  if (null === context) {
-    (function (window) {
-      context = ['', 'webkit'].reduce(function (pre, prefix) {
-        if (pre) { return pre;}
-        var implementation = prefix + 'AudioContext';
-        if (typeof window[implementation] !== "undefined") {
-          return new window[implementation]();
-        }
-        return null;
-      }, null);
-    })(window);
-  }
-
-  if (null === context) {
-    {
-      throw new Error('No player available!');
-    }
-    throw new Error();
-  }
-
-  return Play(context, audiobuffer);
-}
-
-/**
- *
- * @param {Uint8Array} audiobuffer
- */
 
 var BREAK = 254;
 var END   = 255;
@@ -1507,22 +1598,21 @@ function wild_match (sign1) {
  * @return {undefined}
  */
 function Parser1(input, addPhoneme, addStress) {
-  var srcPos   = 0;
-  for (var srcPos$1=0;srcPos$1<input.length;srcPos$1++) {
+  for (var srcPos=0;srcPos<input.length;srcPos++) {
     {
       var tmp = input.toLowerCase();
       console.log(
-        ("processing \"" + (tmp.substr(0, srcPos$1)) + "%c" + (tmp.substr(srcPos$1, 2).toUpperCase()) + "%c" + (tmp.substr(srcPos$1 + 2)) + "\""),
+        ("processing \"" + (tmp.substr(0, srcPos)) + "%c" + (tmp.substr(srcPos, 2).toUpperCase()) + "%c" + (tmp.substr(srcPos + 2)) + "\""),
          'color: red;',
          'color:normal;'
       );
     }
-    var sign1 = input[srcPos$1];
-    var sign2 = input[srcPos$1 + 1] || '';
+    var sign1 = input[srcPos];
+    var sign2 = input[srcPos + 1] || '';
     var match = (void 0);
     if ((match = full_match(sign1, sign2)) !== false) {
       // Matched both characters (no wildcards)
-      srcPos$1++; // Skip the second character of the input as we've matched it
+      srcPos++; // Skip the second character of the input as we've matched it
       addPhoneme(match);
       continue;
     }
@@ -1567,16 +1657,6 @@ var pT    = 69;
 var PHONEME_PERIOD = 1;
 var PHONEME_QUESTION = 2;
 
-/**
- * unknown: ' *', '.*', '?*', ',*', '-*'
- */
-
-
-/**
- * unknown: '.*', '?*', ',*', '-*', 'Q*'
- */
-
-
 
 var FLAG_FRICATIVE= 0x2000;
 
@@ -1588,10 +1668,6 @@ var FLAG_LIQUIC   = 0x1000;
 var FLAG_NASAL    = 0x0800;
 
 var FLAG_ALVEOLAR = 0x0400;
-/**
- * unused
- */
-
 
 var FLAG_PUNCT    = 0x0100;
 
@@ -1881,64 +1957,6 @@ function Parser2(insertPhoneme, setPhoneme, getPhoneme, getStress) {
     }
   } // while
 }
-
-/**
- * Retrieves a phoneme from the buffer.
- *
- * @callback getPhoneme
- * @param {Number} position The position in the phoneme array to get.
- * @return {Number}
- */
-
-/**
- * Set a phoneme in the buffer.
- *
- * @callback setPhoneme
- * @param {Number} position    The position in the phoneme array to set.
- * @param {Number} phoneme     The phoneme to set.
- */
-
-/**
- * Insert a phoneme at the given position.
- *
- * @callback insertPhoneme
- * @param {Number} position    The position in the phoneme array to insert at.
- * @param {Number} phoneme     The phoneme to insert.
- * @param {Number} stressValue The stress.
- * @param {Number} [length]    The (optional) phoneme length, if not given, length will be 0.
- */
-
-/**
- * Set the length for a phoneme in the buffer.
- *
- * @callback setPhonemeLength
- * @param {Number} position The position in the phoneme array to set.
- * @param {Number} length   The phoneme length to set.
- */
-
-/**
- * Retrieve the length for a phoneme from the buffer.
- *
- * @callback getPhonemeLength
- * @param {Number} position    The position in the phoneme array to get.
- * @return {Number}
- */
-
-/**
- * Set the stress for a phoneme in the buffer.
- *
- * @callback setPhonemeStress
- * @param {Number} position The position in the phoneme array to set.
- * @param {Number} length   The phoneme stress to set.
- */
-
-/**
- * Retrieve the stress for a phoneme from the buffer.
- *
- * @callback getPhonemeStress
- * @param {Number} position    The position in the phoneme array to get.
- * @return {Number}
- */
 
 /**
  * Applies various rules that adjust the lengths of phonemes
@@ -2284,6 +2302,9 @@ function ProlongPlosiveStopConsonantsCode41240(getPhoneme, insertPhoneme, getStr
  * @return {Array|Boolean} The parsed data.
  */
 function Parser (input) {
+  if (!input) {
+    return false;
+  }
   var getPhoneme = function (pos) {
     {
       if (pos < 0 || pos > phonemeindex.length) {
@@ -3051,15 +3072,6 @@ function CreateTransitions(pitches, frequency, amplitude, tuples) {
     return tables[table][pos];
   };
 
-  var Write = function (table, pos, value) {
-    {
-      if (table < 0 || table > tables.length -1 ) {
-        throw new Error(("Error invalid table in Read: " + table));
-      }
-    }
-    return tables[table][pos] = value;
-  };
-
   // linearly interpolate values
   var interpolate = function (width, table, frame, mem53) {
     var sign      = (mem53 < 0);
@@ -3082,23 +3094,16 @@ function CreateTransitions(pitches, frequency, amplitude, tuples) {
           val++;
         }
       }
-      Write(table, ++frame, val); // Write updated value back to next frame.
+
+      // Write updated value back to next frame.
+      {
+        if (table < 0 || table > tables.length -1 ) {
+          throw new Error(("Error invalid table in Read: " + table));
+        }
+      }
+      tables[table][++frame] = val;
       val += div;
     }
-  };
-
-  var interpolate_pitch = function (width, pos, mem49, phase3) {
-    // unlike the other values, the pitches[] interpolates from
-    // the middle of the current phoneme to the middle of the
-    // next phoneme
-
-    // half the width of the current and next phoneme
-    var cur_width  = tuples[pos][1] >> 1;
-    var next_width = tuples[pos+1][1] >> 1;
-    // sum the values
-    width = cur_width + next_width;
-    var pitch = pitches[next_width + mem49] - pitches[mem49 - cur_width];
-    interpolate(width, 0, phase3, pitch);
   };
 
   var phase1;
@@ -3133,7 +3138,17 @@ function CreateTransitions(pitches, frequency, amplitude, tuples) {
     var transition   = phase1 + phase2; // total transition?
 
     if (((transition - 2) & 128) === 0) {
-      interpolate_pitch(transition, pos, mem49, phase3);
+      // unlike the other values, the pitches[] interpolates from
+      // the middle of the current phoneme to the middle of the
+      // next phoneme
+
+      // half the width of the current and next phoneme
+      var cur_width  = tuples[pos][1] >> 1;
+      var next_width = tuples[pos+1][1] >> 1;
+      var pitch = pitches[next_width + mem49] - pitches[mem49 - cur_width];
+      // sum the values
+      interpolate(cur_width + next_width, 0, phase3, pitch);
+
       for (var table = 1; table < 7;table++) {
         // tables:
         // 0  pitches[]
@@ -3212,7 +3227,7 @@ function AddInflection (inflection, pos, pitches) {
 function CreateFrames (
   pitch,
   tuples,
-  frequencyData$$1) {
+  frequencyData) {
   var pitches              = [];
   var frequency            = [[], [], []];
   var amplitude            = [[], [], []];
@@ -3233,9 +3248,9 @@ function CreateFrames (
     // get number of frames to write
     // copy from the source to the frames list
     for (var frames = tuples[i][1];frames > 0;frames--) {
-      frequency[0][X]         = frequencyData$$1[0][phoneme];      // F1 frequency
-      frequency[1][X]         = frequencyData$$1[1][phoneme];      // F2 frequency
-      frequency[2][X]         = frequencyData$$1[2][phoneme];      // F3 frequency
+      frequency[0][X]         = frequencyData[0][phoneme];      // F1 frequency
+      frequency[1][X]         = frequencyData[1][phoneme];      // F2 frequency
+      frequency[2][X]         = frequencyData[2][phoneme];      // F3 frequency
       amplitude[0][X]         = ampldata[phoneme] & 0xFF;         // F1 amplitude
       amplitude[1][X]         = (ampldata[phoneme] >> 8) & 0xFF;  // F2 amplitude
       amplitude[2][X]         = (ampldata[phoneme] >> 16) & 0xFF; // F3 amplitude
@@ -3287,47 +3302,11 @@ function CreateOutputBuffer(buffersize) {
     }
   };
   writer.get = function () {
-    // Hack for PhantomJS which does not have slice() on UintArray8
     return buffer.slice(0, bufferpos / 50 | 0);
   };
   return writer;
 }
 
-/** ASSIGN PITCH CONTOUR
- *
- * This subtracts the F1 frequency from the pitch to create a
- * pitch contour. Without this, the output would be at a single
- * pitch level (monotone).
- *
- * @param {Uint8Array} pitches
- * @param {Uint8Array} frequency1
- *
- */
-function AssignPitchContour (pitches, frequency1) {
-  for(var i = 0; i < pitches.length; i++) {
-    // subtract half the frequency of the formant 1.
-    // this adds variety to the voice
-    pitches[i] -= (frequency1[i] >> 1);
-  }
-}
-
-/**
- * RESCALE AMPLITUDE
- *
- * Rescale volume from a linear scale to decibels.
- */
-function RescaleAmplitude (amplitude) {
-  var amplitudeRescale = [
-    0x00, 0x01, 0x02, 0x02, 0x02, 0x03, 0x03, 0x04,
-    0x04, 0x05, 0x06, 0x08, 0x09, 0x0B, 0x0D, 0x0F,
-    0x00  //17 elements?
-  ];
-  for(var i = amplitude[0].length - 1; i >= 0; i--) {
-    amplitude[0][i] = amplitudeRescale[amplitude[0][i]];
-    amplitude[1][i] = amplitudeRescale[amplitude[1][i]];
-    amplitude[2][i] = amplitudeRescale[amplitude[2][i]];
-  }
-}
 /**
  * @param {Array} phonemes
  * @param {Number} [pitch]
@@ -3346,7 +3325,7 @@ function Renderer(phonemes, pitch, mouth, throat, speed, singmode) {
   singmode = singmode || false;
 
   // Every frame is 20ms long.
-  var Output = new CreateOutputBuffer(
+  var Output = CreateOutputBuffer(
     441 // = (22050/50)
     * phonemes.reduce(function (pre, v) { return pre + (v[1] * 20); }, 0) / 50 // Combined phoneme length in ms.
     * speed | 0 // multiplied by speed.
@@ -3415,13 +3394,39 @@ function Renderer(phonemes, pitch, mouth, throat, speed, singmode) {
     );
 
     if (!singmode) {
-      AssignPitchContour(pitches, frequency[0]);
+      /* ASSIGN PITCH CONTOUR
+       *
+       * This subtracts the F1 frequency from the pitch to create a
+       * pitch contour. Without this, the output would be at a single
+       * pitch level (monotone).
+       */
+      for(var i = 0; i < pitches.length; i++) {
+        // subtract half the frequency of the formant 1.
+        // this adds variety to the voice
+        pitches[i] -= (frequency[0][i] >> 1);
+      }
     }
-    RescaleAmplitude(amplitude);
+
+    /*
+     * RESCALE AMPLITUDE
+     *
+     * Rescale volume from a linear scale to decibels.
+     */
+    var amplitudeRescale = [
+      0x00, 0x01, 0x02, 0x02, 0x02, 0x03, 0x03, 0x04,
+      0x04, 0x05, 0x06, 0x08, 0x09, 0x0B, 0x0D, 0x0F,
+      0x00  //17 elements?
+    ];
+    for(var i$1 = amplitude[0].length - 1; i$1 >= 0; i$1--) {
+      amplitude[0][i$1] = amplitudeRescale[amplitude[0][i$1]];
+      amplitude[1][i$1] = amplitudeRescale[amplitude[1][i$1]];
+      amplitude[2][i$1] = amplitudeRescale[amplitude[2][i$1]];
+    }
 
     {
       PrintOutput(pitches, frequency, amplitude, sampledConsonantFlag);
     }
+
     ProcessFrames(t, speed, frequency, pitches, amplitude, sampledConsonantFlag);
   }
 
@@ -3436,81 +3441,7 @@ function Renderer(phonemes, pitch, mouth, throat, speed, singmode) {
    * reset at the beginning of each glottal pulse.
    */
   function ProcessFrames(frameCount, speed, frequency, pitches, amplitude, sampledConsonantFlag) {
-    var CombineGlottalAndFormants = function (phase1, phase2, phase3, Y) {
-      // Rectangle table consisting of:
-      //   0-128 = 0x90
-      // 128-255 = 0x70
-
-      // Remove multtable, replace with logical equivalent.
-      // Multtable stored the result of a 8-bit signed multiply of the upper nibble of sin/rect (interpreted as signed)
-      // and the amplitude lower nibble (interpreted as unsigned), then divided by two.
-      // On the 6510 this made sense, but in modern processors it's way faster and cleaner to simply do the multiply.
-      function char(x) { return (x & 0x7F) - (x & 0x80); }
-      // simulate the glottal pulse and formants
-      var ary = [];
-      var /* unsigned int */ p1 = phase1 * 256; // Fixed point integers because we need to divide later on
-      var /* unsigned int */ p2 = phase2 * 256;
-      var /* unsigned int */ p3 = phase3 * 256;
-      var k;
-      for (k=0; k<5; k++) {
-        var /* signed char */ sp1 = char(sinus[0xff & (p1>>8)]);
-        var /* signed char */ sp2 = char(sinus[0xff & (p2>>8)]);
-        var /* signed char */ rp3 = char(0xff & (((p3>>8)<129) ? 0x90 : 0x70));
-        var /* signed int */ sin1 = sp1 * (/* (unsigned char) */ amplitude[0][Y] & 0x0F);
-        var /* signed int */ sin2 = sp2 * (/* (unsigned char) */ amplitude[1][Y] & 0x0F);
-        var /* signed int */ rect = rp3 * (/* (unsigned char) */ amplitude[2][Y] & 0x0F);
-        var /* signed int */ mux = sin1 + sin2 + rect;
-        mux /= 32;
-        mux += 128; // Go from signed to unsigned amplitude
-        ary[k] = mux |0;
-        p1 += frequency[0][Y] * 256 / 4; // Compromise, this becomes a shift and works well
-        p2 += frequency[1][Y] * 256 / 4;
-        p3 += frequency[2][Y] * 256 / 4;
-      }
-      Output.ary(0, ary);
-    };
-
     var RenderSample = function (mem66, consonantFlag, mem49) {
-      var RenderVoicedSample = function (hi, off, phase1) {
-        hi = hi & 0xFFFF; // unsigned short
-        off = off & 0xFF; // unsigned char
-        phase1 = phase1 & 0xFF; // unsigned char
-        do {
-          var sample = sampleTable[hi+off];
-          var bit = 8;
-          do {
-            if ((sample & 128) !== 0) {
-              Output(3, 26);
-            } else {
-              Output(4, 6);
-            }
-            sample <<= 1;
-          } while(--bit !== 0);
-          off++;
-        } while (((++phase1) & 0xFF) !== 0);
-
-        return off;
-      };
-
-      var RenderUnvoicedSample = function (hi, off, mem53) {
-        hi = hi & 0xFFFF; // unsigned short
-        off = off & 0xFF; // unsigned char
-        mem53 = mem53 & 0xFF; // unsigned char
-        do {
-          var bit = 8;
-          var sample = sampleTable[hi+off];
-          do {
-            if ((sample & 128) !== 0) {
-              Output(2, 5);
-            }
-            else {
-              Output(1, mem53);
-            }
-            sample <<= 1;
-          } while (--bit !== 0);
-        } while (((++off) & 0xFF) !== 0);
-      };
-
       // mem49 == current phoneme's index - unsigned char
 
       // mask low three bits and subtract 1 get value to
@@ -3524,15 +3455,41 @@ function Renderer(phonemes, pitch, mouth, throat, speed, singmode) {
       // /H                     3          0x17
       // /X                     4          0x17
 
-      var hi = hibyte * 256; // unsigned short
+      var hi = hibyte * 256 & 0xFFFF; // unsigned short
+      var off;
       // voiced sample?
       var pitch = consonantFlag & 248; // unsigned char
+
+      function renderSample (index1, value1, index2, value2) {
+        var bit = 8;
+        var sample = sampleTable[hi+off];
+        do {
+          if ((sample & 128) !== 0) {
+            Output(index1, value1);
+          } else {
+            Output(index2, value2);
+          }
+          sample <<= 1;
+        } while(--bit);
+      }
+
       if(pitch === 0) {
         // voiced phoneme: Z*, ZH, V*, DH
-        pitch = pitches[mem49 & 0xFF] >> 4;
-        return RenderVoicedSample(hi, mem66, pitch ^ 255);
+        var phase1 = (pitches[mem49 & 0xFF] >> 4) ^ 255 & 0xFF; // unsigned char
+        off = mem66 & 0xFF; // unsigned char
+        do {
+          renderSample(3, 26, 4, 6);
+          off++;
+        } while (++phase1 & 0xFF);
+        return off;
       }
-      RenderUnvoicedSample(hi, pitch ^ 255, tab48426[hibyte]);
+      // unvoiced
+      off = pitch ^ 255 & 0xFF; // unsigned char
+      var mem53 = tab48426[hibyte] & 0xFF; // unsigned char
+      do {
+        renderSample(2, 5, 1, mem53);
+      } while (++off & 0xFF);
+
       return mem66;
     };
 
@@ -3556,7 +3513,39 @@ function Renderer(phonemes, pitch, mouth, throat, speed, singmode) {
         frameCount -= 2;
         speedcounter = speed;
       } else {
-        CombineGlottalAndFormants(phase1, phase2, phase3, pos);
+        {
+          // Rectangle table consisting of:
+          //   0-128 = 0x90
+          // 128-255 = 0x70
+
+          // Remove multtable, replace with logical equivalent.
+          // Multtable stored the result of a 8-bit signed multiply of the upper nibble of sin/rect (interpreted as signed)
+          // and the amplitude lower nibble (interpreted as unsigned), then divided by two.
+          // On the 6510 this made sense, but in modern processors it's way faster and cleaner to simply do the multiply.
+          var char = function (x) { return (x & 0x7F) - (x & 0x80); };
+          // simulate the glottal pulse and formants
+          var ary = [];
+          var /* unsigned int */ p1 = phase1 * 256; // Fixed point integers because we need to divide later on
+          var /* unsigned int */ p2 = phase2 * 256;
+          var /* unsigned int */ p3 = phase3 * 256;
+          var k = (void 0);
+          for (k=0; k<5; k++) {
+            var /* signed char */ sp1 = char(sinus[0xff & (p1>>8)]);
+            var /* signed char */ sp2 = char(sinus[0xff & (p2>>8)]);
+            var /* signed char */ rp3 = char(0xff & (((p3>>8)<129) ? 0x90 : 0x70));
+            var /* signed int */ sin1 = sp1 * (/* (unsigned char) */ amplitude[0][pos] & 0x0F);
+            var /* signed int */ sin2 = sp2 * (/* (unsigned char) */ amplitude[1][pos] & 0x0F);
+            var /* signed int */ rect = rp3 * (/* (unsigned char) */ amplitude[2][pos] & 0x0F);
+            var /* signed int */ mux = sin1 + sin2 + rect;
+            mux /= 32;
+            mux += 128; // Go from signed to unsigned amplitude
+            ary[k] = mux |0;
+            p1 += frequency[0][pos] * 256 / 4; // Compromise, this becomes a shift and works well
+            p2 += frequency[1][pos] * 256 / 4;
+            p3 += frequency[2][pos] * 256 / 4;
+          }
+          Output.ary(0, ary);
+        }
 
         speedcounter--;
         if (speedcounter === 0) {
@@ -3632,12 +3621,11 @@ function PrintOutput(pitches, frequency, amplitude, sampledConsonantFlag) {
 }
 
 /**
- * Process the input and return the audiobuffer.
+ * Process the input and return the audio buffer.
  *
  * @param {String} input
  *
  * @param {object}  [options]
- * @param {Boolean} [options.phonetic] Default false.
  * @param {Boolean} [options.singmode] Default false.
  * @param {Boolean} [options.debug]    Default false.
  * @param {Number}  [options.pitch]    Default 64.
@@ -3645,20 +3633,15 @@ function PrintOutput(pitches, frequency, amplitude, sampledConsonantFlag) {
  * @param {Number}  [options.mouth]    Default 128.
  * @param {Number}  [options.throat]   Default 128.
  *
- * @return {Uint8Array|Boolean}
+ * @return {Float32Array|Boolean}
  */
-function SamSpeak (input, options) {
+function SamBuffer (input, options) {
   var buffer = SamProcess(input, options);
   if (false === buffer) {
     return false;
   }
-  var audio = new Float32Array(buffer.length);
-  for(var i=0; i < buffer.length; i++) {
-    audio[i] = (buffer[i] - 128) / 256;
-  }
 
-  // Now push buffer to wave player.
-  return PlayBuffer(audio);
+  return UInt8ArrayToFloat32Array(buffer);
 }
 
 /**
@@ -3667,25 +3650,6 @@ function SamSpeak (input, options) {
  * @param {String} input
  *
  * @param {object}  [options]
- * @param {Boolean} [options.phonetic] Default false.
- * @param {Boolean} [options.singmode] Default false.
- * @param {Boolean} [options.debug]    Default false.
- * @param {Number}  [options.pitch]    Default 64.
- * @param {Number}  [options.speed]    Default 72.
- * @param {Number}  [options.mouth]    Default 128.
- * @param {Number}  [options.throat]   Default 128.
- *
- * @return {Uint8Array|Boolean}
- */
-
-
-/**
- * Process the input and return the audiobuffer.
- *
- * @param {String} input
- *
- * @param {object}  [options]
- * @param {Boolean} [options.phonetic] Default false.
  * @param {Boolean} [options.singmode] Default false.
  * @param {Boolean} [options.debug]    Default false.
  * @param {Number}  [options.pitch]    Default 64.
@@ -3696,6 +3660,8 @@ function SamSpeak (input, options) {
  * @return {Uint8Array|Boolean}
  */
 function SamProcess (input, options) {
+  if ( options === void 0 ) options = {};
+
   var parsed = Parser(input);
   if (false === parsed) {
     return false;
@@ -3704,40 +3670,85 @@ function SamProcess (input, options) {
   return Renderer(parsed, options.pitch, options.mouth, options.throat, options.speed, options.singmode);
 }
 
+var convert = TextToPhonemes;
+var buf8 = SamProcess;
+var buf32 = SamBuffer;
+
+/**
+ * @param {object}  [options]
+ * @param {Boolean} [options.phonetic] Default false.
+ * @param {Boolean} [options.singmode] Default false.
+ * @param {Boolean} [options.debug]    Default false.
+ * @param {Number}  [options.pitch]    Default 64.
+ * @param {Number}  [options.speed]    Default 72.
+ * @param {Number}  [options.mouth]    Default 128.
+ * @param {Number}  [options.throat]   Default 128.
+ *
+ * @constructor
+ */
 function SamJs (options) {
+  var this$1 = this;
+
   var opts = options || {};
 
-  var convert = this.convert = function (text) {
-    var input = TextToPhonemes(text);
-    if (!input) {
-      {
-        throw new Error(("phonetic input: \"" + text + "\" could not be converted"));
-      }
-      throw new Error();
+  var ensurePhonetic = function (text, phonetic) {
+    if (!(phonetic || opts.phonetic)) {
+      return convert(text);
     }
-
-    {
-      console.log('phonetic data: "%s"', input);
-    }
-
-    return input;
+    return text.toUpperCase();
   };
 
+  /**
+   * Render the passed text as 8bit wave buffer array.
+   *
+   * @param {string}  text       The text to render or phoneme string.
+   * @param {boolean} [phonetic] Flag if the input text is already phonetic data.
+   *
+   * @return {Uint8Array|Boolean}
+   */
+  this.buf8 = function (text, phonetic) {
+    return buf8(ensurePhonetic(text, phonetic), opts);
+  };
+
+  /**
+   * Render the passed text as 32bit wave buffer array.
+   *
+   * @param {string}  text       The text to render or phoneme string.
+   * @param {boolean} [phonetic] Flag if the input text is already phonetic data.
+   *
+   * @return {Float32Array|Boolean}
+   */
+  this.buf32 = function (text, phonetic) {
+    return buf32(ensurePhonetic(text, phonetic), opts);
+  };
+
+  /**
+   * Render the passed text as wave buffer and play it over the speakers.
+   *
+   * @param {string}  text       The text to render or phoneme string.
+   * @param {boolean} [phonetic] Flag if the input text is already phonetic data.
+   *
+   * @return {Promise}
+   */
   this.speak = function (text, phonetic) {
-    {
-      console.log('text input: ', text);
-    }
+    return PlayBuffer(this$1.buf32(text, phonetic));
+  };
 
-    var input;
-
-    if (!(phonetic || opts.phonetic)) {
-      input = convert(text);
-    } else {
-      input = text.toUpperCase();
-    }
-
-    return SamSpeak(input, opts);
+  /**
+   * Render the passed text as wave buffer and download it via URL API.
+   *
+   * @param {string}  text       The text to render or phoneme string.
+   * @param {boolean} [phonetic] Flag if the input text is already phonetic data.
+   *
+   * @return void
+   */
+  this.download = function (text, phonetic) {
+    RenderBuffer(this$1.buf8(text, phonetic));
   };
 }
+
+SamJs.buf8 = buf8;
+SamJs.buf32 = buf32;
+SamJs.convert = convert;
 
 module.exports = SamJs;
