@@ -1,9 +1,9 @@
 /**
- * This is SamJs.js v0.1.0
+ * This is SamJs.js v0.1.1
  *
  * A Javascript port of "SAM Software Automatic Mouth".
  *
- * (c) 2017-2019 Christian Schiffler
+ * (c) 2017-2020 Christian Schiffler
  *
  * @link(https://github.com/discordier/sam)
  *
@@ -63,7 +63,6 @@ function PlayBuffer(audiobuffer) {
     {
       throw new Error('No player available!');
     }
-    throw new Error();
   }
 
   return Play(context, audiobuffer);
@@ -625,7 +624,6 @@ function Parser1(input, addPhoneme, addStress) {
       {
         throw Error(("Could not parse char " + sign1));
       }
-      throw Error();
     }
     addStress(match); // Set stress for prior phoneme
   }
@@ -2286,7 +2284,6 @@ function CreateOutputBuffer(buffersize) {
       {
         throw new Error(("Buffer overflow, want " + (((bufferpos / 50) | 0)) + " but buffersize is only " + (buffer.length) + "!"));
       }
-      throw new Error();
     }
     oldTimeTableIndex = index;
     // write a little bit in advance

@@ -1,9 +1,9 @@
 /**
- * This is SamJs.js v0.1.0
+ * This is SamJs.js v0.1.1
  *
  * A Javascript port of "SAM Software Automatic Mouth".
  *
- * (c) 2017-2019 Christian Schiffler
+ * (c) 2017-2020 Christian Schiffler
  *
  * @link(https://github.com/discordier/sam)
  *
@@ -13,7 +13,7 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
   (global = global || self, global.GuessNum = factory());
-}(this, function () { 'use strict';
+}(this, (function () { 'use strict';
 
   /**
    * Test if a bit is set.
@@ -67,7 +67,6 @@
       {
         throw new Error('No player available!');
       }
-      throw new Error();
     }
 
     return Play(context, audiobuffer);
@@ -629,7 +628,6 @@
         {
           throw Error(("Could not parse char " + sign1));
         }
-        throw Error();
       }
       addStress(match); // Set stress for prior phoneme
     }
@@ -2290,7 +2288,6 @@
         {
           throw new Error(("Buffer overflow, want " + (((bufferpos / 50) | 0)) + " but buffersize is only " + (buffer.length) + "!"));
         }
-        throw new Error();
       }
       oldTimeTableIndex = index;
       // write a little bit in advance
@@ -2827,4 +2824,4 @@
 
   return GuessNum;
 
-}));
+})));
