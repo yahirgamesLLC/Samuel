@@ -26,11 +26,13 @@ const buildSrc = [
     name: '',
     entry: 'src/index.es6',
     dest: 'samjs',
+    moduleName: 'SamJs',
   },
   {
     name: 'guessnum-demo',
     entry: 'src/guessnum.es6',
     dest: 'guessnum',
+    moduleName: 'GuessNum',
   },
 ]
 
@@ -61,6 +63,7 @@ buildSrc.map((file) => {
     builds['dev' + name] = {
       entry: resolve(file.entry),
       dest: resolve(`dist/${file.dest}${build.suffix}.js`),
+      moduleName: file.moduleName,
       format: build.format,
       env: 'development',
       banner
@@ -68,6 +71,7 @@ buildSrc.map((file) => {
     builds['prod' + name] = {
       entry: resolve(file.entry),
       dest: resolve(`dist/${file.dest}${build.suffix}.min.js`),
+      moduleName: file.moduleName,
       format: build.format,
       env: 'production',
       banner
@@ -76,12 +80,7 @@ buildSrc.map((file) => {
 })
 
 function genConfig (opts) {
-  let moduleName = 'SamJs';
-  switch (opts.entry.split('/').pop()) {
-    case 'guessnum.es6':
-      moduleName = 'GuessNum';
-      break;
-  }
+  let moduleName = opts.moduleName;
   const config = {
     input: opts.entry,
     output: {
