@@ -168,7 +168,6 @@ function PrintPhonemes (phonemeindex, phonemeLength, stress) {
       pad(phonemeLength[i]),
       pad(stress[i])
     );
-    i++;
   }
   console.log('==================================');
 }
