@@ -5,8 +5,8 @@ import {
 } from './tables.es6';
 import {PHONEME_PERIOD, PHONEME_QUESTION} from '../parser/constants.es6';
 
-const RISING_INFLECTION = 1;
-const FALLING_INFLECTION = 255;
+const RISING_INFLECTION = 255;
+const FALLING_INFLECTION = 1;
 
 /**
  * Create a rising or falling inflection 30 frames prior to index X.
@@ -75,9 +75,9 @@ export default function CreateFrames (
     // get the phoneme at the index
     let phoneme = tuples[i][0];
     if (phoneme === PHONEME_PERIOD) {
-      AddInflection(RISING_INFLECTION, X, pitches);
-    } else if (phoneme === PHONEME_QUESTION) {
       AddInflection(FALLING_INFLECTION, X, pitches);
+    } else if (phoneme === PHONEME_QUESTION) {
+      AddInflection(RISING_INFLECTION, X, pitches);
     }
 
     // get the stress amount (more stress = higher pitch)
