@@ -1,6 +1,6 @@
 const path = require('path');
-const buble = require('rollup-plugin-buble');
-const replace = require('rollup-plugin-replace');
+const buble = require('@rollup/plugin-buble');
+const replace = require('@rollup/plugin-replace');
 const flow = require('rollup-plugin-flow-no-whitespace');
 const version = process.env.VERSION || require('../package.json').version;
 
