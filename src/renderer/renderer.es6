@@ -238,7 +238,6 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
           // Multtable stored the result of a 8-bit signed multiply of the upper nibble of sin/rect (interpreted as signed)
           // and the amplitude lower nibble (interpreted as unsigned), then divided by two.
           // On the 6510 this made sense, but in modern processors it's way faster and cleaner to simply do the multiply.
-          const char = (x) => (x & 0x7F) - (x & 0x80);
           // simulate the glottal pulse and formants
           let ary = []
           let /* unsigned int */ p1 = phase1 * 256; // Fixed point integers because we need to divide later on
@@ -246,9 +245,9 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
           let /* unsigned int */ p3 = phase3 * 256;
           let k;
           for (k=0; k<5; k++) {
-            let /* signed char */ sp1 = char(sinus[0xff & (p1>>8)]);
-            let /* signed char */ sp2 = char(sinus[0xff & (p2>>8)]);
-            let /* signed char */ rp3 = char(0xff & (((p3>>8)<129) ? 0x90 : 0x70));
+            let /* signed char */ sp1 = sinus[0xff & (p1>>8)];
+            let /* signed char */ sp2 = sinus[0xff & (p2>>8)];
+            let /* signed char */ rp3 = ((0xff & (p3>>8))<129) ? -0x70 : 0x70;
             let /* signed int */ sin1 = sp1 * (/* (unsigned char) */ amplitude[0][pos] & 0x0F);
             let /* signed int */ sin2 = sp2 * (/* (unsigned char) */ amplitude[1][pos] & 0x0F);
             let /* signed int */ rect = rp3 * (/* (unsigned char) */ amplitude[2][pos] & 0x0F);
