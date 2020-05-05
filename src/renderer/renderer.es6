@@ -195,6 +195,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
         do {
           renderSample(3, 26, 4, 6)
           off++;
+          off &= 0xFF;
         } while (++phase1 & 0xFF);
         return off;
       }
