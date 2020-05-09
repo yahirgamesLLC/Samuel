@@ -10,7 +10,7 @@ import {
   FLAG_NASAL,
   FLAG_LIQUIC,
   FLAG_FRICATIVE,
-  FLAG_PLOSIVE,
+  FLAG_UNVOICED_STOPCONS,
   FLAG_STOPCONS,
   FLAG_VOICED,
   FLAG_CONSONANT,
@@ -118,15 +118,15 @@ export default function AdjustLengths(getPhoneme, setLength, getLength) {
       }
       // Got here if not <VOWEL>
       // FIXME: above comment is in fact incorrect - we end up here for consonants!
-      // 0x41 = 65 if end marker === FLAG_CONSONANT | FLAG_PLOSIVE
-      // FIXME: shouldn't this be FLAG_VOICED | FLAG_PLOSIVE here? We skip through the checks this way.
-      let flags = (phoneme === END) ? (FLAG_CONSONANT | FLAG_PLOSIVE) : phonemeFlags[phoneme];
+      // 0x41 = 65 if end marker === FLAG_CONSONANT | FLAG_UNVOICED_STOPCONS
+      // FIXME: shouldn't this be FLAG_VOICED | FLAG_UNVOICED_STOPCONS here? We skip through the checks this way.
+      let flags = (phoneme === END) ? (FLAG_CONSONANT | FLAG_UNVOICED_STOPCONS) : phonemeFlags[phoneme];
       // Unvoiced
       if (!matchesBitmask(flags, FLAG_VOICED)) {
         // *, .*, ?*, ,*, -*, DX, S*, SH, F*, TH, /H, /X, CH, P*, T*, K*, KX
 
         // unvoiced plosive
-        if(matchesBitmask(flags, FLAG_PLOSIVE)) {
+        if(matchesBitmask(flags, FLAG_UNVOICED_STOPCONS)) {
           // RULE: <VOWEL> <UNVOICED PLOSIVE>
           // <VOWEL> <P*, T*, K*, KX>
           if (process.env.DEBUG_SAM === true) {
