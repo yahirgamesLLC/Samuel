@@ -61,10 +61,10 @@ export default function CreateTransitions(pitches, frequency, amplitude, tuples)
   };
 
   // linearly interpolate values
-  const interpolate = (width, table, frame, mem53) => {
-    let sign      = (mem53 < 0);
-    let remainder = Math.abs(mem53) % width;
-    let div       = (mem53 / width) | 0;
+  const interpolate = (width, table, frame, change) => {
+    let sign      = (change < 0);
+    let remainder = Math.abs(change) % width;
+    let div       = (change / width) | 0;
 
     let error = 0;
     let pos   = width;
@@ -94,9 +94,9 @@ export default function CreateTransitions(pitches, frequency, amplitude, tuples)
     }
   };
 
-  let phase1;
-  let phase2;
-  let mem49 = 0;
+  let outBlendFrames;
+  let inBlendFrames;
+  let boundary = 0;
   for (let pos=0;pos<tuples.length - 1;pos++) {
     let phoneme      = tuples[pos][0];
     let next_phoneme = tuples[pos+1][0];
@@ -108,24 +108,24 @@ export default function CreateTransitions(pitches, frequency, amplitude, tuples)
     // compare the rank - lower rank value is stronger
     if (rank === next_rank) {
       // same rank, so use out blend lengths from each phoneme
-      phase1 = outBlendLength[phoneme];
-      phase2 = outBlendLength[next_phoneme];
+      outBlendFrames = outBlendLength[phoneme];
+      inBlendFrames = outBlendLength[next_phoneme];
     } else if (rank < next_rank) {
       // next phoneme is stronger, so us its blend lengths
-      phase1 = inBlendLength[next_phoneme];
-      phase2 = outBlendLength[next_phoneme];
+      outBlendFrames = inBlendLength[next_phoneme];
+      inBlendFrames = outBlendLength[next_phoneme];
     } else {
       // current phoneme is stronger, so use its blend lengths
       // note the out/in are swapped
-      phase1 = outBlendLength[phoneme];
-      phase2 = inBlendLength[phoneme];
+      outBlendFrames = outBlendLength[phoneme];
+      inBlendFrames = inBlendLength[phoneme];
     }
-    mem49 += tuples[pos][1];
-    let speedcounter = mem49 + phase2;
-    let phase3       = mem49 - phase1;
-    let transition   = phase1 + phase2; // total transition?
+    boundary += tuples[pos][1];
+    let trans_end    = boundary + inBlendFrames;
+    let trans_start  = boundary - outBlendFrames;
+    let trans_length = outBlendFrames + inBlendFrames; // total transition
 
-    if (((transition - 2) & 128) === 0) {
+    if (((trans_length - 2) & 128) === 0) {
       // unlike the other values, the pitches[] interpolates from
       // the middle of the current phoneme to the middle of the
       // next phoneme
@@ -133,9 +133,9 @@ export default function CreateTransitions(pitches, frequency, amplitude, tuples)
       // half the width of the current and next phoneme
       let cur_width  = tuples[pos][1] >> 1;
       let next_width = tuples[pos+1][1] >> 1;
-      let pitch = pitches[next_width + mem49] - pitches[mem49 - cur_width];
-      // sum the values
-      interpolate(cur_width + next_width, 0, phase3, pitch);
+      let pitch = pitches[boundary + next_width] - pitches[boundary - cur_width];
+      // interpolate the values
+      interpolate(cur_width + next_width, 0, trans_start, pitch);
 
       for (let table = 1; table < 7;table++) {
         // tables:
@@ -146,12 +146,12 @@ export default function CreateTransitions(pitches, frequency, amplitude, tuples)
         // 4  amplitude1
         // 5  amplitude2
         // 6  amplitude3
-        let value = Read(table, speedcounter) - Read(table, phase3);
-        interpolate(transition, table, phase3, value);
+        let value = Read(table, trans_end) - Read(table, trans_start);
+        interpolate(trans_length, table, trans_start, value);
       }
     }
   }
 
   // add the length of this phoneme
-  return (mem49 + tuples[tuples.length - 1][1]) & 0xFF;
+  return (boundary + tuples[tuples.length - 1][1]) & 0xFF;
 }
