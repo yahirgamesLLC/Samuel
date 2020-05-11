@@ -81,7 +81,7 @@ export default function CreateFrames (
     }
 
     // get the stress amount (more stress = higher pitch)
-    let phase1 = stressPitch_tab47492[tuples[i][2] + 1];
+    let phase1 = stressPitch_tab47492[tuples[i][2]];
     // get number of frames to write
     // copy from the source to the frames list
     for (let frames = tuples[i][1];frames > 0;frames--) {
