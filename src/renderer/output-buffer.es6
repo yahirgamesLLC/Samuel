@@ -11,11 +11,11 @@ export default function CreateOutputBuffer(buffersize) {
   writer.ary = (index, array) => {
     // timetable for more accurate c64 simulation
     const timetable = [
-      [162, 167, 167, 127, 128],
-      [226, 60, 60, 0, 0],
-      [225, 60, 59, 0, 0],
-      [200, 0, 0, 54, 55],
-      [199, 0, 0, 54, 54]
+      [162, 167, 167, 127, 128],   // formants synth
+      [226, 60, 60, 0, 0],         // unvoiced sample 0
+      [225, 60, 59, 0, 0],         // unvoiced sample 1
+      [200, 0, 0, 54, 55],         // voiced sample 0
+      [199, 0, 0, 54, 54]          // voiced sample 1
     ];
     bufferpos += timetable[oldTimeTableIndex][index];
     if (((bufferpos / 50) | 0) > buffer.length) {

@@ -45,7 +45,7 @@ import {blendRank, inBlendLength, outBlendLength} from './tables.es6';
 export default function CreateTransitions(pitches, frequency, amplitude, tuples) {
   // 0=pitches
   // 1=frequency1
-  // 2=frequency[1]
+  // 2=frequency2
   // 3=frequency3
   // 4=amplitude1
   // 5=amplitude2
@@ -111,7 +111,7 @@ export default function CreateTransitions(pitches, frequency, amplitude, tuples)
       outBlendFrames = outBlendLength[phoneme];
       inBlendFrames = outBlendLength[next_phoneme];
     } else if (rank < next_rank) {
-      // next phoneme is stronger, so us its blend lengths
+      // next phoneme is stronger, so use its blend lengths
       outBlendFrames = inBlendLength[next_phoneme];
       inBlendFrames = outBlendLength[next_phoneme];
     } else {
@@ -139,9 +139,9 @@ export default function CreateTransitions(pitches, frequency, amplitude, tuples)
 
       for (let table = 1; table < 7;table++) {
         // tables:
-        // 0  pitches[]
+        // 0  pitches
         // 1  frequency1
-        // 2  frequency[1]
+        // 2  frequency2
         // 3  frequency3
         // 4  amplitude1
         // 5  amplitude2
@@ -152,6 +152,6 @@ export default function CreateTransitions(pitches, frequency, amplitude, tuples)
     }
   }
 
-  // add the length of this phoneme
+  // add the length of last phoneme
   return (boundary + tuples[tuples.length - 1][1]) & 0xFF;
 }
