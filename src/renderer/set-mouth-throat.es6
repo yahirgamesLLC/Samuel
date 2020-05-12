@@ -30,9 +30,6 @@ function trans(mem39212, mem39213) {
  * @return {Array}
  */
 export default function SetMouthThroat(mouth, throat) {
-  let initialFrequency;
-  let newFrequency = 0;
-  let pos = 5;
 
   const freqdata = [[],[],[]];
   frequencyData.map((v, i) => {
@@ -42,35 +39,20 @@ export default function SetMouthThroat(mouth, throat) {
   });
 
   // recalculate formant frequencies 5..29 for the mouth (F1) and throat (F2)
-  while(pos < 30) {
+  for(let pos = 5; pos < 30; pos++) {
     // recalculate mouth frequency
-    initialFrequency = mouthFormants5_29[pos-5];
-    if (initialFrequency !== 0) {
-      newFrequency = trans(mouth, initialFrequency);
-    }
-    freqdata[0][pos] = newFrequency;
+    freqdata[0][pos] = trans(mouth, mouthFormants5_29[pos-5]);
 
     // recalculate throat frequency
-    initialFrequency = throatFormants5_29[pos-5];
-    if(initialFrequency !== 0) {
-      newFrequency = trans(throat, initialFrequency);
-    }
-    freqdata[1][pos] = newFrequency;
-    pos++;
+    freqdata[1][pos] = trans(throat, throatFormants5_29[pos-5]);
   }
 
   // recalculate formant frequencies 48..53
-  pos = 0;
-  while(pos < 6) {
+  for(let pos = 0; pos < 6; pos++) {
     // recalculate F1 (mouth formant)
-    initialFrequency = mouthFormants48_53[pos];
-    newFrequency = trans(mouth, initialFrequency);
-    freqdata[0][pos+48] = newFrequency;
+    freqdata[0][pos+48] = trans(mouth, mouthFormants48_53[pos]);
     // recalculate F2 (throat formant)
-    initialFrequency = throatFormants48_53[pos];
-    newFrequency = trans(throat, initialFrequency);
-    freqdata[1][pos+48] = newFrequency;
-    pos++;
+    freqdata[1][pos+48] = trans(throat, throatFormants48_53[pos]);
   }
 
   return freqdata;
