@@ -2,8 +2,7 @@ import {frequencyData} from './tables.es6';
 
 // mouth formants (F1) 5..29
 const mouthFormants5_29 = [
-  0, 0, 0, 0, 0, 10,
-  14, 19, 24, 27, 23, 21, 16, 20, 14, 18, 14, 18, 18,
+  10, 14, 19, 24, 27, 23, 21, 16, 20, 14, 18, 14, 18, 18,
   16, 13, 15, 11, 18, 14, 11, 9, 6, 6, 6
 ];
 // formant 1 frequencies (mouth) 48..53
@@ -11,8 +10,7 @@ const mouthFormants48_53 = [19, 27, 21, 27, 18, 13];
 
 // throat formants (F2) 5..29
 const throatFormants5_29 = [
-  255, 255,
-  255, 255, 255, 84, 73, 67, 63, 40, 44, 31, 37, 45, 73, 49,
+  84, 73, 67, 63, 40, 44, 31, 37, 45, 73, 49,
   36, 30, 51, 37, 29, 69, 24, 50, 30, 24, 83, 46, 54, 86,
 ];
 // formant 2 frequencies (throat) 48..53
@@ -46,14 +44,14 @@ export default function SetMouthThroat(mouth, throat) {
   // recalculate formant frequencies 5..29 for the mouth (F1) and throat (F2)
   while(pos < 30) {
     // recalculate mouth frequency
-    initialFrequency = mouthFormants5_29[pos];
+    initialFrequency = mouthFormants5_29[pos-5];
     if (initialFrequency !== 0) {
       newFrequency = trans(mouth, initialFrequency);
     }
     freqdata[0][pos] = newFrequency;
 
     // recalculate throat frequency
-    initialFrequency = throatFormants5_29[pos];
+    initialFrequency = throatFormants5_29[pos-5];
     if(initialFrequency !== 0) {
       newFrequency = trans(throat, initialFrequency);
     }
