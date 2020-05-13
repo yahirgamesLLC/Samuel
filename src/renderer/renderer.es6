@@ -30,8 +30,7 @@ export default (phonemes, pitch, mouth, throat, speed, singmode) => {
     * speed | 0
   );
 
-  for (let i=0; i<sentences.length; i++) {
-    const [t, frequency, pitches, amplitude, sampledConsonantFlag] = sentences[i];
+    const [t, frequency, pitches, amplitude, sampledConsonantFlag] = sentences;
 
     if (process.env.DEBUG_SAM === true) {
       PrintOutput(pitches, frequency, amplitude, sampledConsonantFlag);
@@ -54,7 +53,6 @@ export default (phonemes, pitch, mouth, throat, speed, singmode) => {
     }
 
     ProcessFrames(Output, t, speed, frequency, pitches, amplitude, sampledConsonantFlag);
-  }
 
   return Output.get();
 }
