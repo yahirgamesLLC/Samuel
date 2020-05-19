@@ -67,7 +67,7 @@ function wild_match (sign1) {
  *
  * input holds the string of phonemes, each two bytes wide
  * signInputTable1[] holds the first character of each phoneme
- * signInputTable2[] holds te second character of each phoneme
+ * signInputTable2[] holds the second character of each phoneme
  * phonemeIndex[] holds the indexes of the phonemes after parsing input[]
  *
  * The parser scans through the input[], finding the names of the phonemes
