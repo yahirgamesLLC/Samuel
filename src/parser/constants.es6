@@ -57,4 +57,4 @@ export const FLAG_VOICED   = 0x0004;
  */
 export const FLAG_STOPCONS = 0x0002;
 
-export const FLAG_PLOSIVE  = 0x0001;
+export const FLAG_UNVOICED_STOPCONS  = 0x0001;

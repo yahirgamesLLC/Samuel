@@ -1,6 +1,6 @@
 import {END} from '../common/constants.es6'
 import {combinedPhonemeLengthTable} from './tables.es6';
-import {FLAG_0008, FLAG_STOPCONS, FLAG_PLOSIVE} from './constants.es6'
+import {FLAG_0008, FLAG_STOPCONS, FLAG_UNVOICED_STOPCONS} from './constants.es6'
 import { phonemeHasFlag } from './util.es6';
 
 /**
@@ -22,7 +22,7 @@ export default function ProlongPlosiveStopConsonantsCode41240(getPhoneme, insert
       continue;
     }
     //If plosive, move to next non empty phoneme and validate the flags.
-    if (phonemeHasFlag(index, FLAG_PLOSIVE)) {
+    if (phonemeHasFlag(index, FLAG_UNVOICED_STOPCONS)) {
       let nextNonEmpty;
       let X = pos;
       do { nextNonEmpty = getPhoneme(++X); } while (nextNonEmpty === 0);

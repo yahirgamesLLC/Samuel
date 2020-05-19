@@ -26,7 +26,7 @@ import {
   FLAG_0008,
   FLAG_VOICED,
   FLAG_STOPCONS,
-  FLAG_PLOSIVE,
+  FLAG_UNVOICED_STOPCONS,
 } from '../constants.es6'
 
 import {BREAK, END} from '../../common/constants.es6'
@@ -383,7 +383,7 @@ function Parser2({phonemeindex, phonemeLength, stress}) {
       }
 
       // Replace with softer version?
-      if ((flags[p] & FLAG_PLOSIVE) && (prior === 32)) { // 'S'
+      if ((flags[p] & FLAG_UNVOICED_STOPCONS) && (prior === 32)) { // 'S'
         // RULE:
         //      S P -> S B
         //      S T -> S D
@@ -400,7 +400,7 @@ function Parser2({phonemeindex, phonemeLength, stress}) {
           );
         }
         phonemeindex[pos] = p-12;
-      } else if ((pf & FLAG_PLOSIVE) === 0) {
+      } else if ((pf & FLAG_UNVOICED_STOPCONS) === 0) {
         p = phonemeindex[pos];
         if (p === 53) {
           // Example: NEW, DEW, SUE, ZOO, THOO, TOO
@@ -599,7 +599,7 @@ function AdjustLengths({phonemeindex, phonemeLength}) {
           // *, .*, ?*, ,*, -*, DX, S*, SH, F*, TH, /H, /X, CH, P*, T*, K*, KX
 
           // unvoiced plosive
-          if((flag & FLAG_PLOSIVE) !== 0) {
+          if((flag & FLAG_UNVOICED_STOPCONS) !== 0) {
             // RULE: <VOWEL> <UNVOICED PLOSIVE>
             // <VOWEL> <P*, T*, K*, KX>
             if (process.env.NODE_ENV === 'development') {
@@ -689,7 +689,7 @@ function Code41240({phonemeindex, phonemeLength, stress}) {
   while (((index = phonemeindex[++pos]) !== END) && (pos < phonemeindex.length)) {
     index = phonemeindex[pos];
     if ((flags[index] & FLAG_STOPCONS) === 0) { continue; }
-    if ((flags[index] & FLAG_PLOSIVE) === 0) {
+    if ((flags[index] & FLAG_UNVOICED_STOPCONS) === 0) {
       Insert({phonemeindex, phonemeLength, stress}, pos+1, index+1, phonemeLengthTable[index+1], stress[pos]);
       Insert({phonemeindex, phonemeLength, stress}, pos+2, index+2, phonemeLengthTable[index+2], stress[pos]);
       pos += 2;

@@ -10,7 +10,7 @@ import {
   FLAG_NASAL,
   FLAG_LIQUIC,
   FLAG_FRICATIVE,
-  FLAG_PLOSIVE,
+  FLAG_UNVOICED_STOPCONS,
   FLAG_STOPCONS,
   FLAG_VOICED,
   FLAG_CONSONANT,
@@ -25,13 +25,13 @@ import { matchesBitmask } from "../util/util.es6";
 /**
  * Applies various rules that adjust the lengths of phonemes
  *
- * Lengthen <FRICATIVE> or <VOICED> between <VOWEL> and <PUNCTUATION> by 1.5
+ * Lengthen <!FRICATIVE> or <VOICED> between <VOWEL> and <PUNCTUATION> by 1.5
  * <VOWEL> <RX | LX> <CONSONANT> - decrease <VOWEL> length by 1
  * <VOWEL> <UNVOICED PLOSIVE> - decrease vowel by 1/8th
- * <VOWEL> <UNVOICED CONSONANT> - increase vowel by 1/2 + 1
+ * <VOWEL> <VOICED CONSONANT> - increase vowel by 1/4 + 1
  * <NASAL> <STOP CONSONANT> - set nasal = 5, consonant = 6
- * <VOICED STOP CONSONANT> {optional silence} <STOP CONSONANT> - shorten both to 1/2 + 1
- * <LIQUID CONSONANT> <DIPTHONG> - decrease by 2
+ * <STOP CONSONANT> {optional silence} <STOP CONSONANT> - shorten both to 1/2 + 1
+ * <STOP CONSONANT> <LIQUID> - decrease <LIQUID> by 2
  *
  * @param {getPhoneme}    getPhoneme Callback for retrieving phonemes.
  * @param {setPhonemeLength} setLength  Callback for setting phoneme length.
@@ -68,7 +68,6 @@ export default function AdjustLengths(getPhoneme, setLength, getLength) {
     for (let vowel=position;position<loopIndex;position++) {
       // test for not fricative/unvoiced or not voiced
       if(!phonemeHasFlag(getPhoneme(position), FLAG_FRICATIVE) || phonemeHasFlag(getPhoneme(position), FLAG_VOICED)) {
-        //nochmal überprüfen
         let A = getLength(position);
         // change phoneme length to (length * 1.5) + 1
         if (process.env.DEBUG_SAM === true) {
@@ -117,16 +116,14 @@ export default function AdjustLengths(getPhoneme, setLength, getLength) {
         continue;
       }
       // Got here if not <VOWEL>
-      // FIXME: above comment is in fact incorrect - we end up here for consonants!
-      // 0x41 = 65 if end marker === FLAG_CONSONANT | FLAG_PLOSIVE
-      // FIXME: shouldn't this be FLAG_VOICED | FLAG_PLOSIVE here? We skip through the checks this way.
-      let flags = (phoneme === END) ? (FLAG_CONSONANT | FLAG_PLOSIVE) : phonemeFlags[phoneme];
+      // FIXME: the case when phoneme === END is taken over by !phonemeHasFlag(phoneme, FLAG_CONSONANT)
+      let flags = (phoneme === END) ? (FLAG_CONSONANT | FLAG_UNVOICED_STOPCONS) : phonemeFlags[phoneme];
       // Unvoiced
       if (!matchesBitmask(flags, FLAG_VOICED)) {
         // *, .*, ?*, ,*, -*, DX, S*, SH, F*, TH, /H, /X, CH, P*, T*, K*, KX
 
         // unvoiced plosive
-        if(matchesBitmask(flags, FLAG_PLOSIVE)) {
+        if(matchesBitmask(flags, FLAG_UNVOICED_STOPCONS)) {
           // RULE: <VOWEL> <UNVOICED PLOSIVE>
           // <VOWEL> <P*, T*, K*, KX>
           if (process.env.DEBUG_SAM === true) {
@@ -138,18 +135,20 @@ export default function AdjustLengths(getPhoneme, setLength, getLength) {
         continue;
       }
 
-      // RULE: <VOWEL> <VOICED CONSONANT>
-      // <VOWEL> <WH, R*, L*, W*, Y*, M*, N*, NX, DX, Q*, Z*, ZH, V*, DH, J*, B*, D*, G*, GX>
+      // RULE: <VOWEL> <VOWEL or VOICED CONSONANT>
+      // <VOWEL> <IY, IH, EH, AE, AA, AH, AO, UH, AX, IX, ER, UX, OH, RX, LX, WX, YX, WH, R*, L*, W*,
+      //          Y*, M*, N*, NX, Q*, Z*, ZH, V*, DH, J*, EY, AY, OY, AW, OW, UW, B*, D*, G*, GX>
       if (process.env.DEBUG_SAM === true) {
-        console.log(`${loopIndex} RULE: <VOWEL> <VOICED CONSONANT> - increase vowel by 1/2 + 1`);
+        console.log(`${loopIndex} RULE: <VOWEL> <VOWEL or VOICED CONSONANT> - increase vowel by 1/4 + 1`);
       }
-      // decrease length
+      // increase length
       let A = getLength(loopIndex);
       setLength(loopIndex, (A >> 2) + A + 1); // 5/4*A + 1
       continue;
     }
 
-    // WH, R*, L*, W*, Y*, M*, N*, NX, Q*, Z*, ZH, V*, DH, J*, B*, D*, G*, GX
+    //  *, .*, ?*, ,*, -*, WH, R*, L*, W*, Y*, M*, N*, NX, DX, Q*, S*, SH, F*,
+    // TH, /H, /X, Z*, ZH, V*, DH, CH, J*, B*, D*, G*, GX, P*, T*, K*, KX
 
     // nasal?
     if(phonemeHasFlag(phoneme, FLAG_NASAL)) {
@@ -171,22 +170,23 @@ export default function AdjustLengths(getPhoneme, setLength, getLength) {
       continue;
     }
 
-    // WH, R*, L*, W*, Y*, Q*, Z*, ZH, V*, DH, J*, B*, D*, G*, GX
+    //  *, .*, ?*, ,*, -*, WH, R*, L*, W*, Y*, DX, Q*, S*, SH, F*, TH,
+    // /H, /X, Z*, ZH, V*, DH, CH, J*, B*, D*, G*, GX, P*, T*, K*, KX
 
-    // (voiced) stop consonant?
+    // stop consonant?
     if(phonemeHasFlag(phoneme, FLAG_STOPCONS)) {
       // B*, D*, G*, GX
 
-      // RULE: <VOICED STOP CONSONANT> {optional silence} <STOP CONSONANT>
+      // RULE: <STOP CONSONANT> {optional silence} <STOP CONSONANT>
       //       Shorten both to (length/2 + 1)
 
       while ((phoneme = getPhoneme(++position)) === 0) { /* move past silence */ }
       // if another stop consonant, process.
       if (phoneme !== END && phonemeHasFlag(phoneme, FLAG_STOPCONS)) {
-        // RULE: <UNVOICED STOP CONSONANT> {optional silence} <STOP CONSONANT>
+        // RULE: <STOP CONSONANT> {optional silence} <STOP CONSONANT>
         if (process.env.DEBUG_SAM === true) {
           console.log(
-            `${position} RULE: <UNVOICED STOP CONSONANT> {optional silence} <STOP CONSONANT> - shorten both to 1/2 + 1`
+            `${position} RULE: <STOP CONSONANT> {optional silence} <STOP CONSONANT> - shorten both to 1/2 + 1`
           );
         }
         setLength(position, (getLength(position) >> 1) + 1);
@@ -195,18 +195,19 @@ export default function AdjustLengths(getPhoneme, setLength, getLength) {
       continue;
     }
 
-    // WH, R*, L*, W*, Y*, Q*, Z*, ZH, V*, DH, J*, **,
+    //  *, .*, ?*, ,*, -*, WH, R*, L*, W*, Y*, DX, Q*, S*, SH, F*, TH,
+    // /H, /X, Z*, ZH, V*, DH, CH, J*
 
     // liquic consonant?
     if ((position>0)
       && phonemeHasFlag(phoneme, FLAG_LIQUIC)
       && phonemeHasFlag(getPhoneme(position-1), FLAG_STOPCONS)) {
       // R*, L*, W*, Y*
-      // RULE: <VOICED NON-VOWEL> <DIPTHONG>
-      //       Decrease <DIPTHONG> by 2
+      // RULE: <STOP CONSONANT> <LIQUID>
+      //       Decrease <LIQUID> by 2
       // prior phoneme is a stop consonant
       if (process.env.DEBUG_SAM === true) {
-        console.log(`${position} RULE: <LIQUID CONSONANT> <DIPTHONG> - decrease by 2`);
+        console.log(`${position} RULE: <STOP CONSONANT> <LIQUID> - decrease by 2`);
       }
       // decrease the phoneme length by 2 frames (20 ms)
       setLength(position, getLength(position) - 2);

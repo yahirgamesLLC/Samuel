@@ -6,7 +6,7 @@ import {
   pD,
   pT,
   FLAG_ALVEOLAR,
-  FLAG_PLOSIVE,
+  FLAG_UNVOICED_STOPCONS,
   FLAG_DIPTHONG,
   FLAG_DIP_YX,
   FLAG_VOWEL
@@ -228,7 +228,7 @@ export default function Parser2(insertPhoneme, setPhoneme, getPhoneme, getStress
     }
 
     // Replace with softer version?
-    if (phonemeHasFlag(phoneme, FLAG_PLOSIVE) && (priorPhoneme === 32)) { // 'S*'
+    if (phonemeHasFlag(phoneme, FLAG_UNVOICED_STOPCONS) && (priorPhoneme === 32)) { // 'S*'
       // RULE:
       //   'S*' 'P*' -> 'S*' 'B*'
       //   'S*' 'T*' -> 'S*' 'D*'
@@ -241,7 +241,7 @@ export default function Parser2(insertPhoneme, setPhoneme, getPhoneme, getStress
         console.log(`${pos} RULE: S* ${PhonemeNameTable[phoneme]} -> S* ${PhonemeNameTable[phoneme-12]}`);
       }
       setPhoneme(pos, phoneme - 12);
-    } else if (!phonemeHasFlag(phoneme, FLAG_PLOSIVE)) {
+    } else if (!phonemeHasFlag(phoneme, FLAG_UNVOICED_STOPCONS)) {
       handleUW_CH_J(phoneme, pos);
     }
 
