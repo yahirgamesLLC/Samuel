@@ -209,7 +209,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
       return mem66;
     };
 
-    let speedcounter = 72;
+    let speedcounter = speed;
     let phase1 = 0;
     let phase2 = 0;
     let phase3 = 0;
