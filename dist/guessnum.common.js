@@ -1,5 +1,5 @@
 /**
- * This is SamJs.js v0.1.1
+ * This is SamJs.js v0.1.2
  *
  * A Javascript port of "SAM Software Automatic Mouth".
  *
@@ -576,7 +576,7 @@ function wild_match (sign1) {
  *
  * input holds the string of phonemes, each two bytes wide
  * signInputTable1[] holds the first character of each phoneme
- * signInputTable2[] holds te second character of each phoneme
+ * signInputTable2[] holds the second character of each phoneme
  * phonemeIndex[] holds the indexes of the phonemes after parsing input[]
  *
  * The parser scans through the input[], finding the names of the phonemes
@@ -686,7 +686,7 @@ var FLAG_VOICED   = 0x0004;
  */
 var FLAG_STOPCONS = 0x0002;
 
-var FLAG_PLOSIVE  = 0x0001;
+var FLAG_UNVOICED_STOPCONS  = 0x0001;
 
 /**
  * Rewrites the phonemes using the following rules:
@@ -904,7 +904,7 @@ function Parser2(insertPhoneme, setPhoneme, getPhoneme, getStress) {
     }
 
     // Replace with softer version?
-    if (phonemeHasFlag(phoneme, FLAG_PLOSIVE) && (priorPhoneme === 32)) { // 'S*'
+    if (phonemeHasFlag(phoneme, FLAG_UNVOICED_STOPCONS) && (priorPhoneme === 32)) { // 'S*'
       // RULE:
       //   'S*' 'P*' -> 'S*' 'B*'
       //   'S*' 'T*' -> 'S*' 'D*'
@@ -917,7 +917,7 @@ function Parser2(insertPhoneme, setPhoneme, getPhoneme, getStress) {
         console.log((pos + " RULE: S* " + (PhonemeNameTable[phoneme]) + " -> S* " + (PhonemeNameTable[phoneme-12])));
       }
       setPhoneme(pos, phoneme - 12);
-    } else if (!phonemeHasFlag(phoneme, FLAG_PLOSIVE)) {
+    } else if (!phonemeHasFlag(phoneme, FLAG_UNVOICED_STOPCONS)) {
       handleUW_CH_J(phoneme, pos);
     }
 
@@ -952,13 +952,13 @@ function Parser2(insertPhoneme, setPhoneme, getPhoneme, getStress) {
 /**
  * Applies various rules that adjust the lengths of phonemes
  *
- * Lengthen <FRICATIVE> or <VOICED> between <VOWEL> and <PUNCTUATION> by 1.5
+ * Lengthen <!FRICATIVE> or <VOICED> between <VOWEL> and <PUNCTUATION> by 1.5
  * <VOWEL> <RX | LX> <CONSONANT> - decrease <VOWEL> length by 1
  * <VOWEL> <UNVOICED PLOSIVE> - decrease vowel by 1/8th
- * <VOWEL> <UNVOICED CONSONANT> - increase vowel by 1/2 + 1
+ * <VOWEL> <VOICED CONSONANT> - increase vowel by 1/4 + 1
  * <NASAL> <STOP CONSONANT> - set nasal = 5, consonant = 6
- * <VOICED STOP CONSONANT> {optional silence} <STOP CONSONANT> - shorten both to 1/2 + 1
- * <LIQUID CONSONANT> <DIPTHONG> - decrease by 2
+ * <STOP CONSONANT> {optional silence} <STOP CONSONANT> - shorten both to 1/2 + 1
+ * <STOP CONSONANT> <LIQUID> - decrease <LIQUID> by 2
  *
  * @param {getPhoneme}    getPhoneme Callback for retrieving phonemes.
  * @param {setPhonemeLength} setLength  Callback for setting phoneme length.
@@ -995,7 +995,6 @@ function AdjustLengths(getPhoneme, setLength, getLength) {
     for (var vowel=position;position<loopIndex$1;position++) {
       // test for not fricative/unvoiced or not voiced
       if(!phonemeHasFlag(getPhoneme(position), FLAG_FRICATIVE) || phonemeHasFlag(getPhoneme(position), FLAG_VOICED)) {
-        //nochmal überprüfen
         var A = getLength(position);
         // change phoneme length to (length * 1.5) + 1
         {
@@ -1044,16 +1043,14 @@ function AdjustLengths(getPhoneme, setLength, getLength) {
         continue;
       }
       // Got here if not <VOWEL>
-      // FIXME: above comment is in fact incorrect - we end up here for consonants!
-      // 0x41 = 65 if end marker === FLAG_CONSONANT | FLAG_PLOSIVE
-      // FIXME: shouldn't this be FLAG_VOICED | FLAG_PLOSIVE here? We skip through the checks this way.
-      var flags = (phoneme === END) ? (FLAG_CONSONANT | FLAG_PLOSIVE) : phonemeFlags[phoneme];
+      // FIXME: the case when phoneme === END is taken over by !phonemeHasFlag(phoneme, FLAG_CONSONANT)
+      var flags = (phoneme === END) ? (FLAG_CONSONANT | FLAG_UNVOICED_STOPCONS) : phonemeFlags[phoneme];
       // Unvoiced
       if (!matchesBitmask(flags, FLAG_VOICED)) {
         // *, .*, ?*, ,*, -*, DX, S*, SH, F*, TH, /H, /X, CH, P*, T*, K*, KX
 
         // unvoiced plosive
-        if(matchesBitmask(flags, FLAG_PLOSIVE)) {
+        if(matchesBitmask(flags, FLAG_UNVOICED_STOPCONS)) {
           // RULE: <VOWEL> <UNVOICED PLOSIVE>
           // <VOWEL> <P*, T*, K*, KX>
           {
@@ -1065,18 +1062,20 @@ function AdjustLengths(getPhoneme, setLength, getLength) {
         continue;
       }
 
-      // RULE: <VOWEL> <VOICED CONSONANT>
-      // <VOWEL> <WH, R*, L*, W*, Y*, M*, N*, NX, DX, Q*, Z*, ZH, V*, DH, J*, B*, D*, G*, GX>
+      // RULE: <VOWEL> <VOWEL or VOICED CONSONANT>
+      // <VOWEL> <IY, IH, EH, AE, AA, AH, AO, UH, AX, IX, ER, UX, OH, RX, LX, WX, YX, WH, R*, L*, W*,
+      //          Y*, M*, N*, NX, Q*, Z*, ZH, V*, DH, J*, EY, AY, OY, AW, OW, UW, B*, D*, G*, GX>
       {
-        console.log((loopIndex + " RULE: <VOWEL> <VOICED CONSONANT> - increase vowel by 1/2 + 1"));
+        console.log((loopIndex + " RULE: <VOWEL> <VOWEL or VOICED CONSONANT> - increase vowel by 1/4 + 1"));
       }
-      // decrease length
+      // increase length
       var A$2 = getLength(loopIndex);
       setLength(loopIndex, (A$2 >> 2) + A$2 + 1); // 5/4*A + 1
       continue;
     }
 
-    // WH, R*, L*, W*, Y*, M*, N*, NX, Q*, Z*, ZH, V*, DH, J*, B*, D*, G*, GX
+    //  *, .*, ?*, ,*, -*, WH, R*, L*, W*, Y*, M*, N*, NX, DX, Q*, S*, SH, F*,
+    // TH, /H, /X, Z*, ZH, V*, DH, CH, J*, B*, D*, G*, GX, P*, T*, K*, KX
 
     // nasal?
     if(phonemeHasFlag(phoneme, FLAG_NASAL)) {
@@ -1098,22 +1097,23 @@ function AdjustLengths(getPhoneme, setLength, getLength) {
       continue;
     }
 
-    // WH, R*, L*, W*, Y*, Q*, Z*, ZH, V*, DH, J*, B*, D*, G*, GX
+    //  *, .*, ?*, ,*, -*, WH, R*, L*, W*, Y*, DX, Q*, S*, SH, F*, TH,
+    // /H, /X, Z*, ZH, V*, DH, CH, J*, B*, D*, G*, GX, P*, T*, K*, KX
 
-    // (voiced) stop consonant?
+    // stop consonant?
     if(phonemeHasFlag(phoneme, FLAG_STOPCONS)) {
       // B*, D*, G*, GX
 
-      // RULE: <VOICED STOP CONSONANT> {optional silence} <STOP CONSONANT>
+      // RULE: <STOP CONSONANT> {optional silence} <STOP CONSONANT>
       //       Shorten both to (length/2 + 1)
 
       while ((phoneme = getPhoneme(++position$1)) === 0) { /* move past silence */ }
       // if another stop consonant, process.
       if (phoneme !== END && phonemeHasFlag(phoneme, FLAG_STOPCONS)) {
-        // RULE: <UNVOICED STOP CONSONANT> {optional silence} <STOP CONSONANT>
+        // RULE: <STOP CONSONANT> {optional silence} <STOP CONSONANT>
         {
           console.log(
-            (position$1 + " RULE: <UNVOICED STOP CONSONANT> {optional silence} <STOP CONSONANT> - shorten both to 1/2 + 1")
+            (position$1 + " RULE: <STOP CONSONANT> {optional silence} <STOP CONSONANT> - shorten both to 1/2 + 1")
           );
         }
         setLength(position$1, (getLength(position$1) >> 1) + 1);
@@ -1122,18 +1122,19 @@ function AdjustLengths(getPhoneme, setLength, getLength) {
       continue;
     }
 
-    // WH, R*, L*, W*, Y*, Q*, Z*, ZH, V*, DH, J*, **,
+    //  *, .*, ?*, ,*, -*, WH, R*, L*, W*, Y*, DX, Q*, S*, SH, F*, TH,
+    // /H, /X, Z*, ZH, V*, DH, CH, J*
 
     // liquic consonant?
     if ((position$1>0)
       && phonemeHasFlag(phoneme, FLAG_LIQUIC)
       && phonemeHasFlag(getPhoneme(position$1-1), FLAG_STOPCONS)) {
       // R*, L*, W*, Y*
-      // RULE: <VOICED NON-VOWEL> <DIPTHONG>
-      //       Decrease <DIPTHONG> by 2
+      // RULE: <STOP CONSONANT> <LIQUID>
+      //       Decrease <LIQUID> by 2
       // prior phoneme is a stop consonant
       {
-        console.log((position$1 + " RULE: <LIQUID CONSONANT> <DIPTHONG> - decrease by 2"));
+        console.log((position$1 + " RULE: <STOP CONSONANT> <LIQUID> - decrease by 2"));
       }
       // decrease the phoneme length by 2 frames (20 ms)
       setLength(position$1, getLength(position$1) - 2);
@@ -1263,7 +1264,7 @@ function ProlongPlosiveStopConsonantsCode41240(getPhoneme, insertPhoneme, getStr
       continue;
     }
     //If plosive, move to next non empty phoneme and validate the flags.
-    if (phonemeHasFlag(index, FLAG_PLOSIVE)) {
+    if (phonemeHasFlag(index, FLAG_UNVOICED_STOPCONS)) {
       var nextNonEmpty = (void 0);
       var X = pos;
       do { nextNonEmpty = getPhoneme(++X); } while (nextNonEmpty === 0);
@@ -1425,10 +1426,10 @@ function PrintPhonemes (phonemeindex, phonemeLength, stress) {
   console.log('Internal Phoneme presentation:');
   console.log(' pos  idx  phoneme  length  stress');
   console.log('----------------------------------');
-  var loop = function ( i$1 ) {
+  var loop = function ( i ) {
     var name = function (phoneme) {
-      if (phonemeindex[i$1] < 81) {
-        return PhonemeNameTable[phonemeindex[i$1]];
+      if (phonemeindex[i] < 81) {
+        return PhonemeNameTable[phonemeindex[i]];
       }
       if (phoneme === BREAK) {
         return '  ';
@@ -1437,15 +1438,12 @@ function PrintPhonemes (phonemeindex, phonemeLength, stress) {
     };
     console.log(
       ' %s  %s  %s       %s     %s',
-      pad(i$1),
-      pad(phonemeindex[i$1]),
-      name(phonemeindex[i$1]),
-      pad(phonemeLength[i$1]),
-      pad(stress[i$1])
+      pad(i),
+      pad(phonemeindex[i]),
+      name(phonemeindex[i]),
+      pad(phonemeLength[i]),
+      pad(stress[i])
     );
-    i$1++;
-
-    i = i$1;
   };
 
   for (var i=0;i<phonemeindex.length;i++) loop( i );
@@ -2159,8 +2157,8 @@ function CreateTransitions(pitches, frequency, amplitude, tuples) {
   return (mem49 + tuples[tuples.length - 1][1]) & 0xFF;
 }
 
-var RISING_INFLECTION = 1;
-var FALLING_INFLECTION = 255;
+var RISING_INFLECTION = 255;
+var FALLING_INFLECTION = 1;
 
 /**
  * Create a rising or falling inflection 30 frames prior to index X.
@@ -2229,9 +2227,9 @@ function CreateFrames (
     // get the phoneme at the index
     var phoneme = tuples[i][0];
     if (phoneme === PHONEME_PERIOD) {
-      AddInflection(RISING_INFLECTION, X, pitches);
-    } else if (phoneme === PHONEME_QUESTION) {
       AddInflection(FALLING_INFLECTION, X, pitches);
+    } else if (phoneme === PHONEME_QUESTION) {
+      AddInflection(RISING_INFLECTION, X, pitches);
     }
 
     // get the stress amount (more stress = higher pitch)
@@ -2470,6 +2468,7 @@ function Renderer(phonemes, pitch, mouth, throat, speed, singmode) {
         do {
           renderSample(3, 26, 4, 6);
           off++;
+          off &= 0xFF;
         } while (++phase1 & 0xFF);
         return off;
       }
