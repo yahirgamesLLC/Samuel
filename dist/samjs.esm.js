@@ -2456,8 +2456,7 @@ function PrintPhonemes (phonemeindex, phonemeLength, stress) {
 var tab48426 = [0x18, 0x1A, 0x17, 0x17, 0x17];
 
 var stressPitch_tab47492 = [
-  0x00, 0x00, 0xE0, 0xE6, 0xEC, 0xF3, 0xF9, 0x00,
-  0x06, 0xC, 0x06
+  0x00, 0xE0, 0xE6, 0xEC, 0xF3, 0xF9, 0x00, 0x06, 0xC, 0x06
 ];
 
 // Used to decide which phoneme's blend lengths. The candidate with the lower score is selected.
@@ -2929,8 +2928,7 @@ var sampleTable = [
 
 // mouth formants (F1) 5..29
 var mouthFormants5_29 = [
-  0, 0, 0, 0, 0, 10,
-  14, 19, 24, 27, 23, 21, 16, 20, 14, 18, 14, 18, 18,
+  10, 14, 19, 24, 27, 23, 21, 16, 20, 14, 18, 14, 18, 18,
   16, 13, 15, 11, 18, 14, 11, 9, 6, 6, 6
 ];
 // formant 1 frequencies (mouth) 48..53
@@ -2938,8 +2936,7 @@ var mouthFormants48_53 = [19, 27, 21, 27, 18, 13];
 
 // throat formants (F2) 5..29
 var throatFormants5_29 = [
-  255, 255,
-  255, 255, 255, 84, 73, 67, 63, 40, 44, 31, 37, 45, 73, 49,
+  84, 73, 67, 63, 40, 44, 31, 37, 45, 73, 49,
   36, 30, 51, 37, 29, 69, 24, 50, 30, 24, 83, 46, 54, 86 ];
 // formant 2 frequencies (throat) 48..53
 var throatFormants48_53 = [72, 39, 31, 43, 30, 34];
@@ -2958,9 +2955,6 @@ function trans(mem39212, mem39213) {
  * @return {Array}
  */
 function SetMouthThroat(mouth, throat) {
-  var initialFrequency;
-  var newFrequency = 0;
-  var pos = 5;
 
   var freqdata = [[],[],[]];
   frequencyData.map(function (v, i) {
@@ -2970,35 +2964,20 @@ function SetMouthThroat(mouth, throat) {
   });
 
   // recalculate formant frequencies 5..29 for the mouth (F1) and throat (F2)
-  while(pos < 30) {
+  for(var pos = 5; pos < 30; pos++) {
     // recalculate mouth frequency
-    initialFrequency = mouthFormants5_29[pos];
-    if (initialFrequency !== 0) {
-      newFrequency = trans(mouth, initialFrequency);
-    }
-    freqdata[0][pos] = newFrequency;
+    freqdata[0][pos] = trans(mouth, mouthFormants5_29[pos-5]);
 
     // recalculate throat frequency
-    initialFrequency = throatFormants5_29[pos];
-    if(initialFrequency !== 0) {
-      newFrequency = trans(throat, initialFrequency);
-    }
-    freqdata[1][pos] = newFrequency;
-    pos++;
+    freqdata[1][pos] = trans(throat, throatFormants5_29[pos-5]);
   }
 
   // recalculate formant frequencies 48..53
-  pos = 0;
-  while(pos < 6) {
+  for(var pos$1 = 0; pos$1 < 6; pos$1++) {
     // recalculate F1 (mouth formant)
-    initialFrequency = mouthFormants48_53[pos];
-    newFrequency = trans(mouth, initialFrequency);
-    freqdata[0][pos+48] = newFrequency;
+    freqdata[0][pos$1+48] = trans(mouth, mouthFormants48_53[pos$1]);
     // recalculate F2 (throat formant)
-    initialFrequency = throatFormants48_53[pos];
-    newFrequency = trans(throat, initialFrequency);
-    freqdata[1][pos+48] = newFrequency;
-    pos++;
+    freqdata[1][pos$1+48] = trans(throat, throatFormants48_53[pos$1]);
   }
 
   return freqdata;
@@ -3236,7 +3215,7 @@ function CreateFrames (
     }
 
     // get the stress amount (more stress = higher pitch)
-    var phase1 = stressPitch_tab47492[tuples[i][2] + 1];
+    var phase1 = stressPitch_tab47492[tuples[i][2]];
     // get number of frames to write
     // copy from the source to the frames list
     for (var frames = tuples[i][1];frames > 0;frames--) {
@@ -3264,13 +3243,12 @@ function CreateOutputBuffer(buffersize) {
   var buffer = new Uint8Array(buffersize);
   var bufferpos = 0;
   var oldTimeTableIndex = 0;
-  // Writer to buffer.
+  // Scale by 16 and write five times.
   var writer = function (index, A) {
-    writer.raw(index, (A & 15) * 16);
+    var scaled = (A & 15) * 16;
+    writer.ary(index, [scaled, scaled, scaled, scaled, scaled]);
   };
-  writer.raw = function (index, A) {
-    writer.ary(index, [A, A, A, A, A]);
-  };
+  // Write the five given values.
   writer.ary = function (index, array) {
     // timetable for more accurate c64 simulation
     var timetable = [
@@ -3485,7 +3463,7 @@ function Renderer(phonemes, pitch, mouth, throat, speed, singmode) {
       return mem66;
     };
 
-    var speedcounter = 72;
+    var speedcounter = speed;
     var phase1 = 0;
     var phase2 = 0;
     var phase3 = 0;
