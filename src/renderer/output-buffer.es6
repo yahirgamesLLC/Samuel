@@ -2,13 +2,12 @@ export default function CreateOutputBuffer(buffersize) {
   const buffer = new Uint8Array(buffersize);
   let bufferpos = 0;
   let oldTimeTableIndex = 0;
-  // Writer to buffer.
+  // Scale by 16 and write five times.
   const writer = (index, A) => {
-    writer.raw(index, (A & 15) * 16)
+    const scaled = (A & 15) * 16;
+    writer.ary(index, [scaled, scaled, scaled, scaled, scaled]);
   };
-  writer.raw = (index, A) => {
-    writer.ary(index, [A, A, A, A, A])
-  };
+  // Write the five given values.
   writer.ary = (index, array) => {
     // timetable for more accurate c64 simulation
     const timetable = [
