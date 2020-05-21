@@ -161,7 +161,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
 
       // mask low three bits and subtract 1 get value to
       // convert 0 bits on unvoiced samples.
-      const hibyte = (consonantFlag & 7) - 1;
+      const kind = (consonantFlag & 7) - 1;
 
       // determine which offset to use from table { 0x18, 0x1A, 0x17, 0x17, 0x17 }
       // T, S, Z                0          0x18
@@ -170,7 +170,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
       // /H                     3          0x17
       // /X                     4          0x17
 
-      const hi = hibyte * 256 & 0xFFFF; // unsigned short
+      const hi = kind * 256 & 0xFFFF; // unsigned short
       let off
       // voiced sample?
       const pitch = consonantFlag & 248; // unsigned char
@@ -203,7 +203,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
       off = pitch ^ 255 & 0xFF; // unsigned char
       let value0 = sampledConsonantValues0[kind] & 0xFF; // unsigned char
       do {
-        renderSample(2, 5, 1, mem53)
+        renderSample(2, 5, 1, value0)
       } while (++off & 0xFF);
 
       return mem66;
