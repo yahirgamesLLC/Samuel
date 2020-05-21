@@ -269,7 +269,7 @@ export const sinus = Array.apply(null, Array(256)).map((n, i) => {
     (2*PI)*
     ((i)/255)
   )*128 | 0)/16|0)*16;
-  return y < 0 ? y+255 : y;
+  return y;
 });
 
 // Sampled data for consonants, consisting of five 256-byte sections
