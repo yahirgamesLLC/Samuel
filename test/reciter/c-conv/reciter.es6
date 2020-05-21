@@ -1,6 +1,12 @@
+// This is the "plain" conversion of the C reciter to javascript.
+// We use it as "reference" implementation to test against.
+// So: c-conv reciter is always correct - as it behaves as plain SAM.
+// The unit tests of our optimized reciter should match the output against
+// this implementation and only pass if they are same.
+
 'use strict';
 import * as tables from './tables.es6';
-import {uint8Array2Text} from '../../util/util.es6';
+import {uint8Array2Text} from '../../../src/util/util.es6';
 
 import {
   FLAG_NUMERIC,
@@ -11,7 +17,7 @@ import {
   FLAG_CONSONANT,
   FLAG_VOWEL_OR_Y,
   FLAG_ALPHA_OR_QUOT
-} from '../constants.es6'
+} from '../../../src/reciter/constants.es6'
 
 const TABLE_PARTITION = 37541; // 92A5 === 1001 0010 1010 0101
 

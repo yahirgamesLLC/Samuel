@@ -1,6 +1,6 @@
 import { assert } from 'chai'
 import TextToPhonemes from "../../src/reciter/reciter.es6";
-import TextToPhonemesC from "../../src/reciter/c-conv/reciter.es6";
+import TextToPhonemesC from "./c-conv/reciter.es6";
 import loadFixture from '../fixture-reader.js';
 
 export default function (files) {
