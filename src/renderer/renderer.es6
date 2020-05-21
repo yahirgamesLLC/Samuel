@@ -40,13 +40,14 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
   // FIXME: should be tuple buffer as well.
   let tuples = [];
   while(1) {
-    let A = phonemes[srcpos];
-    if (A[0]) {
-      if (A[0] === END) {
+    const A = phonemes[srcpos];
+    const A0 = A[0]
+    if (A0) {
+      if (A0 === END) {
         Render(tuples);
         return Output.get();
       }
-      if (A[0] === BREAK) {
+      if (A0 === BREAK) {
         Render(tuples);
         tuples = [];
       } else {
@@ -84,7 +85,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
       freqdata
     );
 
-    let t = CreateTransitions(
+    const t = CreateTransitions(
       pitches,
       frequency,
       amplitude,
@@ -200,7 +201,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
       }
       // unvoiced
       off = pitch ^ 255 & 0xFF; // unsigned char
-      let value0 = sampledConsonantValues0[kind] & 0xFF; // unsigned char
+      const value0 = sampledConsonantValues0[kind] & 0xFF; // unsigned char
       do {
         renderSample(2, 5, 1, value0)
       } while (++off & 0xFF);
@@ -226,7 +227,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
     let mem38 = glottal_pulse * .75 |0;
 
     while(frameCount) {
-      let flags = sampledConsonantFlag[pos];
+      const flags = sampledConsonantFlag[pos];
 
       // unvoiced sampled phoneme?
       if ((flags & 248) !== 0) {
@@ -246,18 +247,17 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
           // and the amplitude lower nibble (interpreted as unsigned), then divided by two.
           // On the 6510 this made sense, but in modern processors it's way faster and cleaner to simply do the multiply.
           // simulate the glottal pulse and formants
-          let ary = []
+          const ary = []
           let /* unsigned int */ p1 = phase1 * 256; // Fixed point integers because we need to divide later on
           let /* unsigned int */ p2 = phase2 * 256;
           let /* unsigned int */ p3 = phase3 * 256;
-          let k;
-          for (k=0; k<5; k++) {
-            let /* signed char */ sp1 = sinus(0xff & (p1>>8));
-            let /* signed char */ sp2 = sinus(0xff & (p2>>8));
-            let /* signed char */ rp3 = ((0xff & (p3>>8))<129) ? -0x70 : 0x70;
-            let /* signed int */ sin1 = sp1 * (/* (unsigned char) */ amplitude[0][pos] & 0x0F);
-            let /* signed int */ sin2 = sp2 * (/* (unsigned char) */ amplitude[1][pos] & 0x0F);
-            let /* signed int */ rect = rp3 * (/* (unsigned char) */ amplitude[2][pos] & 0x0F);
+          for (let k=0; k<5; k++) {
+            const /* signed char */ sp1 = sinus(0xff & (p1>>8));
+            const /* signed char */ sp2 = sinus(0xff & (p2>>8));
+            const /* signed char */ rp3 = ((0xff & (p3>>8))<129) ? -0x70 : 0x70;
+            const /* signed int */ sin1 = sp1 * (/* (unsigned char) */ amplitude[0][pos] & 0x0F);
+            const /* signed int */ sin2 = sp2 * (/* (unsigned char) */ amplitude[1][pos] & 0x0F);
+            const /* signed int */ rect = rp3 * (/* (unsigned char) */ amplitude[2][pos] & 0x0F);
             let /* signed int */ mux = sin1 + sin2 + rect;
             mux /= 32;
             mux += 128; // Go from signed to unsigned amplitude
@@ -318,7 +318,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
 
 function PrintOutput(pitches, frequency, amplitude, sampledConsonantFlag) {
   function pad(num) {
-    let s = '00000' + num;
+    const s = '00000' + num;
     return s.substr(s.length - 5);
   }
   console.log('===========================================');

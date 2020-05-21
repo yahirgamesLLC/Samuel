@@ -73,7 +73,7 @@ export default function CreateFrames (
   let X = 0;
   for (let i=0;i<tuples.length;i++) {
     // get the phoneme at the index
-    let phoneme = tuples[i][0];
+    const phoneme = tuples[i][0];
     if (phoneme === PHONEME_PERIOD) {
       AddInflection(FALLING_INFLECTION, X, pitches);
     } else if (phoneme === PHONEME_QUESTION) {
@@ -81,7 +81,7 @@ export default function CreateFrames (
     }
 
     // get the stress amount (more stress = higher pitch)
-    let phase1 = stressPitch_tab47492[tuples[i][2]];
+    const phase1 = stressPitch_tab47492[tuples[i][2]];
     // get number of frames to write
     // copy from the source to the frames list
     for (let frames = tuples[i][1];frames > 0;frames--) {

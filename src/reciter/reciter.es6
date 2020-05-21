@@ -142,7 +142,7 @@ function reciterRule (ruleString) {
    */
   const checkSuffix = (text, pos) => {
     for (let rulePos = 0; rulePos<post.length;rulePos++) {
-      let ruleByte = post[rulePos];
+      const ruleByte = post[rulePos];
       // do we have to handle the byte specially?
       if (!flags(ruleByte, FLAG_ALPHA_OR_QUOT)) {
         // pos37226:
@@ -317,14 +317,14 @@ export function TextToPhonemes (input) {
     let c = 0;
     while ((inputPos < text.length) && (c++ < 10000)) {
       if (process.env.DEBUG_SAM === true) {
-        let tmp = text.toLowerCase();
+        const tmp = text.toLowerCase();
         console.log(
           `processing "${tmp.substr(0, inputPos)}%c${tmp[inputPos].toUpperCase()}%c${tmp.substr(inputPos + 1)}"`,
           'color: red;',
           'color:normal;'
         );
       }
-      let currentChar = text[inputPos];
+      const currentChar = text[inputPos];
 
       // NOT '.' or '.' followed by number.
       if ((currentChar !== '.')

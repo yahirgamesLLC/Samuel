@@ -62,9 +62,9 @@ export default function CreateTransitions(pitches, frequency, amplitude, tuples)
 
   // linearly interpolate values
   const interpolate = (width, table, frame, change) => {
-    let sign      = (change < 0);
-    let remainder = Math.abs(change) % width;
-    let div       = (change / width) | 0;
+    const sign      = (change < 0);
+    const remainder = Math.abs(change) % width;
+    const div       = (change / width) | 0;
 
     let error = 0;
     let pos   = width;
@@ -98,12 +98,12 @@ export default function CreateTransitions(pitches, frequency, amplitude, tuples)
   let inBlendFrames;
   let boundary = 0;
   for (let pos=0;pos<tuples.length - 1;pos++) {
-    let phoneme      = tuples[pos][0];
-    let next_phoneme = tuples[pos+1][0];
+    const phoneme      = tuples[pos][0];
+    const next_phoneme = tuples[pos+1][0];
 
     // get the ranking of each phoneme
-    let next_rank = blendRank[next_phoneme];
-    let rank      = blendRank[phoneme];
+    const next_rank = blendRank[next_phoneme];
+    const rank      = blendRank[phoneme];
 
     // compare the rank - lower rank value is stronger
     if (rank === next_rank) {
@@ -121,9 +121,9 @@ export default function CreateTransitions(pitches, frequency, amplitude, tuples)
       inBlendFrames = inBlendLength[phoneme];
     }
     boundary += tuples[pos][1];
-    let trans_end    = boundary + inBlendFrames;
-    let trans_start  = boundary - outBlendFrames;
-    let trans_length = outBlendFrames + inBlendFrames; // total transition
+    const trans_end    = boundary + inBlendFrames;
+    const trans_start  = boundary - outBlendFrames;
+    const trans_length = outBlendFrames + inBlendFrames; // total transition
 
     if (((trans_length - 2) & 128) === 0) {
       // unlike the other values, the pitches[] interpolates from
@@ -131,9 +131,9 @@ export default function CreateTransitions(pitches, frequency, amplitude, tuples)
       // next phoneme
 
       // half the width of the current and next phoneme
-      let cur_width  = tuples[pos][1] >> 1;
-      let next_width = tuples[pos+1][1] >> 1;
-      let pitch = pitches[boundary + next_width] - pitches[boundary - cur_width];
+      const cur_width  = tuples[pos][1] >> 1;
+      const next_width = tuples[pos+1][1] >> 1;
+      const pitch = pitches[boundary + next_width] - pitches[boundary - cur_width];
       // interpolate the values
       interpolate(cur_width + next_width, 0, trans_start, pitch);
 
@@ -146,7 +146,7 @@ export default function CreateTransitions(pitches, frequency, amplitude, tuples)
         // 4  amplitude1
         // 5  amplitude2
         // 6  amplitude3
-        let value = Read(table, trans_end) - Read(table, trans_start);
+        const value = Read(table, trans_end) - Read(table, trans_start);
         interpolate(trans_length, table, trans_start, value);
       }
     }
