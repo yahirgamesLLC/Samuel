@@ -186,49 +186,50 @@
    *    ' *', '.*', '?*', ',*', '-*'
    *  0x4000
    *    '.*', '?*', ',*', '-*', 'Q*'
-   *  0x2000
+   *  0x2000  FLAG_FRICATIVE
    *    'S*', 'SH', 'F*', 'TH', 'Z*', 'ZH', 'V*', 'DH', 'CH', '**', '**'
-   *  0x1000
+   *  0x1000  FLAG_LIQUIC
    *    'R*', 'L*', 'W*', 'Y*'
-   *  0x0800
+   *  0x0800  FLAG_NASAL
    *    'M*', 'N*', 'NX'
-   *  0x0400
+   *  0x0400  FLAG_ALVEOLAR
    *    'N*', 'DX', 'S*', 'TH', 'Z*', 'DH', 'D*', '**', '**', 'T*', '**',
    *    '**'
    *  0x0200
    *    --- not used ---
-   *  0x0100
+   *  0x0100  FLAG_PUNCT
    *    '.*', '?*', ',*', '-*'
-   *  0x0080 Vowels
+   *  0x0080  FLAG_VOWEL
    *    'IY', 'IH', 'EH', 'AE', 'AA', 'AH', 'AO', 'UH', 'AX', 'IX', 'ER',
    *    'UX', 'OH', 'RX', 'LX', 'WX', 'YX', 'EY', 'AY', 'OY', 'AW', 'OW',
    *    'UW', 'UL', 'UM', 'UN'
-   *  0x0040
+   *  0x0040  FLAG_CONSONANT
    *    'WH', 'R*', 'L*', 'W*', 'Y*', 'M*', 'N*', 'NX', 'DX', 'Q*', 'S*',
    *    'SH', 'F*', 'TH', '/H', '/X', 'Z*', 'ZH', 'V*', 'DH', 'CH', '**',
    *    'J*', '**', 'B*', '**', '**', 'D*', '**', '**', 'G*', '**', '**',
    *    'GX', '**', '**', 'P*', '**', '**', 'T*', '**', '**', 'K*', '**',
    *    '**', 'KX', '**', '**', 'UM', 'UN'
-   *  0x0020
+   *  0x0020  FLAG_DIP_YX  but looks like front vowels
    *    'IY', 'IH', 'EH', 'AE', 'AA', 'AH', 'AX', 'IX', 'EY', 'AY', 'OY'
-   *  0x0010  Dipthongs
+   *  0x0010  FLAG_DIPTHONG
    *    'EY', 'AY', 'OY', 'AW', 'OW', 'UW'
    *  0x0008
    *    'M*', 'N*', 'NX', 'DX', 'Q*', 'CH', 'J*', 'B*', '**', '**', 'D*',
    *    '**', '**', 'G*', '**', '**', 'GX', '**', '**', 'P*', '**', '**',
    *    'T*', '**', '**', 'K*', '**', '**', 'KX', '**', '**'
-   *  0x0004
-   *  'IY', 'IH', 'EH', 'AE', 'AA', 'AH', 'AO', 'UH', 'AX', 'IX', 'ER',
-   *  'UX', 'OH', 'RX', 'LX', 'WX', 'YX', 'WH', 'R*', 'L*', 'W*', 'Y*',
-   *  'M*', 'N*', 'NX', 'Q*', 'Z*', 'ZH', 'V*', 'DH', 'J*', '**', 'EY',
-   *  'AY', 'OY', 'AW', 'OW', 'UW', 'B*', '**', '**', 'D*', '**', '**',
-   *  'G*', '**', '**', 'GX', '**', '**'
-   *  0x0002
+   *  0x0004  FLAG_VOICED
+   *    'IY', 'IH', 'EH', 'AE', 'AA', 'AH', 'AO', 'UH', 'AX', 'IX', 'ER',
+   *    'UX', 'OH', 'RX', 'LX', 'WX', 'YX', 'WH', 'R*', 'L*', 'W*', 'Y*',
+   *    'M*', 'N*', 'NX', 'Q*', 'Z*', 'ZH', 'V*', 'DH', 'J*', '**', 'EY',
+   *    'AY', 'OY', 'AW', 'OW', 'UW', 'B*', '**', '**', 'D*', '**', '**',
+   *    'G*', '**', '**', 'GX', '**', '**'
+   *  0x0002  FLAG_STOPCONS
    *    'B*', '**', '**', 'D*', '**', '**', 'G*', '**', '**', 'GX', '**',
    *    '**', 'P*', '**', '**', 'T*', '**', '**', 'K*', '**', '**', 'KX',
    *    '**', '**'
-   *  0x0001
-   *    'P*', '**', '**', 'T*', '**', '**', 'K*', '**', '**', 'KX', '**', '**', 'UM', 'UN'
+   *  0x0001  FLAG_UNVOICED_STOPCONS
+   *    'P*', '**', '**', 'T*', '**', '**', 'K*', '**', '**', 'KX', '**',
+   *    '**', 'UM', 'UN'
    */
   var phonemeFlags = [
     0 | 0x8000,                                                                                                                                        // ' *' 00
@@ -699,6 +700,7 @@
    * <DIPHTHONG NOT ENDING WITH WX> -> <DIPHTHONG NOT ENDING WITH WX> YX
    * UL -> AX L
    * UM -> AX M
+   * UN -> AX N
    * <STRESSED VOWEL> <SILENCE> <STRESSED VOWEL> -> <STRESSED VOWEL> <SILENCE> Q <VOWEL>
    * T R -> CH R
    * D R -> J R
@@ -1454,7 +1456,9 @@
     console.log('==================================');
   }
 
-  var tab48426 = [0x18, 0x1A, 0x17, 0x17, 0x17];
+  // Values substituted for zero bits in unvoiced consonant samples.
+  // tab48426
+  var sampledConsonantValues0 = [0x18, 0x1A, 0x17, 0x17, 0x17];
 
   var stressPitch_tab47492 = [
     0x00, 0xE0, 0xE6, 0xEC, 0xF3, 0xF9, 0x00, 0x06, 0xC, 0x06
@@ -1505,8 +1509,11 @@
     0x03, 0x00, 0x03, 0x03, 0x00, 0x03, 0xB0, 0xA0
   ];
 
-  // Looks like it's used as bit flags
-  // High bits masked by 248 (11111000)
+  // Consists of two bitfields:
+  // Low 3 bits (masked by 7) select a 256-byte section in sampleTable,
+  // as well as index into sampledConsonantValues0 for unvoiced.
+  // High 5 bits (masked by 248 = 11111000), for unvoiced,
+  // give inverted offset within the 256-byte section.
   //
   // 32: S*    241         11110001
   // 33: SH    226         11100010
@@ -1518,10 +1525,10 @@
   // 39: ZH    2           00000010
   // 40: V*    3           00000011
   // 41: DH    3           00000011
-  // 43: **    114         01110010
-  // 45: **    2           00000010
-  // 67: **    27          00011011
-  // 70: **    25          00011001
+  // 43: CH'   114         01110010
+  // 45: J'    2           00000010
+  // 67: P'    27          00011011
+  // 70: T'    25          00011001
   // tab45936
   var sampledConsonantFlags = [
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1540,86 +1547,86 @@
   var frequencyData = [
   //tab45056 |tab451356 |tab45216
   //  freq1  |  freq2   |  freq3
-    0x000000 | 0x000000 | 0x000000,
-    0x000013 | 0x004300 | 0x5B0000,
-    0x000013 | 0x004300 | 0x5B0000,
-    0x000013 | 0x004300 | 0x5B0000,
-    0x000013 | 0x004300 | 0x5B0000,
-    0x00000A | 0x005400 | 0x6E0000,
-    0x00000E | 0x004800 | 0x5D0000,
-    0x000012 | 0x004200 | 0x5B0000,
-    0x000018 | 0x003E00 | 0x580000,
-    0x00001A | 0x002800 | 0x590000,
-    0x000016 | 0x002C00 | 0x570000,
-    0x000014 | 0x001E00 | 0x580000,
-    0x000010 | 0x002400 | 0x520000,
-    0x000014 | 0x002C00 | 0x590000,
-    0x00000E | 0x004800 | 0x5D0000,
-    0x000012 | 0x003000 | 0x3E0000,
-    0x00000E | 0x002400 | 0x520000,
-    0x000012 | 0x001E00 | 0x580000,
-    0x000012 | 0x003200 | 0x3E0000,
-    0x000010 | 0x002400 | 0x6E0000,
-    0x00000C | 0x001C00 | 0x500000,
-    0x00000E | 0x004400 | 0x5D0000,
-    0x00000A | 0x001800 | 0x5A0000,
-    0x000012 | 0x003200 | 0x3C0000,
-    0x00000E | 0x001E00 | 0x6E0000,
-    0x00000A | 0x001800 | 0x5A0000,
-    0x000008 | 0x005200 | 0x6E0000,
-    0x000006 | 0x002E00 | 0x510000,
-    0x000006 | 0x003600 | 0x790000,
-    0x000006 | 0x005600 | 0x650000,
-    0x000006 | 0x003600 | 0x790000,
-    0x000011 | 0x004300 | 0x5B0000,
-    0x000006 | 0x004900 | 0x630000,
-    0x000006 | 0x004F00 | 0x6A0000,
-    0x000006 | 0x001A00 | 0x510000,
-    0x000006 | 0x004200 | 0x790000,
-    0x00000E | 0x004900 | 0x5D0000,
-    0x000010 | 0x002500 | 0x520000,
-    0x000009 | 0x003300 | 0x5D0000,
-    0x00000A | 0x004200 | 0x670000,
-    0x000008 | 0x002800 | 0x4C0000,
-    0x00000A | 0x002F00 | 0x5D0000,
-    0x000006 | 0x004F00 | 0x650000,
-    0x000006 | 0x004F00 | 0x650000,
-    0x000006 | 0x004200 | 0x790000,
-    0x000005 | 0x004F00 | 0x650000,
-    0x000006 | 0x006E00 | 0x790000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000012 | 0x004800 | 0x5A0000,
-    0x00001A | 0x002600 | 0x580000,
-    0x000014 | 0x001E00 | 0x580000,
-    0x00001A | 0x002A00 | 0x580000,
-    0x000012 | 0x001E00 | 0x580000,
-    0x00000C | 0x002200 | 0x520000,
-    0x000006 | 0x001A00 | 0x510000,
-    0x000006 | 0x001A00 | 0x510000,
-    0x000006 | 0x001A00 | 0x510000,
-    0x000006 | 0x004200 | 0x790000,
-    0x000006 | 0x004200 | 0x790000,
-    0x000006 | 0x004200 | 0x790000,
-    0x000006 | 0x006E00 | 0x700000,
-    0x000006 | 0x006E00 | 0x6E0000,
-    0x000006 | 0x006E00 | 0x6E0000,
-    0x000006 | 0x005400 | 0x5E0000,
-    0x000006 | 0x005400 | 0x5E0000,
-    0x000006 | 0x005400 | 0x5E0000,
-    0x000006 | 0x001A00 | 0x510000,
-    0x000006 | 0x001A00 | 0x510000,
-    0x000006 | 0x001A00 | 0x510000,
-    0x000006 | 0x004200 | 0x790000,
-    0x000006 | 0x004200 | 0x790000,
-    0x000006 | 0x004200 | 0x790000,
-    0x000006 | 0x006D00 | 0x650000,
-    0x00000A | 0x005600 | 0x650000,
-    0x00000A | 0x006D00 | 0x700000,
-    0x000006 | 0x005400 | 0x5E0000,
-    0x000006 | 0x005400 | 0x5E0000,
-    0x000006 | 0x005400 | 0x5E0000,
-    0x00002C | 0x007F00 | 0x080000,
-    0x000013 | 0x007F00 | 0x010000
+    0x000000 | 0x000000 | 0x000000, // ' *' 00
+    0x000013 | 0x004300 | 0x5B0000, // '.*' 01
+    0x000013 | 0x004300 | 0x5B0000, // '?*' 02
+    0x000013 | 0x004300 | 0x5B0000, // ',*' 03
+    0x000013 | 0x004300 | 0x5B0000, // '-*' 04
+    0x00000A | 0x005400 | 0x6E0000, // 'IY' 05
+    0x00000E | 0x004800 | 0x5D0000, // 'IH' 06
+    0x000012 | 0x004200 | 0x5B0000, // 'EH' 07
+    0x000018 | 0x003E00 | 0x580000, // 'AE' 08
+    0x00001A | 0x002800 | 0x590000, // 'AA' 09
+    0x000016 | 0x002C00 | 0x570000, // 'AH' 10
+    0x000014 | 0x001E00 | 0x580000, // 'AO' 11
+    0x000010 | 0x002400 | 0x520000, // 'UH' 12
+    0x000014 | 0x002C00 | 0x590000, // 'AX' 13
+    0x00000E | 0x004800 | 0x5D0000, // 'IX' 14
+    0x000012 | 0x003000 | 0x3E0000, // 'ER' 15
+    0x00000E | 0x002400 | 0x520000, // 'UX' 16
+    0x000012 | 0x001E00 | 0x580000, // 'OH' 17
+    0x000012 | 0x003200 | 0x3E0000, // 'RX' 18
+    0x000010 | 0x002400 | 0x6E0000, // 'LX' 19
+    0x00000C | 0x001C00 | 0x500000, // 'WX' 20
+    0x00000E | 0x004400 | 0x5D0000, // 'YX' 21
+    0x00000A | 0x001800 | 0x5A0000, // 'WH' 22
+    0x000012 | 0x003200 | 0x3C0000, // 'R*' 23
+    0x00000E | 0x001E00 | 0x6E0000, // 'L*' 24
+    0x00000A | 0x001800 | 0x5A0000, // 'W*' 25
+    0x000008 | 0x005200 | 0x6E0000, // 'Y*' 26
+    0x000006 | 0x002E00 | 0x510000, // 'M*' 27
+    0x000006 | 0x003600 | 0x790000, // 'N*' 28
+    0x000006 | 0x005600 | 0x650000, // 'NX' 29
+    0x000006 | 0x003600 | 0x790000, // 'DX' 30
+    0x000011 | 0x004300 | 0x5B0000, // 'Q*' 31
+    0x000006 | 0x004900 | 0x630000, // 'S*' 32
+    0x000006 | 0x004F00 | 0x6A0000, // 'SH' 33
+    0x000006 | 0x001A00 | 0x510000, // 'F*' 34
+    0x000006 | 0x004200 | 0x790000, // 'TH' 35
+    0x00000E | 0x004900 | 0x5D0000, // '/H' 36
+    0x000010 | 0x002500 | 0x520000, // '/X' 37
+    0x000009 | 0x003300 | 0x5D0000, // 'Z*' 38
+    0x00000A | 0x004200 | 0x670000, // 'ZH' 39
+    0x000008 | 0x002800 | 0x4C0000, // 'V*' 40
+    0x00000A | 0x002F00 | 0x5D0000, // 'DH' 41
+    0x000006 | 0x004F00 | 0x650000, // 'CH' 42
+    0x000006 | 0x004F00 | 0x650000, // '**' 43
+    0x000006 | 0x004200 | 0x790000, // 'J*' 44
+    0x000005 | 0x004F00 | 0x650000, // '**' 45
+    0x000006 | 0x006E00 | 0x790000, // '**' 46
+    0x000000 | 0x000000 | 0x000000, // '**' 47
+    0x000012 | 0x004800 | 0x5A0000, // 'EY' 48
+    0x00001A | 0x002600 | 0x580000, // 'AY' 49
+    0x000014 | 0x001E00 | 0x580000, // 'OY' 50
+    0x00001A | 0x002A00 | 0x580000, // 'AW' 51
+    0x000012 | 0x001E00 | 0x580000, // 'OW' 52
+    0x00000C | 0x002200 | 0x520000, // 'UW' 53
+    0x000006 | 0x001A00 | 0x510000, // 'B*' 54
+    0x000006 | 0x001A00 | 0x510000, // '**' 55
+    0x000006 | 0x001A00 | 0x510000, // '**' 56
+    0x000006 | 0x004200 | 0x790000, // 'D*' 57
+    0x000006 | 0x004200 | 0x790000, // '**' 58
+    0x000006 | 0x004200 | 0x790000, // '**' 59
+    0x000006 | 0x006E00 | 0x700000, // 'G*' 60
+    0x000006 | 0x006E00 | 0x6E0000, // '**' 61
+    0x000006 | 0x006E00 | 0x6E0000, // '**' 62
+    0x000006 | 0x005400 | 0x5E0000, // 'GX' 63
+    0x000006 | 0x005400 | 0x5E0000, // '**' 64
+    0x000006 | 0x005400 | 0x5E0000, // '**' 65
+    0x000006 | 0x001A00 | 0x510000, // 'P*' 66
+    0x000006 | 0x001A00 | 0x510000, // '**' 67
+    0x000006 | 0x001A00 | 0x510000, // '**' 68
+    0x000006 | 0x004200 | 0x790000, // 'T*' 69
+    0x000006 | 0x004200 | 0x790000, // '**' 70
+    0x000006 | 0x004200 | 0x790000, // '**' 71
+    0x000006 | 0x006D00 | 0x650000, // 'K*' 72
+    0x00000A | 0x005600 | 0x650000, // '**' 73
+    0x00000A | 0x006D00 | 0x700000, // '**' 74
+    0x000006 | 0x005400 | 0x5E0000, // 'KX' 75
+    0x000006 | 0x005400 | 0x5E0000, // '**' 76
+    0x000006 | 0x005400 | 0x5E0000, // '**' 77
+    0x00002C | 0x007F00 | 0x080000, // 'UL' 78
+    0x000013 | 0x007F00 | 0x010000  // 'UM' 79
   ];
 
   /**
@@ -1630,106 +1637,95 @@
    */
   var ampldata = [
   // ampl1   | ampl2    | ampl3
-    0x000000 | 0x000000 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x00000D | 0x000A00 | 0x080000,
-    0x00000D | 0x000B00 | 0x070000,
-    0x00000E | 0x000D00 | 0x080000,
-    0x00000F | 0x000E00 | 0x080000,
-    0x00000F | 0x000D00 | 0x010000,
-    0x00000F | 0x000C00 | 0x010000,
-    0x00000F | 0x000C00 | 0x000000,
-    0x00000F | 0x000B00 | 0x010000,
-    0x00000C | 0x000900 | 0x000000,
-    0x00000D | 0x000B00 | 0x070000,
-    0x00000C | 0x000B00 | 0x050000,
-    0x00000F | 0x000C00 | 0x010000,
-    0x00000F | 0x000C00 | 0x000000,
-    0x00000D | 0x000C00 | 0x060000,
-    0x00000D | 0x000800 | 0x010000,
-    0x00000D | 0x000800 | 0x000000,
-    0x00000E | 0x000C00 | 0x070000,
-    0x00000D | 0x000800 | 0x000000,
-    0x00000C | 0x000A00 | 0x050000,
-    0x00000D | 0x000800 | 0x010000,
-    0x00000D | 0x000800 | 0x000000,
-    0x00000D | 0x000A00 | 0x080000,
-    0x00000C | 0x000300 | 0x000000,
-    0x000009 | 0x000900 | 0x000000,
-    0x000009 | 0x000600 | 0x030000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x00000B | 0x000300 | 0x000000,
-    0x00000B | 0x000500 | 0x010000,
-    0x00000B | 0x000300 | 0x000000,
-    0x00000B | 0x000400 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000001 | 0x000000 | 0x000000,
-    0x00000B | 0x000500 | 0x010000,
-    0x000000 | 0x000A00 | 0x0E0000,
-    0x000002 | 0x000200 | 0x010000,
-    0x00000E | 0x000E00 | 0x090000,
-    0x00000F | 0x000D00 | 0x010000,
-    0x00000F | 0x000C00 | 0x000000,
-    0x00000F | 0x000D00 | 0x010000,
-    0x00000F | 0x000C00 | 0x000000,
-    0x00000D | 0x000800 | 0x000000,
-    0x000002 | 0x000000 | 0x000000,
-    0x000004 | 0x000100 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000002 | 0x000000 | 0x000000,
-    0x000004 | 0x000100 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000001 | 0x000000 | 0x000000,
-    0x000004 | 0x000100 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000001 | 0x000000 | 0x000000,
-    0x000004 | 0x000100 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x00000C | 0x000A00 | 0x070000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000000 | 0x000000 | 0x000000,
-    0x000000 | 0x000A00 | 0x050000,
-    0x000000 | 0x000000 | 0x000000,
-    0x00000F | 0x000000 | 0x130000,
-    0x00000F | 0x000000 | 0x100000
+    0x000000 | 0x000000 | 0x000000, // ' *' 00
+    0x000000 | 0x000000 | 0x000000, // '.*' 01
+    0x000000 | 0x000000 | 0x000000, // '?*' 02
+    0x000000 | 0x000000 | 0x000000, // ',*' 03
+    0x000000 | 0x000000 | 0x000000, // '-*' 04
+    0x00000D | 0x000A00 | 0x080000, // 'IY' 05
+    0x00000D | 0x000B00 | 0x070000, // 'IH' 06
+    0x00000E | 0x000D00 | 0x080000, // 'EH' 07
+    0x00000F | 0x000E00 | 0x080000, // 'AE' 08
+    0x00000F | 0x000D00 | 0x010000, // 'AA' 09
+    0x00000F | 0x000C00 | 0x010000, // 'AH' 10
+    0x00000F | 0x000C00 | 0x000000, // 'AO' 11
+    0x00000F | 0x000B00 | 0x010000, // 'UH' 12
+    0x00000C | 0x000900 | 0x000000, // 'AX' 13
+    0x00000D | 0x000B00 | 0x070000, // 'IX' 14
+    0x00000C | 0x000B00 | 0x050000, // 'ER' 15
+    0x00000F | 0x000C00 | 0x010000, // 'UX' 16
+    0x00000F | 0x000C00 | 0x000000, // 'OH' 17
+    0x00000D | 0x000C00 | 0x060000, // 'RX' 18
+    0x00000D | 0x000800 | 0x010000, // 'LX' 19
+    0x00000D | 0x000800 | 0x000000, // 'WX' 20
+    0x00000E | 0x000C00 | 0x070000, // 'YX' 21
+    0x00000D | 0x000800 | 0x000000, // 'WH' 22
+    0x00000C | 0x000A00 | 0x050000, // 'R*' 23
+    0x00000D | 0x000800 | 0x010000, // 'L*' 24
+    0x00000D | 0x000800 | 0x000000, // 'W*' 25
+    0x00000D | 0x000A00 | 0x080000, // 'Y*' 26
+    0x00000C | 0x000300 | 0x000000, // 'M*' 27
+    0x000009 | 0x000900 | 0x000000, // 'N*' 28
+    0x000009 | 0x000600 | 0x030000, // 'NX' 29
+    0x000000 | 0x000000 | 0x000000, // 'DX' 30
+    0x000000 | 0x000000 | 0x000000, // 'Q*' 31
+    0x000000 | 0x000000 | 0x000000, // 'S*' 32
+    0x000000 | 0x000000 | 0x000000, // 'SH' 33
+    0x000000 | 0x000000 | 0x000000, // 'F*' 34
+    0x000000 | 0x000000 | 0x000000, // 'TH' 35
+    0x000000 | 0x000000 | 0x000000, // '/H' 36
+    0x000000 | 0x000000 | 0x000000, // '/X' 37
+    0x00000B | 0x000300 | 0x000000, // 'Z*' 38
+    0x00000B | 0x000500 | 0x010000, // 'ZH' 39
+    0x00000B | 0x000300 | 0x000000, // 'V*' 40
+    0x00000B | 0x000400 | 0x000000, // 'DH' 41
+    0x000000 | 0x000000 | 0x000000, // 'CH' 42
+    0x000000 | 0x000000 | 0x000000, // '**' 43
+    0x000001 | 0x000000 | 0x000000, // 'J*' 44
+    0x00000B | 0x000500 | 0x010000, // '**' 45
+    0x000000 | 0x000A00 | 0x0E0000, // '**' 46
+    0x000002 | 0x000200 | 0x010000, // '**' 47
+    0x00000E | 0x000E00 | 0x090000, // 'EY' 48
+    0x00000F | 0x000D00 | 0x010000, // 'AY' 49
+    0x00000F | 0x000C00 | 0x000000, // 'OY' 50
+    0x00000F | 0x000D00 | 0x010000, // 'AW' 51
+    0x00000F | 0x000C00 | 0x000000, // 'OW' 52
+    0x00000D | 0x000800 | 0x000000, // 'UW' 53
+    0x000002 | 0x000000 | 0x000000, // 'B*' 54
+    0x000004 | 0x000100 | 0x000000, // '**' 55
+    0x000000 | 0x000000 | 0x000000, // '**' 56
+    0x000002 | 0x000000 | 0x000000, // 'D*' 57
+    0x000004 | 0x000100 | 0x000000, // '**' 58
+    0x000000 | 0x000000 | 0x000000, // '**' 59
+    0x000001 | 0x000000 | 0x000000, // 'G*' 60
+    0x000004 | 0x000100 | 0x000000, // '**' 61
+    0x000000 | 0x000000 | 0x000000, // '**' 62
+    0x000001 | 0x000000 | 0x000000, // 'GX' 63
+    0x000004 | 0x000100 | 0x000000, // '**' 64
+    0x000000 | 0x000000 | 0x000000, // '**' 65
+    0x000000 | 0x000000 | 0x000000, // 'P*' 66
+    0x000000 | 0x000000 | 0x000000, // '**' 67
+    0x000000 | 0x000000 | 0x000000, // '**' 68
+    0x000000 | 0x000000 | 0x000000, // 'T*' 69
+    0x000000 | 0x000000 | 0x000000, // '**' 70
+    0x000000 | 0x000000 | 0x000000, // '**' 71
+    0x000000 | 0x000000 | 0x000000, // 'K*' 72
+    0x00000C | 0x000A00 | 0x070000, // '**' 73
+    0x000000 | 0x000000 | 0x000000, // '**' 74
+    0x000000 | 0x000000 | 0x000000, // 'KX' 75
+    0x000000 | 0x000A00 | 0x050000, // '**' 76
+    0x000000 | 0x000000 | 0x000000, // '**' 77
+    0x00000F | 0x000000 | 0x130000, // 'UL' 78
+    0x00000F | 0x000000 | 0x100000  // 'UM' 79
   ];
 
-  var sinus = Array.apply(null, Array(256)).map(function (n, i) {
-    // let y = (Math.sin(2*Math.PI*(i/256)) * 255 | 0);
-    //const PI=3.14159265;
-    var PI=3.141;
-    var y = ((Math.sin(
-      (2*PI)*
-      ((i)/255)
-    )*128 | 0)/16|0)*16;
-    return y < 0 ? y+255 : y;
-  });
-
-  //random data ?
+  // Sampled data for consonants, consisting of five 256-byte sections
   var sampleTable = [
-    //00
+    //00  T', S, Z  (coronal)
     0x38, 0x84, 0x6B, 0x19, 0xC6, 0x63, 0x18, 0x86,
     0x73, 0x98, 0xC6, 0xB1, 0x1C, 0xCA, 0x31, 0x8C,
     0xC7, 0x31, 0x88, 0xC2, 0x30, 0x98, 0x46, 0x31,
-    0x18, 0xC6, 0x35, 0x0C, 0xCA, 0x31, 0xC, 0xC6,
+    0x18, 0xC6, 0x35, 0x0C, 0xCA, 0x31, 0x0C, 0xC6,
     //20
     0x21, 0x10, 0x24, 0x69, 0x12, 0xC2, 0x31, 0x14,
     0xC4, 0x71, 0x08, 0x4A, 0x22, 0x49, 0xAB, 0x6A,
@@ -1765,7 +1761,7 @@
     0x66, 0x31, 0x9D, 0x44, 0x33, 0x1D, 0x46, 0x31,
     0x9C, 0xC6, 0xB1, 0x0C, 0xCD, 0x32, 0x88, 0xC4,
     0x73, 0x18, 0x86, 0x73, 0x08, 0xD6, 0x63, 0x58,
-    //100
+    //100 CH', J', SH, ZH  (palato-alveolar)
     0x07, 0x81, 0xE0, 0xF0, 0x3C, 0x07, 0x87, 0x90,
     0x3C, 0x7C, 0x0F, 0xC7, 0xC0, 0xC0, 0xF0, 0x7C,
     0x1E, 0x07, 0x80, 0x80, 0x00, 0x1C, 0x78, 0x70,
@@ -1805,7 +1801,7 @@
     0x78, 0xAC, 0xB1, 0x8F, 0x39, 0x31, 0xDB, 0x38,
     0x61, 0xC3, 0x0E, 0x0E, 0x38, 0x78, 0x73, 0x17,
     0x1E, 0x39, 0x1E, 0x38, 0x64, 0xE1, 0xF1, 0xC1,
-    //200
+    //200 P', F, V, TH, DH  ([labio]dental)
     0x4E, 0x0F, 0x40, 0xA2, 0x02, 0xC5, 0x8F, 0x81,
     0xA1, 0xFC, 0x12, 0x08, 0x64, 0xE0, 0x3C, 0x22,
     0xE0, 0x45, 0x07, 0x8E, 0x0C, 0x32, 0x90, 0xF0,
@@ -1845,7 +1841,7 @@
     0x71, 0x66, 0x00, 0xF8, 0x3F, 0x04, 0xFC, 0x0C,
     0x74, 0x27, 0x8A, 0x80, 0x71, 0xC2, 0x3A, 0x26,
     0x06, 0xC0, 0x1F, 0x05, 0x0F, 0x98, 0x40, 0xAE,
-    //300
+    //300 /H  (palatal)
     0x01, 0x7F, 0xC0, 0x07, 0xFF, 0x00, 0x0E, 0xFE,
     0x00, 0x03, 0xDF, 0x80, 0x03, 0xEF, 0x80, 0x1B,
     0xF1, 0xC2, 0x00, 0xE7, 0xE0, 0x18, 0xFC, 0xE0,
@@ -1885,7 +1881,7 @@
     0x8F, 0x08, 0xC1, 0x87, 0x8F, 0x80, 0xC7, 0xE3,
     0x00, 0x07, 0xF8, 0xE0, 0xEF, 0x00, 0x39, 0xF7,
     0x80, 0x0E, 0xF8, 0xE1, 0xE3, 0xF8, 0x21, 0x9F,
-    //400
+    //400 /X  (glottal)
     0xC0, 0xFF, 0x03, 0xF8, 0x07, 0xC0, 0x1F, 0xF8,
     0xC4, 0x04, 0xFC, 0xC4, 0xC1, 0xBC, 0x87, 0xF0,
     0x0F, 0xC0, 0x7F, 0x05, 0xE0, 0x25, 0xEC, 0xC0,
@@ -1900,7 +1896,7 @@
     0x0D, 0xC4, 0x7F, 0x80, 0xFC, 0x07, 0xF0, 0x5E,
     0xC0, 0x3F, 0x00, 0x78, 0x3F, 0x81, 0xFF, 0x01,
     0xF8, 0x01, 0xC3, 0xE8, 0x0C, 0xE4, 0x64, 0x8F,
-    ////460
+    //460
     0xE4, 0x0F, 0xF0, 0x07, 0xF0, 0xC2, 0x1F, 0x00,
     0x7F, 0xC0, 0x6F, 0x80, 0x7E, 0x03, 0xF8, 0x07,
     0xF0, 0x3F, 0xC0, 0x78, 0x0F, 0x82, 0x07, 0xFE,
@@ -1911,10 +1907,10 @@
     0x99, 0xFC, 0x09, 0xB8, 0x0F, 0xF8, 0x00, 0x9D,
     0x24, 0x61, 0xF9, 0x0D, 0x00, 0xFD, 0x03, 0xF0,
     //4a0
-    0x1F, 0x90, 0x3F, 0x01, 0xF8, 0x1F, 0xD0, 0xF,
+    0x1F, 0x90, 0x3F, 0x01, 0xF8, 0x1F, 0xD0, 0x0F,
     0xF8, 0x37, 0x01, 0xF8, 0x07, 0xF0, 0x0F, 0xC0,
-    0x3F, 0x00, 0xFE, 0x03, 0xF8, 0xF, 0xC0, 0x3F,
-    0x00, 0xFA, 0x03, 0xF0, 0xF, 0x80, 0xFF, 0x01,
+    0x3F, 0x00, 0xFE, 0x03, 0xF8, 0x0F, 0xC0, 0x3F,
+    0x00, 0xFA, 0x03, 0xF0, 0x0F, 0x80, 0xFF, 0x01,
     //4c0
     0xB8, 0x07, 0xF0, 0x01, 0xFC, 0x01, 0xBC, 0x80,
     0x13, 0x1E, 0x00, 0x7F, 0xE1, 0x40, 0x7F, 0xA0,
@@ -2029,7 +2025,7 @@
   function CreateTransitions(pitches, frequency, amplitude, tuples) {
     // 0=pitches
     // 1=frequency1
-    // 2=frequency[1]
+    // 2=frequency2
     // 3=frequency3
     // 4=amplitude1
     // 5=amplitude2
@@ -2045,10 +2041,10 @@
     };
 
     // linearly interpolate values
-    var interpolate = function (width, table, frame, mem53) {
-      var sign      = (mem53 < 0);
-      var remainder = Math.abs(mem53) % width;
-      var div       = (mem53 / width) | 0;
+    var interpolate = function (width, table, frame, change) {
+      var sign      = (change < 0);
+      var remainder = Math.abs(change) % width;
+      var div       = (change / width) | 0;
 
       var error = 0;
       var pos   = width;
@@ -2078,9 +2074,9 @@
       }
     };
 
-    var phase1;
-    var phase2;
-    var mem49 = 0;
+    var outBlendFrames;
+    var inBlendFrames;
+    var boundary = 0;
     for (var pos=0;pos<tuples.length - 1;pos++) {
       var phoneme      = tuples[pos][0];
       var next_phoneme = tuples[pos+1][0];
@@ -2092,24 +2088,24 @@
       // compare the rank - lower rank value is stronger
       if (rank === next_rank) {
         // same rank, so use out blend lengths from each phoneme
-        phase1 = outBlendLength[phoneme];
-        phase2 = outBlendLength[next_phoneme];
+        outBlendFrames = outBlendLength[phoneme];
+        inBlendFrames = outBlendLength[next_phoneme];
       } else if (rank < next_rank) {
-        // next phoneme is stronger, so us its blend lengths
-        phase1 = inBlendLength[next_phoneme];
-        phase2 = outBlendLength[next_phoneme];
+        // next phoneme is stronger, so use its blend lengths
+        outBlendFrames = inBlendLength[next_phoneme];
+        inBlendFrames = outBlendLength[next_phoneme];
       } else {
         // current phoneme is stronger, so use its blend lengths
         // note the out/in are swapped
-        phase1 = outBlendLength[phoneme];
-        phase2 = inBlendLength[phoneme];
+        outBlendFrames = outBlendLength[phoneme];
+        inBlendFrames = inBlendLength[phoneme];
       }
-      mem49 += tuples[pos][1];
-      var speedcounter = mem49 + phase2;
-      var phase3       = mem49 - phase1;
-      var transition   = phase1 + phase2; // total transition?
+      boundary += tuples[pos][1];
+      var trans_end    = boundary + inBlendFrames;
+      var trans_start  = boundary - outBlendFrames;
+      var trans_length = outBlendFrames + inBlendFrames; // total transition
 
-      if (((transition - 2) & 128) === 0) {
+      if (((trans_length - 2) & 128) === 0) {
         // unlike the other values, the pitches[] interpolates from
         // the middle of the current phoneme to the middle of the
         // next phoneme
@@ -2117,27 +2113,27 @@
         // half the width of the current and next phoneme
         var cur_width  = tuples[pos][1] >> 1;
         var next_width = tuples[pos+1][1] >> 1;
-        var pitch = pitches[next_width + mem49] - pitches[mem49 - cur_width];
-        // sum the values
-        interpolate(cur_width + next_width, 0, phase3, pitch);
+        var pitch = pitches[boundary + next_width] - pitches[boundary - cur_width];
+        // interpolate the values
+        interpolate(cur_width + next_width, 0, trans_start, pitch);
 
         for (var table = 1; table < 7;table++) {
           // tables:
-          // 0  pitches[]
+          // 0  pitches
           // 1  frequency1
-          // 2  frequency[1]
+          // 2  frequency2
           // 3  frequency3
           // 4  amplitude1
           // 5  amplitude2
           // 6  amplitude3
-          var value = Read(table, speedcounter) - Read(table, phase3);
-          interpolate(transition, table, phase3, value);
+          var value = Read(table, trans_end) - Read(table, trans_start);
+          interpolate(trans_length, table, trans_start, value);
         }
       }
     }
 
-    // add the length of this phoneme
-    return (mem49 + tuples[tuples.length - 1][1]) & 0xFF;
+    // add the length of last phoneme
+    return (boundary + tuples[tuples.length - 1][1]) & 0xFF;
   }
 
   var RISING_INFLECTION = 255;
@@ -2253,11 +2249,11 @@
     writer.ary = function (index, array) {
       // timetable for more accurate c64 simulation
       var timetable = [
-        [162, 167, 167, 127, 128],
-        [226, 60, 60, 0, 0],
-        [225, 60, 59, 0, 0],
-        [200, 0, 0, 54, 55],
-        [199, 0, 0, 54, 54]
+        [162, 167, 167, 127, 128],   // formants synth
+        [226, 60, 60, 0, 0],         // unvoiced sample 0
+        [225, 60, 59, 0, 0],         // unvoiced sample 1
+        [200, 0, 0, 54, 55],         // voiced sample 0
+        [199, 0, 0, 54, 54]          // voiced sample 1
       ];
       bufferpos += timetable[oldTimeTableIndex][index];
       if (((bufferpos / 50) | 0) > buffer.length) {
@@ -2416,7 +2412,7 @@
 
         // mask low three bits and subtract 1 get value to
         // convert 0 bits on unvoiced samples.
-        var hibyte = (consonantFlag & 7) - 1;
+        var kind = (consonantFlag & 7) - 1;
 
         // determine which offset to use from table { 0x18, 0x1A, 0x17, 0x17, 0x17 }
         // T, S, Z                0          0x18
@@ -2425,7 +2421,7 @@
         // /H                     3          0x17
         // /X                     4          0x17
 
-        var hi = hibyte * 256 & 0xFFFF; // unsigned short
+        var hi = kind * 256 & 0xFFFF; // unsigned short
         var off;
         // voiced sample?
         var pitch = consonantFlag & 248; // unsigned char
@@ -2456,12 +2452,20 @@
         }
         // unvoiced
         off = pitch ^ 255 & 0xFF; // unsigned char
-        var mem53 = tab48426[hibyte] & 0xFF; // unsigned char
+        var value0 = sampledConsonantValues0[kind] & 0xFF; // unsigned char
         do {
-          renderSample(2, 5, 1, mem53);
+          renderSample(2, 5, 1, value0);
         } while (++off & 0xFF);
 
         return mem66;
+      };
+
+      // Removed sine table stored a pre calculated sine wave but in modern CPU, we can calculate inline.
+      var sinus = function (x) {
+        return ((Math.sin(
+          (2*Math.PI)*
+          (x/255)
+        )*128 | 0)/16|0)*16;
       };
 
       var speedcounter = speed;
@@ -2493,7 +2497,6 @@
             // Multtable stored the result of a 8-bit signed multiply of the upper nibble of sin/rect (interpreted as signed)
             // and the amplitude lower nibble (interpreted as unsigned), then divided by two.
             // On the 6510 this made sense, but in modern processors it's way faster and cleaner to simply do the multiply.
-            var char = function (x) { return (x & 0x7F) - (x & 0x80); };
             // simulate the glottal pulse and formants
             var ary = [];
             var /* unsigned int */ p1 = phase1 * 256; // Fixed point integers because we need to divide later on
@@ -2501,9 +2504,9 @@
             var /* unsigned int */ p3 = phase3 * 256;
             var k = (void 0);
             for (k=0; k<5; k++) {
-              var /* signed char */ sp1 = char(sinus[0xff & (p1>>8)]);
-              var /* signed char */ sp2 = char(sinus[0xff & (p2>>8)]);
-              var /* signed char */ rp3 = char(0xff & (((p3>>8)<129) ? 0x90 : 0x70));
+              var /* signed char */ sp1 = sinus(0xff & (p1>>8));
+              var /* signed char */ sp2 = sinus(0xff & (p2>>8));
+              var /* signed char */ rp3 = ((0xff & (p3>>8))<129) ? -0x70 : 0x70;
               var /* signed int */ sin1 = sp1 * (/* (unsigned char) */ amplitude[0][pos] & 0x0F);
               var /* signed int */ sin2 = sp2 * (/* (unsigned char) */ amplitude[1][pos] & 0x0F);
               var /* signed int */ rect = rp3 * (/* (unsigned char) */ amplitude[2][pos] & 0x0F);
@@ -2540,9 +2543,9 @@
             if((mem38 !== 0) || (flags === 0)) {
               // reset the phase of the formants to match the pulse
               // TODO: we should have a switch to disable this, it causes a pretty nice voice without the masking!
-              phase1 = phase1 + frequency[0][pos] & 0xFF;
-              phase2 = phase2 + frequency[1][pos] & 0xFF;
-              phase3 = phase3 + frequency[2][pos] & 0xFF;
+              phase1 = phase1 + frequency[0][pos]; // & 0xFF;
+              phase2 = phase2 + frequency[1][pos]; // & 0xFF;
+              phase3 = phase3 + frequency[2][pos]; // & 0xFF;
               continue;
             }
 
