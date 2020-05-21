@@ -1,7 +1,7 @@
 import { assert } from 'chai'
 import Parser from '../../src/parser/parser.es6';
 import Renderer from '../../src/renderer/renderer.es6';
-import RendererC from '../../src/renderer/c-conv/renderer.es6';
+import RendererC from './c-conv/renderer.es6';
 
 process.env.NODE_ENV = 'karma-test';
 
