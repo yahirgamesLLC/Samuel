@@ -261,17 +261,6 @@ export const ampldata = [
   0x00000F | 0x000000 | 0x100000  // 'UM' 79
 ];
 
-export const sinus = Array.apply(null, Array(256)).map((n, i) => {
-  // let y = (Math.sin(2*Math.PI*(i/256)) * 255 | 0);
-  //const PI=3.14159265;
-  const PI=3.141;
-  let y = ((Math.sin(
-    (2*PI)*
-    ((i)/255)
-  )*128 | 0)/16|0)*16;
-  return y;
-});
-
 // Sampled data for consonants, consisting of five 256-byte sections
 export const sampleTable = [
   //00  T', S, Z  (coronal)

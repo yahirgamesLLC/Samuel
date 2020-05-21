@@ -1,7 +1,6 @@
 import {
   sampledConsonantValues0,
-  sampleTable,
-  sinus
+  sampleTable
 } from './tables.es6';
 
 import {BREAK, END} from '../common/constants.es6'
@@ -209,6 +208,14 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
       return mem66;
     };
 
+    // Removed sine table stored a pre calculated sine wave but in modern CPU, we can calculate inline.
+    const sinus = (x) => {
+      return ((Math.sin(
+        (2*Math.PI)*
+        (x/255)
+      )*128 | 0)/16|0)*16;
+    }
+
     let speedcounter = speed;
     let phase1 = 0;
     let phase2 = 0;
@@ -245,8 +252,8 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
           let /* unsigned int */ p3 = phase3 * 256;
           let k;
           for (k=0; k<5; k++) {
-            let /* signed char */ sp1 = sinus[0xff & (p1>>8)];
-            let /* signed char */ sp2 = sinus[0xff & (p2>>8)];
+            let /* signed char */ sp1 = sinus(0xff & (p1>>8));
+            let /* signed char */ sp2 = sinus(0xff & (p2>>8));
             let /* signed char */ rp3 = ((0xff & (p3>>8))<129) ? -0x70 : 0x70;
             let /* signed int */ sin1 = sp1 * (/* (unsigned char) */ amplitude[0][pos] & 0x0F);
             let /* signed int */ sin2 = sp2 * (/* (unsigned char) */ amplitude[1][pos] & 0x0F);
@@ -284,9 +291,9 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
           if((mem38 !== 0) || (flags === 0)) {
             // reset the phase of the formants to match the pulse
             // TODO: we should have a switch to disable this, it causes a pretty nice voice without the masking!
-            phase1 = phase1 + frequency[0][pos] & 0xFF;
-            phase2 = phase2 + frequency[1][pos] & 0xFF;
-            phase3 = phase3 + frequency[2][pos] & 0xFF;
+            phase1 = phase1 + frequency[0][pos]; // & 0xFF;
+            phase2 = phase2 + frequency[1][pos]; // & 0xFF;
+            phase3 = phase3 + frequency[2][pos]; // & 0xFF;
             continue;
           }
 
