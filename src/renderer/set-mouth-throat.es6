@@ -17,7 +17,7 @@ const throatFormants5_29 = [
 const throatFormants48_53 = [72, 39, 31, 43, 30, 34];
 
 function trans(mem39212, mem39213) {
-  return ((((mem39212 & 0xFF) * (mem39213 & 0xFF)) >> 8) & 0xFF) << 1;
+  return (((mem39212 * mem39213) >> 8) & 0xFF) << 1;
 }
 
 /**
@@ -27,10 +27,12 @@ function trans(mem39212, mem39213) {
  *
  * This returns the three base frequency arrays.
  *
+ * @param {Number} mouth  valid values: 0-255
+ * @param {Number} throat valid values: 0-255
+ *
  * @return {Array}
  */
 export default function SetMouthThroat(mouth, throat) {
-
   const freqdata = [[],[],[]];
   frequencyData.map((v, i) => {
     freqdata[0][i] = v & 0xFF;
