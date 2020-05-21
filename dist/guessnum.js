@@ -1939,7 +1939,7 @@
   var throatFormants48_53 = [72, 39, 31, 43, 30, 34];
 
   function trans(mem39212, mem39213) {
-    return ((((mem39212 & 0xFF) * (mem39213 & 0xFF)) >> 8) & 0xFF) << 1;
+    return (((mem39212 * mem39213) >> 8) & 0xFF) << 1;
   }
 
   /**
@@ -1949,10 +1949,12 @@
    *
    * This returns the three base frequency arrays.
    *
+   * @param {Number} mouth  valid values: 0-255
+   * @param {Number} throat valid values: 0-255
+   *
    * @return {Array}
    */
   function SetMouthThroat(mouth, throat) {
-
     var freqdata = [[],[],[]];
     frequencyData.map(function (v, i) {
       freqdata[0][i] = v & 0xFF;
@@ -2305,12 +2307,13 @@
     var tuples = [];
     while(1) {
       var A = phonemes[srcpos];
-      if (A[0]) {
-        if (A[0] === END) {
+      var A0 = A[0];
+      if (A0) {
+        if (A0 === END) {
           Render(tuples);
           return Output.get();
         }
-        if (A[0] === BREAK) {
+        if (A0 === BREAK) {
           Render(tuples);
           tuples = [];
         } else {
@@ -2462,10 +2465,11 @@
 
       // Removed sine table stored a pre calculated sine wave but in modern CPU, we can calculate inline.
       var sinus = function (x) {
-        return ((Math.sin(
-          (2*Math.PI)*
-          (x/255)
-        )*128 | 0)/16|0)*16;
+        return Math.sin(2*Math.PI*(x/256)) * 127 | 0;
+        // return ((Math.sin(
+        //   (2*Math.PI)*
+        //   (x/255)
+        // )*128 | 0)/16|0)*16;
       };
 
       var speedcounter = speed;
@@ -2502,8 +2506,7 @@
             var /* unsigned int */ p1 = phase1 * 256; // Fixed point integers because we need to divide later on
             var /* unsigned int */ p2 = phase2 * 256;
             var /* unsigned int */ p3 = phase3 * 256;
-            var k = (void 0);
-            for (k=0; k<5; k++) {
+            for (var k=0; k<5; k++) {
               var /* signed char */ sp1 = sinus(0xff & (p1>>8));
               var /* signed char */ sp2 = sinus(0xff & (p2>>8));
               var /* signed char */ rp3 = ((0xff & (p3>>8))<129) ? -0x70 : 0x70;
