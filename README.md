@@ -2,12 +2,9 @@
 
 ## What is SAM?
 
-Sam is a very small Text-To-Speech (TTS) program written in C, that
-runs on most popular platforms.
-
-It is an adaption to Javascript of the speech software SAM (Software
-Automatic Mouth) for the Commodore C64 published in the year 1982 by
-Don't Ask Software (now SoftVoice, Inc.).
+This is a vanilla Javascript port of the Text-To-Speech (TTS) software
+SAM (Software Automatic Mouth) for the Commodore C64 published in the
+year 1982 by Don't Ask Software (now SoftVoice, Inc.).
 
 It is based on the adaption to C by
 [Stefan Macke](https://github.com/s-macke/SAM)
@@ -25,6 +22,12 @@ by Stefan (which weights about 414kb).
 
 For further details, refer to
 [retrobits.net](http://www.retrobits.net/atari/sam.shtml)
+
+Some analytics of S.A.M. in general can be found in Artyom Skrobov's
+(@tyomitch) blog who also provided pretty insightful PRs.
+Visit his blog https://habr.com/ru/post/500764/ (russian)
+or the google translated version
+[here](https://habr-com.translate.goog/ru/post/500764/?_x_tr_sl=auto&_x_tr_tl=en).
 
 ## Usage
 
