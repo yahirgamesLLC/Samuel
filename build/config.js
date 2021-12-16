@@ -88,10 +88,12 @@ function genConfig (opts) {
       format: opts.format,
       name: moduleName,
       banner: opts.banner,
+      exports: 'default',
     },
     external: opts.external,
     plugins: [
       replace({
+        preventAssignment: true,
         __VERSION__: version
       }),
       flow(),
@@ -101,6 +103,7 @@ function genConfig (opts) {
 
   if (opts.env) {
     config.plugins.push(replace({
+      preventAssignment: true,
       'process.env.NODE_ENV': JSON.stringify(opts.env),
       'process.env.DEBUG_SAM': JSON.stringify(opts.env === 'development'),
     }))
