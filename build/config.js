@@ -1,5 +1,5 @@
 const path = require('path');
-const buble = require('@rollup/plugin-buble');
+const babel = require('@rollup/plugin-babel').default;
 const replace = require('@rollup/plugin-replace');
 const flow = require('rollup-plugin-flow-no-whitespace');
 const version = process.env.VERSION || require('../package.json').version;
@@ -90,14 +90,18 @@ function genConfig (opts) {
       banner: opts.banner,
       exports: 'default',
     },
-    external: opts.external,
+    external: (opts.external || []).concat([/@babel\/runtime/]),
     plugins: [
       replace({
         preventAssignment: true,
         __VERSION__: version
       }),
       flow(),
-      buble()
+      babel({
+        babelHelpers: 'runtime',
+        shouldPrintComment: () => opts.env === 'development',
+        minified: opts.env !== 'development'
+      })
     ].concat(opts.plugins || [])
   };
 

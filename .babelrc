@@ -2,16 +2,21 @@
   "presets": [
     ["@babel/preset-env", {
         "targets": {
-          "browsers": ["last 2 versions", "safari >= 7"]
+          "browsers": [
+            "> 0.5%",
+            "last 2 versions",
+            "Firefox ESR",
+            "not dead",
+            "not IE 11",
+            "maintained node versions"
+          ]
         },
-        "modules": "commonjs"
+        "modules": "auto"
       }
     ]
   ],
   "plugins": ["@babel/plugin-transform-runtime"],
-  "comments": false,
   "ignore": [
     "dist/*.js"
-  ],
-  "compact" : true
+  ]
 }
