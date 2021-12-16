@@ -111,6 +111,8 @@ function genConfig (opts) {
       'process.env.NODE_ENV': JSON.stringify(opts.env),
       'process.env.DEBUG_SAM': JSON.stringify(opts.env === 'development'),
     }))
+    // convert "const" to "let", as this saves two bytes per instance.
+    config.plugins.push(replace({preventAssignment: true, 'const ': 'let '}))
   }
 
   return config
