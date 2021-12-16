@@ -6,8 +6,7 @@ const encodeTable = (table) => {
   return result;
 }
 
-export const stressInputTable =encodeTable(['*', '1', '2', '3', '4', '5', '6', '7', '8']);
-
+export const stressInputTable = encodeTable(['*', '1', '2', '3', '4', '5', '6', '7', '8']);
 
 export const signInputTable1 = encodeTable([
   ' ', '.', '?', ',', '-', 'I', 'I', 'E',
