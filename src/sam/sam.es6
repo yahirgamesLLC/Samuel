@@ -10,7 +10,6 @@ import Renderer from '../renderer/renderer.es6';
  *
  * @param {object}  [options]
  * @param {Boolean} [options.singmode] Default false.
- * @param {Boolean} [options.debug]    Default false.
  * @param {Number}  [options.pitch]    Default 64.
  * @param {Number}  [options.speed]    Default 72.
  * @param {Number}  [options.mouth]    Default 128.
@@ -35,7 +34,6 @@ export const SamSpeak = (input, options) => {
  *
  * @param {object}  [options]
  * @param {Boolean} [options.singmode] Default false.
- * @param {Boolean} [options.debug]    Default false.
  * @param {Number}  [options.pitch]    Default 64.
  * @param {Number}  [options.speed]    Default 72.
  * @param {Number}  [options.mouth]    Default 128.
@@ -59,7 +57,6 @@ export const SamBuffer = (input, options) => {
  *
  * @param {object}  [options]
  * @param {Boolean} [options.singmode] Default false.
- * @param {Boolean} [options.debug]    Default false.
  * @param {Number}  [options.pitch]    Default 64.
  * @param {Number}  [options.speed]    Default 72.
  * @param {Number}  [options.mouth]    Default 128.
