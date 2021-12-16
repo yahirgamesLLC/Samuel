@@ -39,7 +39,7 @@ import { matchesBitmask } from "../util/util.es6";
  *
  * @return undefined
  */
-export default function AdjustLengths(getPhoneme, setLength, getLength) {
+export default (getPhoneme, setLength, getLength) => {
   if (process.env.DEBUG_SAM === true) {
     console.log(`AdjustLengths()`);
   }

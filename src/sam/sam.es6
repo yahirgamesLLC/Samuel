@@ -18,7 +18,7 @@ import Renderer from '../renderer/renderer.es6';
  *
  * @return {Promise}
  */
-export function SamSpeak (input, options) {
+export const SamSpeak = (input, options) => {
   const buffer = SamBuffer(input, options);
   if (false === buffer) {
     return Promise.reject();
@@ -43,7 +43,7 @@ export function SamSpeak (input, options) {
  *
  * @return {Float32Array|Boolean}
  */
-export function SamBuffer (input, options) {
+export const SamBuffer = (input, options) => {
   const buffer = SamProcess(input, options);
   if (false === buffer) {
     return false;
@@ -67,7 +67,7 @@ export function SamBuffer (input, options) {
  *
  * @return {Uint8Array|Boolean}
  */
-export function SamProcess (input, options = {}) {
+export const SamProcess = (input, options = {}) => {
   const parsed = Parser(input);
   if (false === parsed) {
     return false;

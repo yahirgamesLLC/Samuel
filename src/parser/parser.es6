@@ -17,7 +17,7 @@ import ProlongPlosiveStopConsonantsCode41240 from './prolong-plosive-stop-conson
  *
  * @return {Array|Boolean} The parsed data.
  */
-export default function Parser (input) {
+export default (input) => {
   if (!input) {
     return false;
   }
@@ -140,8 +140,8 @@ export default function Parser (input) {
  *
  * @return undefined
  */
-function PrintPhonemes (phonemeindex, phonemeLength, stress) {
-  function pad(num) {
+const PrintPhonemes = (phonemeindex, phonemeLength, stress) => {
+  const pad = (num) => {
     let s = '000' + num;
     return s.substr(s.length - 3);
   }

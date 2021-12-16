@@ -1,9 +1,5 @@
 import {frequencyData} from './tables.es6';
 
-function trans(factor, initialFrequency) {
-  return (((factor * initialFrequency) >> 8) & 0xFF) << 1;
-}
-
 /**
  * SAM's voice can be altered by changing the frequencies of the
  * mouth formant (F1) and the throat formant (F2). Only the
@@ -16,7 +12,10 @@ function trans(factor, initialFrequency) {
  *
  * @return {Array}
  */
-export default function SetMouthThroat(mouth, throat) {
+export default (mouth, throat) => {
+  const trans = (factor, initialFrequency) => {
+    return (((factor * initialFrequency) >> 8) & 0xFF) << 1;
+  }
   const freqdata = [[],[],[]];
   frequencyData.map((v, i) => {
     freqdata[0][i] = v & 0xFF;

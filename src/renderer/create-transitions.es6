@@ -42,7 +42,7 @@ import {blendRank, inBlendLength, outBlendLength} from './tables.es6';
  *
  * @return {Number}
  */
-export default function CreateTransitions(pitches, frequency, amplitude, tuples) {
+export default (pitches, frequency, amplitude, tuples) => {
   // 0=pitches
   // 1=frequency1
   // 2=frequency2

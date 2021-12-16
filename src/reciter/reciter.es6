@@ -56,7 +56,7 @@ const isOneOf = (c, list) => {
  * @param {String} ruleString 'xxx(yyy)zzz=foobar' 'xxx(yyy)zzz' is the source value, 'foobar' is the destination value.
  * @return {result}
  */
-function reciterRule (ruleString) {
+const reciterRule = (ruleString) => {
   const splitted = ruleString.split('=');
   const
     // Must pop and join here because of rule for '=' itself.
@@ -244,7 +244,7 @@ function reciterRule (ruleString) {
    * @param {Number} pos  The input position we are working from.
    * @return {boolean}
    */
-  const matches = function (text, pos) {
+  const matches = (text, pos) => {
     // check if content in brackets matches.
     if (!text.startsWith(match, pos)) {
       return false;
@@ -268,7 +268,7 @@ function reciterRule (ruleString) {
    *
    * @return {boolean}
    */
-  const result = function (text, inputPos, callback) {
+  const result = (text, inputPos, callback) => {
     if (matches(text, inputPos)) {
       if (process.env.DEBUG_SAM === true) {
         console.log(`${source} -> ${target}`)
@@ -298,8 +298,8 @@ const rules2 = tables.rules2.split('|').map(reciterRule);
  *
  * @return {boolean|string}
  */
-export function TextToPhonemes (input) {
-  return (function () {
+export const TextToPhonemes = (input) => {
+  return (() => {
     const text = ' ' + input.toUpperCase();
 
     let inputPos = 0, output = '';
@@ -309,7 +309,7 @@ export function TextToPhonemes (input) {
      * @param {string} append    The string to append.
      * @param {Number} inputSkip The amount or chars to move ahead in the input.
      */
-    const successCallback = function (append, inputSkip) {
+    const successCallback = (append, inputSkip) => {
       inputPos += inputSkip;
       output += append;
     };

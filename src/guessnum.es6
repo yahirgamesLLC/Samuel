@@ -27,7 +27,7 @@ const IS_TOO_LOW = 'IHZ TUW3 LAXOW.';
 const IS_A_LITTLE_TOO_LOW = 'IHZ AH LIH3TUL TUW4 LAXOW,';
 const IS_CORRECT = 'IHZ KAORREHKT, PLEY5 AXGEH4N? AOR DUW5 YUW PRIY4FER PAONX?';
 
-function numberToPhonemes(number) {
+const numberToPhonemes = (number) => {
   if (number >= 10 && number < 20) {
     return lookup_teens[number - 10];
   }
@@ -46,7 +46,7 @@ function numberToPhonemes(number) {
 /**
  * @param {Element} e
  */
-function GuessNum(e) {
+export default (e) => {
     const output = e.ownerDocument.createElement('pre');
     const button = e.ownerDocument.createElement('button');
     const input  = e.ownerDocument.createElement('input');
@@ -133,5 +133,3 @@ function GuessNum(e) {
     }
   }
 }
-
-export default GuessNum;

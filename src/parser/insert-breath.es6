@@ -14,7 +14,7 @@ import { phonemeHasFlag } from "./util.es6";
  *
  * @return undefined
  */
-export default function InsertBreath(getPhoneme, setPhoneme, insertPhoneme, setStress, getLength, setLength) {
+export default (getPhoneme, setPhoneme, insertPhoneme, setStress, getLength, setLength) => {
   let mem54 = 255;
   let len = 0; // mem55
   let index; //variable Y

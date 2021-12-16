@@ -1,4 +1,4 @@
-export default function CreateOutputBuffer(buffersize) {
+export default (buffersize) => {
   const buffer = new Uint8Array(buffersize);
   let bufferpos = 0;
   let oldTimeTableIndex = 0;

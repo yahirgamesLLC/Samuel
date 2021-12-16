@@ -1,4 +1,4 @@
-function encodeTable (table) {
+const encodeTable = (table) => {
   const result = new Uint8Array(table.length);
   table.forEach((e, index) => {
     result[index] = e.charCodeAt(0)

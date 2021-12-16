@@ -7,7 +7,7 @@ import {text2Uint8Array, Uint32ToUint8Array, Uint16ToUint8Array} from '../util/u
  *
  * @return {Promise}
  */
-function Play(context, audiobuffer) {
+const Play = (context, audiobuffer) => {
   return new Promise((resolve) => {
     let source = context.createBufferSource();
     let soundBuffer = context.createBuffer(1, audiobuffer.length, 22050);
@@ -33,7 +33,7 @@ let context = null;
  *
  * @return {Promise}
  */
-export function PlayBuffer(audiobuffer) {
+export const PlayBuffer = (audiobuffer) => {
   if (null === context) {
     context = new AudioContext();
   }
@@ -55,7 +55,7 @@ export function PlayBuffer(audiobuffer) {
  *
  * @return {Float32Array}
  */
-export function UInt8ArrayToFloat32Array (buffer) {
+export const UInt8ArrayToFloat32Array = (buffer) => {
   const audio = new Float32Array(buffer.length);
   for(let i=0; i < buffer.length; i++) {
     audio[i] = (buffer[i] - 128) / 256;
@@ -70,7 +70,7 @@ export function UInt8ArrayToFloat32Array (buffer) {
  *
  * @return void
  */
-export function RenderBuffer (audiobuffer) {
+export const RenderBuffer = (audiobuffer) => {
   let filename = 'sam.wav';
 
   // Calculate buffer size.

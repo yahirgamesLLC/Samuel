@@ -10,6 +10,6 @@ import { matchesBitmask } from '../util/util.es6';
  *
  * @return {boolean}
  */
-export function phonemeHasFlag(phoneme, flag) {
+export const phonemeHasFlag = (phoneme, flag) => {
   return matchesBitmask(phonemeFlags[phoneme], flag);
 }

@@ -10,7 +10,7 @@ import {END} from '../common/constants.es6'
  *
  * @return undefined
  */
-export default function SetPhonemeLength(getPhoneme, getStress, setLength) {
+export default (getPhoneme, getStress, setLength) => {
   let position = 0;
   let phoneme;
   while((phoneme = getPhoneme(position)) !== END) {

@@ -8,37 +8,6 @@ import {PHONEME_PERIOD, PHONEME_QUESTION} from '../parser/constants.es6';
 const RISING_INFLECTION = 255;
 const FALLING_INFLECTION = 1;
 
-/**
- * Create a rising or falling inflection 30 frames prior to index X.
- * A rising inflection is used for questions, and a falling inflection is used for statements.
- */
-function AddInflection (inflection, pos, pitches) {
-  // store the location of the punctuation
-  let end = pos;
-  if (pos < 30) {
-    pos = 0;
-  } else {
-    pos -= 30;
-  }
-
-  let A;
-  // FIXME: Explain this fix better, it's not obvious
-  // ML : A =, fixes a problem with invalid pitch with '.'
-  while ((A = pitches[pos]) === 127) {
-    ++pos;
-  }
-
-  while (pos !== end) {
-    // add the inflection direction
-    A += inflection;
-
-    // set the inflection
-    pitches[pos] = A & 0xFF;
-
-    while ((++pos !== end) && pitches[pos] === 255) { /* keep looping */}
-  }
-}
-
 /** CREATE FRAMES
  *
  * The length parameter in the list corresponds to the number of frames
@@ -61,10 +30,41 @@ function AddInflection (inflection, pos, pitches) {
  *
  * @return Array
  */
-export default function CreateFrames (
+export default (
   pitch,
   tuples,
-  frequencyData) {
+  frequencyData) => {
+  /**
+   * Create a rising or falling inflection 30 frames prior to index X.
+   * A rising inflection is used for questions, and a falling inflection is used for statements.
+   */
+  const AddInflection = (inflection, pos, pitches) => {
+    // store the location of the punctuation
+    let end = pos;
+    if (pos < 30) {
+      pos = 0;
+    } else {
+      pos -= 30;
+    }
+
+    let A;
+    // FIXME: Explain this fix better, it's not obvious
+    // ML : A =, fixes a problem with invalid pitch with '.'
+    while ((A = pitches[pos]) === 127) {
+      ++pos;
+    }
+
+    while (pos !== end) {
+      // add the inflection direction
+      A += inflection;
+
+      // set the inflection
+      pitches[pos] = A & 0xFF;
+
+      while ((++pos !== end) && pitches[pos] === 255) { /* keep looping */}
+    }
+  }
+
   const pitches              = [];
   const frequency            = [[], [], []];
   const amplitude            = [[], [], []];

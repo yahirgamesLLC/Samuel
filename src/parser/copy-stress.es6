@@ -22,7 +22,7 @@ import { phonemeHasFlag } from './util.es6';
  *
  * @return undefined
  */
-export default function CopyStress(getPhoneme, getStress, setStress) {
+export default (getPhoneme, getStress, setStress) => {
   // loop through all the phonemes to be output
   let position = 0;
   let phoneme;

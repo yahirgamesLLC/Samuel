@@ -1,6 +1,7 @@
 import { assert } from 'chai'
 import Parser from '../../src/parser/parser.es6';
 import Renderer from '../../src/renderer/renderer.es6';
+import {karmaOutput as output} from '../../src/renderer/renderer.es6';
 import RendererC from './c-conv/renderer.es6';
 
 process.env.NODE_ENV = 'karma-test';
@@ -72,7 +73,6 @@ describe('renderer vs renderer-c', () => {
         'Renderer did not succeed'
       );
 
-      const output = Renderer.karmaOutput;
       const outputC = RendererC.karmaOutput;
 
       assertUint8ArraySame(output.freq1data, outputC.freq1data, "freq1data mismatch");

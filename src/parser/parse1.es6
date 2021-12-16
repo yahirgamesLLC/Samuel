@@ -7,7 +7,7 @@ import {PhonemeNameTable, StressTable} from './tables.es6';
  * @param {string} sign2
  * @return {boolean|Number}
  */
-function full_match(sign1, sign2) {
+const full_match = (sign1, sign2) => {
   const index = PhonemeNameTable.findIndex((value) => {
     return ((value === sign1 + sign2) && (value[1] !== '*'))
   });
@@ -20,7 +20,7 @@ function full_match(sign1, sign2) {
  * @param {string} sign1
  * @return {boolean|Number}
  */
-function wild_match (sign1) {
+const wild_match = (sign1) => {
   const index = PhonemeNameTable.findIndex((value) => {
     return (value === sign1 + '*')
   });
@@ -80,7 +80,7 @@ function wild_match (sign1) {
  *
  * @return {undefined}
  */
-export default function Parser1(input, addPhoneme, addStress) {
+export default (input, addPhoneme, addStress) => {
   for (let srcPos=0;srcPos<input.length;srcPos++) {
     if (process.env.DEBUG_SAM === true) {
       let tmp = input.toLowerCase();

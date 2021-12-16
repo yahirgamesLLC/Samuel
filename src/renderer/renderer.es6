@@ -9,6 +9,9 @@ import SetMouthThroat from './set-mouth-throat.es6'
 import CreateTransitions from './create-transitions.es6';
 import CreateFrames from './create-frames.es6';
 import CreateOutputBuffer from './output-buffer.es6';
+
+export let karmaOutput;
+
 /**
  * @param {Array} phonemes
  * @param {Number} [pitch]
@@ -19,7 +22,7 @@ import CreateOutputBuffer from './output-buffer.es6';
  *
  * @return Uint8Array
  */
-export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode) {
+export default (phonemes, pitch, mouth, throat, speed, singmode) => {
   pitch = (pitch === undefined) ? 64 : pitch & 0xFF;
   mouth = (mouth === undefined) ? 128 : mouth & 0xFF;
   throat = (throat === undefined) ? 128 : throat & 0xFF;
@@ -33,117 +36,6 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
     * speed | 0 // multiplied by speed.
   );
 
-  const freqdata = SetMouthThroat(mouth, throat);
-
-  // Main render loop.
-  let srcpos  = 0; // Position in source
-  // FIXME: should be tuple buffer as well.
-  let tuples = [];
-  while(1) {
-    const A = phonemes[srcpos];
-    const A0 = A[0]
-    if (A0) {
-      if (A0 === END) {
-        Render(tuples);
-        return Output.get();
-      }
-      if (A0 === BREAK) {
-        Render(tuples);
-        tuples = [];
-      } else {
-        tuples.push(A);
-      }
-    }
-    ++srcpos;
-  }
-
-  /**
-   * RENDER THE PHONEMES IN THE LIST
-   *
-   * The phoneme list is converted into sound through the steps:
-   *
-   * 1. Copy each phoneme <length> number of times into the frames list,
-   *    where each frame represents 10 milliseconds of sound.
-   *
-   * 2. Determine the transitions lengths between phonemes, and linearly
-   *    interpolate the values across the frames.
-   *
-   * 3. Offset the pitches by the fundamental frequency.
-   *
-   * 4. Render the each frame.
-   *
-   * @param {Array} tuples
-   */
-  function Render (tuples) {
-    if (tuples.length === 0) {
-      return; //exit if no data
-    }
-
-    const [pitches, frequency, amplitude, sampledConsonantFlag] = CreateFrames(
-      pitch,
-      tuples,
-      freqdata
-    );
-
-    const t = CreateTransitions(
-      pitches,
-      frequency,
-      amplitude,
-      tuples
-    );
-
-    if (!singmode) {
-      /* ASSIGN PITCH CONTOUR
-       *
-       * This subtracts the F1 frequency from the pitch to create a
-       * pitch contour. Without this, the output would be at a single
-       * pitch level (monotone).
-       */
-      for(let i = 0; i < pitches.length; i++) {
-        // subtract half the frequency of the formant 1.
-        // this adds variety to the voice
-        pitches[i] -= (frequency[0][i] >> 1);
-      }
-    }
-
-    /*
-     * RESCALE AMPLITUDE
-     *
-     * Rescale volume from decibels to the linear scale.
-     */
-    const amplitudeRescale = [
-      0x00, 0x01, 0x02, 0x02, 0x02, 0x03, 0x03, 0x04,
-      0x04, 0x05, 0x06, 0x08, 0x09, 0x0B, 0x0D, 0x0F,
-    ];
-    for(let i = amplitude[0].length - 1; i >= 0; i--) {
-      amplitude[0][i] = amplitudeRescale[amplitude[0][i]];
-      amplitude[1][i] = amplitudeRescale[amplitude[1][i]];
-      amplitude[2][i] = amplitudeRescale[amplitude[2][i]];
-    }
-
-    if (process.env.DEBUG_SAM === true) {
-      PrintOutput(pitches, frequency, amplitude, sampledConsonantFlag);
-    }
-    if (process.env.NODE_ENV === 'karma-test') {
-      // Karma run, store data for karma retrieval.
-      Renderer.karmaOutput = {
-        sampledConsonantFlag: sampledConsonantFlag,
-        amplitude1: amplitude[0],
-        frequency1: frequency[0],
-        amplitude2: amplitude[1],
-        frequency2: frequency[1],
-        amplitude3: amplitude[2],
-        frequency3: frequency[2],
-        pitches: pitches,
-        freq1data: freqdata[0],
-        freq2data: freqdata[1],
-        freq3data: freqdata[2],
-      };
-    }
-
-    ProcessFrames(t, speed, frequency, pitches, amplitude, sampledConsonantFlag);
-  }
-
   /**
    * PROCESS THE FRAMES
    *
@@ -154,7 +46,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
    * To simulate them being driven by the glottal pulse, the waveforms are
    * reset at the beginning of each glottal pulse.
    */
-  function ProcessFrames(frameCount, speed, frequency, pitches, amplitude, sampledConsonantFlag) {
+  const ProcessFrames = (frameCount, speed, frequency, pitches, amplitude, sampledConsonantFlag) => {
     const RenderSample = (lastSampleOffset, consonantFlag, mem49) => {
       // mem49 == current phoneme's index - unsigned char
 
@@ -172,7 +64,7 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
       const samplePage = kind * 256 & 0xFFFF; // unsigned short
       let off = consonantFlag & 248; // unsigned char
 
-      function renderSample (index1, value1, index0, value0) {
+      const renderSample = (index1, value1, index0, value0) => {
         let bit = 8;
         let sample = sampleTable[samplePage+off]
         do {
@@ -307,10 +199,121 @@ export default function Renderer(phonemes, pitch, mouth, throat, speed, singmode
       phase3 = 0;
     }
   }
+
+  /**
+   * RENDER THE PHONEMES IN THE LIST
+   *
+   * The phoneme list is converted into sound through the steps:
+   *
+   * 1. Copy each phoneme <length> number of times into the frames list,
+   *    where each frame represents 10 milliseconds of sound.
+   *
+   * 2. Determine the transitions lengths between phonemes, and linearly
+   *    interpolate the values across the frames.
+   *
+   * 3. Offset the pitches by the fundamental frequency.
+   *
+   * 4. Render the each frame.
+   *
+   * @param {Array} tuples
+   */
+  const Render = (tuples) => {
+    if (tuples.length === 0) {
+      return; //exit if no data
+    }
+
+    const [pitches, frequency, amplitude, sampledConsonantFlag] = CreateFrames(
+      pitch,
+      tuples,
+      freqdata
+    );
+
+    const t = CreateTransitions(
+      pitches,
+      frequency,
+      amplitude,
+      tuples
+    );
+
+    if (!singmode) {
+      /* ASSIGN PITCH CONTOUR
+       *
+       * This subtracts the F1 frequency from the pitch to create a
+       * pitch contour. Without this, the output would be at a single
+       * pitch level (monotone).
+       */
+      for(let i = 0; i < pitches.length; i++) {
+        // subtract half the frequency of the formant 1.
+        // this adds variety to the voice
+        pitches[i] -= (frequency[0][i] >> 1);
+      }
+    }
+
+    /*
+     * RESCALE AMPLITUDE
+     *
+     * Rescale volume from decibels to the linear scale.
+     */
+    const amplitudeRescale = [
+      0x00, 0x01, 0x02, 0x02, 0x02, 0x03, 0x03, 0x04,
+      0x04, 0x05, 0x06, 0x08, 0x09, 0x0B, 0x0D, 0x0F,
+    ];
+    for(let i = amplitude[0].length - 1; i >= 0; i--) {
+      amplitude[0][i] = amplitudeRescale[amplitude[0][i]];
+      amplitude[1][i] = amplitudeRescale[amplitude[1][i]];
+      amplitude[2][i] = amplitudeRescale[amplitude[2][i]];
+    }
+
+    if (process.env.DEBUG_SAM === true) {
+      PrintOutput(pitches, frequency, amplitude, sampledConsonantFlag);
+    }
+    if (process.env.NODE_ENV === 'karma-test') {
+      // Karma run, store data for karma retrieval.
+      karmaOutput = {
+        sampledConsonantFlag: sampledConsonantFlag,
+        amplitude1: amplitude[0],
+        frequency1: frequency[0],
+        amplitude2: amplitude[1],
+        frequency2: frequency[1],
+        amplitude3: amplitude[2],
+        frequency3: frequency[2],
+        pitches: pitches,
+        freq1data: freqdata[0],
+        freq2data: freqdata[1],
+        freq3data: freqdata[2],
+      };
+    }
+
+    ProcessFrames(t, speed, frequency, pitches, amplitude, sampledConsonantFlag);
+  }
+
+  const freqdata = SetMouthThroat(mouth, throat);
+
+  // Main render loop.
+  let srcpos  = 0; // Position in source
+  // FIXME: should be tuple buffer as well.
+  let tuples = [];
+  while(1) {
+    const A = phonemes[srcpos];
+    const A0 = A[0]
+    if (A0) {
+      if (A0 === END) {
+        Render(tuples);
+        return Output.get();
+      }
+      if (A0 === BREAK) {
+        Render(tuples);
+        tuples = [];
+      } else {
+        tuples.push(A);
+      }
+    }
+    ++srcpos;
+  }
 }
 
-function PrintOutput(pitches, frequency, amplitude, sampledConsonantFlag) {
-  function pad(num) {
+const PrintOutput = (pitches, frequency, amplitude, sampledConsonantFlag) => {
+  const pad = (num) => {
     const s = '00000' + num;
     return s.substr(s.length - 5);
   }
