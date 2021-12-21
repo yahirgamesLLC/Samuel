@@ -16,9 +16,9 @@ module.exports = function(config) {
     },
     files: [
       'test/minimum-tests.spec.js',
-      'src/**/*.es6',
+      {pattern: 'src/**/*.es6', type: 'js'},
       // fixtures
-      'test/**/*.json',
+      {pattern: 'test/**/*.json', type: 'js'},
       {pattern: 'test/**/*-testcase.js', include: false, serve: false, watch: true}
     ],
     exclude: [
