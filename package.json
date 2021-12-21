@@ -35,7 +35,6 @@
     "babelify": "^10.0.0",
     "browserify": "^17.0.0",
     "chai": "^4.3.4",
-    "fs": "0.0.1-security",
     "karma": "^6.3.9",
     "karma-babel-preprocessor": "^8.0.1",
     "karma-browserify": "^8.1.0",
@@ -57,11 +56,6 @@
     "node": ">= 14.18.2",
     "yarn": ">= 1.22.15"
   },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not ie <= 8"
-  ],
   "directories": {
     "test": "test"
   },
