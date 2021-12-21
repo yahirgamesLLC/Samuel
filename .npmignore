@@ -1,9 +1,9 @@
 /.gitmodules
 /.idea
+/.github
 /c-src
 /docs
 /gh-pages
 /karma.conf.js
 /test
 /*.tgz
-
