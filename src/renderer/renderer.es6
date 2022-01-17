@@ -29,11 +29,11 @@ export default (phonemes, pitch, mouth, throat, speed, singmode) => {
   speed = (speed || 72) & 0xFF;
   singmode = singmode || false;
 
-  // Every frame is 20ms long.
+  // Reserve 176.4*speed samples (=8*speed ms) for each frame.
   const Output = CreateOutputBuffer(
-    441 // = (22050/50)
-    * phonemes.reduce((pre, v) => pre + (v[1] * 20), 0) / 50 // Combined phoneme length in ms.
-    * speed | 0 // multiplied by speed.
+    176.4 // = (22050/125)
+    * phonemes.reduce((pre, v) => pre + v[1], 0) // Combined phoneme length in frames.
+    * speed | 0
   );
 
   /**
@@ -205,8 +205,7 @@ export default (phonemes, pitch, mouth, throat, speed, singmode) => {
    *
    * The phoneme list is converted into sound through the steps:
    *
-   * 1. Copy each phoneme <length> number of times into the frames list,
-   *    where each frame represents 10 milliseconds of sound.
+   * 1. Copy each phoneme <length> number of times into the frames list.
    *
    * 2. Determine the transitions lengths between phonemes, and linearly
    *    interpolate the values across the frames.
