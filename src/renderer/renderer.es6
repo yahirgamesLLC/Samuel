@@ -99,12 +99,7 @@ export default (phonemes, pitch, mouth, throat, speed, singmode) => {
     };
 
     // Removed sine table stored a pre calculated sine wave but in modern CPU, we can calculate inline.
-    const sinus = (x) => {
-      return ((Math.sin(
-        (2*Math.PI)*
-        (x/255)
-      )*128 | 0)/16|0)*16;
-    }
+    const sinus = (x) => Math.sin(2*Math.PI*(x/256)) * 127 | 0;
 
     let speedcounter = speed;
     let phase1 = 0;
