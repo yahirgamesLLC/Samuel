@@ -1,9 +1,9 @@
 /**
- * This is SamJs.js v0.1.3
+ * This is SamJs.js v0.1.4
  *
  * A Javascript port of "SAM Software Automatic Mouth".
  *
- * (c) 2017-2021 Christian Schiffler
+ * (c) 2017-2022 Christian Schiffler
  *
  * @link(https://github.com/discordier/sam)
  *
@@ -1743,7 +1743,7 @@ var AdjustLengths = ((getPhoneme, setLength, getLength) => {
       // prior phoneme is a stop consonant
       {
         console.log("".concat(position, " RULE: <STOP CONSONANT> <LIQUID> - decrease by 2"));
-      } // decrease the phoneme length by 2 frames (20 ms)
+      } // decrease the phoneme length by 2 frames
 
 
       setLength(position, getLength(position) - 2);
@@ -2545,7 +2545,8 @@ let FALLING_INFLECTION = 1;
 /** CREATE FRAMES
  *
  * The length parameter in the list corresponds to the number of frames
- * to expand the phoneme to. Each frame represents 10 milliseconds of time.
+ * to expand the phoneme to. At the default speed, each frame represents
+ * about 10 milliseconds of time.
  * So a phoneme with a length of 7 = 7 frames = 70 milliseconds duration.
  *
  * The parameters are copied from the phoneme to the frame verbatim.
@@ -2701,12 +2702,11 @@ var Renderer = ((phonemes, pitch, mouth, throat, speed, singmode) => {
   mouth = mouth === undefined ? 128 : mouth & 0xFF;
   throat = throat === undefined ? 128 : throat & 0xFF;
   speed = (speed || 72) & 0xFF;
-  singmode = singmode || false; // Every frame is 20ms long.
+  singmode = singmode || false; // Reserve 176.4*speed samples (=8*speed ms) for each frame.
 
-  let Output = CreateOutputBuffer(441 // = (22050/50)
-  * phonemes.reduce((pre, v) => pre + v[1] * 20, 0) / 50 // Combined phoneme length in ms.
-  * speed | 0 // multiplied by speed.
-  );
+  let Output = CreateOutputBuffer(176.4 // = (22050/125)
+  * phonemes.reduce((pre, v) => pre + v[1], 0) // Combined phoneme length in frames.
+  * speed | 0);
   /**
    * PROCESS THE FRAMES
    *
@@ -2777,9 +2777,7 @@ var Renderer = ((phonemes, pitch, mouth, throat, speed, singmode) => {
     }; // Removed sine table stored a pre calculated sine wave but in modern CPU, we can calculate inline.
 
 
-    let sinus = x => {
-      return ((Math.sin(2 * Math.PI * (x / 255)) * 128 | 0) / 16 | 0) * 16;
-    };
+    let sinus = x => Math.sin(2 * Math.PI * (x / 256)) * 127 | 0;
 
     let speedcounter = speed;
     let phase1 = 0;
@@ -2912,8 +2910,7 @@ var Renderer = ((phonemes, pitch, mouth, throat, speed, singmode) => {
    *
    * The phoneme list is converted into sound through the steps:
    *
-   * 1. Copy each phoneme <length> number of times into the frames list,
-   *    where each frame represents 10 milliseconds of sound.
+   * 1. Copy each phoneme <length> number of times into the frames list.
    *
    * 2. Determine the transitions lengths between phonemes, and linearly
    *    interpolate the values across the frames.
