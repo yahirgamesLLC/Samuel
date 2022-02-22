@@ -29,7 +29,7 @@ import {
 
 import {BREAK, END} from '../../../src/common/constants.es6'
 
-import UInt8 from '../../../src/types/UInt8.es6';
+import Uint8 from '../../../src/types/Uint8.es6';
 
 const PHONEME_PERIOD = 1;
 const PHONEME_QUESTION = 2;
@@ -152,7 +152,7 @@ function CreateFrames (
    * A rising inflection is used for questions, and a falling inflection is used for statements.
    */
   const AddInflection = (inflection, pos) => {
-    let A = new UInt8(0);
+    let A = new Uint8(0);
     // store the location of the punctuation
     let end = pos;
     if (pos < 30) {
@@ -177,7 +177,7 @@ function CreateFrames (
     }
   };
 
-  let X = new UInt8(0);
+  let X = new Uint8(0);
   let i = 0;
   while(i < 256) {
     // get the phoneme at the index
@@ -298,14 +298,14 @@ function CreateTransitions(pitches, frequency, amplitude, phonemeIndexOutput, ph
   // linearly interpolate values
   const interpolate = (width, table, frame, mem53) => {
     let sign      = (mem53 < 0);
-    let remainder = new UInt8(Math.abs(mem53) % width);
-    let div       = new UInt8((mem53 / width) | 0);
+    let remainder = new Uint8(Math.abs(mem53) % width);
+    let div       = new Uint8((mem53 / width) | 0);
 
-    let error = new UInt8(0);
+    let error = new Uint8(0);
     let pos   = width;
 
     while (--pos > 0) {
-      let val   = new UInt8(Read(table, frame) + div.get());
+      let val   = new Uint8(Read(table, frame) + div.get());
       error.inc(remainder.get());
       if (error.get() >= width) {
         // accumulated a whole integer error, so adjust output
@@ -338,8 +338,8 @@ function CreateTransitions(pitches, frequency, amplitude, phonemeIndexOutput, ph
 
   let phase1;
   let phase2;
-  let mem49 = new UInt8(0);
-  let pos = new UInt8(0);
+  let mem49 = new Uint8(0);
+  let pos = new Uint8(0);
   while(1) {
     let phoneme      = phonemeIndexOutput[pos.get()];
     let next_phoneme = phonemeIndexOutput[pos.get()+1];
@@ -370,9 +370,9 @@ function CreateTransitions(pitches, frequency, amplitude, phonemeIndexOutput, ph
 
     mem49.inc(phonemeLengthOutput[pos.get()]);
 
-    let speedcounter = new UInt8(mem49.get() + phase2);
-    let phase3       = new UInt8(mem49.get() - phase1);
-    let transition   = new UInt8(phase1 + phase2); // total transition?
+    let speedcounter = new Uint8(mem49.get() + phase2);
+    let phase3       = new Uint8(mem49.get() - phase1);
+    let transition   = new Uint8(phase1 + phase2); // total transition?
 
     if (((transition.get() - 2) & 128) === 0) {
       interpolate_pitch(transition.get(), pos.get(), mem49.get(), phase3.get());
@@ -689,14 +689,14 @@ export default function Renderer(phonemeindex, phonemeLength, stress, pitch, mou
       return mem66;
     };
 
-    let speedcounter = new UInt8(72);
-    let phase1 = new UInt8();
-    let phase2 = new UInt8();
-    let phase3 = new UInt8();
-    let mem66 = new UInt8();
-    let Y = new UInt8();
-    let glottal_pulse = new UInt8(pitches[0]);
-    let mem38 = new UInt8(glottal_pulse.get() - (glottal_pulse.get() >> 2)); // mem44 * 0.75
+    let speedcounter = new Uint8(72);
+    let phase1 = new Uint8();
+    let phase2 = new Uint8();
+    let phase3 = new Uint8();
+    let mem66 = new Uint8();
+    let Y = new Uint8();
+    let glottal_pulse = new Uint8(pitches[0]);
+    let mem38 = new Uint8(glottal_pulse.get() - (glottal_pulse.get() >> 2)); // mem44 * 0.75
 
     while(mem48) {
       let flags = sampledConsonantFlag[Y.get()];
