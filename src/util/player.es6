@@ -55,7 +55,7 @@ export const PlayBuffer = (audiobuffer) => {
  *
  * @return {Float32Array}
  */
-export const UInt8ArrayToFloat32Array = (buffer) => {
+export const Uint8ArrayToFloat32Array = (buffer) => {
   const audio = new Float32Array(buffer.length);
   for(let i=0; i < buffer.length; i++) {
     audio[i] = (buffer[i] - 128) / 256;
