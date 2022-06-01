@@ -57,8 +57,7 @@ function buildEntry (config) {
           properties: true,
           dead_code: true,
           conditionals: true,
-          reduce_vars: true,
-          keep_fnames: true
+          passes: 10,
         },
         sourceMap: {
           filename: path.basename(outConfig.file),
