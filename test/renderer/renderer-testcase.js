@@ -1,5 +1,4 @@
 import { assert } from 'chai'
-import {END} from '../../src/common/constants.es6'
 import loadFixture from '../fixture-reader.js';
 import Renderer from '../../src/renderer/renderer.es6';
 import {karmaOutput as output} from '../../src/renderer/renderer.es6';
@@ -14,7 +13,6 @@ export default function (files) {
           describe(`#Renderer()`, () => {
             it(`should render: "${value.input}".`, () => {
               const parsed = value.output.map((v, i) => [v, value.length[i], value.stress[i]]);
-              parsed.push([END, 0, 0]);
 
               const result = Renderer(parsed);
               assert.notEqual(result, false, 'Renderer did not succeed');
