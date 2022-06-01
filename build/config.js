@@ -1,7 +1,6 @@
 const path = require('path');
 const babel = require('@rollup/plugin-babel').default;
 const replace = require('@rollup/plugin-replace');
-const flow = require('rollup-plugin-flow-no-whitespace');
 const version = process.env.VERSION || require('../package.json').version;
 
 const banner =
@@ -96,7 +95,6 @@ function genConfig (opts) {
         preventAssignment: true,
         __VERSION__: version
       }),
-      flow(),
       babel({
         babelHelpers: 'runtime',
         shouldPrintComment: () => opts.env === 'development',

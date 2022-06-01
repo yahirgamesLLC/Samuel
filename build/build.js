@@ -3,7 +3,6 @@ const path = require('path');
 const zlib = require('zlib');
 const rollup = require('rollup');
 const uglify = require('uglify-js');
-const uglifyEs = require('uglify-es');
 
 if (!fs.existsSync('dist')) {
   fs.mkdirSync('dist')
@@ -45,7 +44,7 @@ function buildEntry (config) {
     const {output} = await bundle.generate(outConfig)
     const code = output[0].code
     if (isProd) {
-      let result = (/esm\.min$/.test(outConfig.file) ? uglify : uglifyEs).minify(code, {
+      let result = uglify.minify(code, {
         mangle: {
           // keep_classnames: true,
         },
