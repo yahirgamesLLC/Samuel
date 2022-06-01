@@ -1,5 +1,5 @@
 /**
- * This is SamJs.js v0.1.4
+ * This is SamJs.js v0.2.0
  *
  * A Javascript port of "SAM Software Automatic Mouth".
  *
@@ -49,7 +49,8 @@ let Uint16ToUint8Array = uint16 => {
  */
 
 let Play = (context, audiobuffer) => {
-  return new Promise(resolve => {
+  let abort;
+  let promise = new Promise((resolve, reject) => {
     let source = context.createBufferSource();
     let soundBuffer = context.createBuffer(1, audiobuffer.length, 22050);
     let buffer = soundBuffer.getChannelData(0);
@@ -65,8 +66,15 @@ let Play = (context, audiobuffer) => {
       resolve(true);
     };
 
+    abort = reason => {
+      source.disconnect();
+      reject(reason);
+    };
+
     source.start(0);
   });
+  promise.abort = abort;
+  return promise;
 };
 
 let context = null;
@@ -99,7 +107,7 @@ let PlayBuffer = audiobuffer => {
  * @return {Float32Array}
  */
 
-let UInt8ArrayToFloat32Array = buffer => {
+let Uint8ArrayToFloat32Array = buffer => {
   let audio = new Float32Array(buffer.length);
 
   for (let i = 0; i < buffer.length; i++) {
@@ -580,71 +588,66 @@ let rules2 = rules2$1.split('|').map(reciterRule);
  */
 
 let TextToPhonemes = input => {
-  return (() => {
-    let text = ' ' + input.toUpperCase();
-    let inputPos = 0,
-        output = '';
-    /**
-     * The input callback (successCallback) used from the rules.
-     *
-     * @param {string} append    The string to append.
-     * @param {Number} inputSkip The amount or chars to move ahead in the input.
-     */
+  let text = ' ' + input.toUpperCase();
+  let inputPos = 0,
+      output = '';
+  /**
+   * The input callback (successCallback) used from the rules.
+   *
+   * @param {string} append    The string to append.
+   * @param {Number} inputSkip The amount or chars to move ahead in the input.
+   */
 
-    let successCallback = (append, inputSkip) => {
-      inputPos += inputSkip;
-      output += append;
-    };
+  let successCallback = (append, inputSkip) => {
+    inputPos += inputSkip;
+    output += append;
+  };
 
-    let c = 0;
+  let c = 0;
 
-    while (inputPos < text.length && c++ < 10000) {
-      {
-        let tmp = text.toLowerCase();
-        console.log("processing \"".concat(tmp.substr(0, inputPos), "%c").concat(tmp[inputPos].toUpperCase(), "%c").concat(tmp.substr(inputPos + 1), "\""), 'color: red;', 'color:normal;');
-      }
+  while (inputPos < text.length && c++ < 10000) {
+    {
+      let tmp = text.toLowerCase();
+      console.log("processing \"".concat(tmp.substr(0, inputPos), "%c").concat(tmp[inputPos].toUpperCase(), "%c").concat(tmp.substr(inputPos + 1), "\""), 'color: red;', 'color:normal;');
+    }
 
-      let currentChar = text[inputPos]; // NOT '.' or '.' followed by number.
+    let currentChar = text[inputPos]; // NOT '.' or '.' followed by number.
 
-      if (currentChar !== '.' || flagsAt(text, inputPos + 1, FLAG_NUMERIC)) {
-        //pos36607:
-        if (flags(currentChar, FLAG_RULESET2)) {
-          rules2.some(rule => {
-            return rule(text, inputPos, successCallback);
-          });
-          continue;
-        } //pos36630:
-
-
-        if (charFlags[currentChar] !== 0) {
-          // pos36677:
-          if (!flags(currentChar, FLAG_ALPHA_OR_QUOT)) {
-            //36683: BRK
-            return false;
-          } // go to the right rules for this character.
+    if (currentChar !== '.' || flagsAt(text, inputPos + 1, FLAG_NUMERIC)) {
+      //pos36607:
+      if (flags(currentChar, FLAG_RULESET2)) {
+        rules2.some(rule => {
+          return rule(text, inputPos, successCallback);
+        });
+        continue;
+      } //pos36630:
 
 
-          rules[currentChar].some(rule => {
-            return rule(text, inputPos, successCallback);
-          });
-          continue;
-        }
+      if (charFlags[currentChar] !== 0) {
+        // pos36677:
+        if (!flags(currentChar, FLAG_ALPHA_OR_QUOT)) {
+          //36683: BRK
+          return false;
+        } // go to the right rules for this character.
 
-        output += ' ';
-        inputPos++;
+
+        rules[currentChar].some(rule => {
+          return rule(text, inputPos, successCallback);
+        });
         continue;
       }
 
-      output += '.';
+      output += ' ';
       inputPos++;
+      continue;
     }
 
-    return output;
-  })();
-};
+    output += '.';
+    inputPos++;
+  }
 
-let BREAK = 254;
-let END = 255;
+  return output;
+};
 
 let StressTable = '*12345678'.split('');
 let PhonemeNameTable = (' *' + // 00
@@ -1147,7 +1150,7 @@ let wild_match = sign1 => {
  */
 
 
-var Parser1 = ((input, addPhoneme, addStress) => {
+let Parser1 = (input, addPhoneme, addStress) => {
   for (let srcPos = 0; srcPos < input.length; srcPos++) {
     {
       let tmp = input.toLowerCase();
@@ -1187,7 +1190,7 @@ var Parser1 = ((input, addPhoneme, addStress) => {
 
     addStress(match); // Set stress for prior phoneme
   }
-});
+};
 
 /**
  * Test if a phoneme has the given flag.
@@ -1274,7 +1277,7 @@ let FLAG_UNVOICED_STOPCONS = 0x0001;
  * @return undefined
  */
 
-var Parser2 = ((insertPhoneme, setPhoneme, getPhoneme, getStress) => {
+let Parser2 = (insertPhoneme, setPhoneme, getPhoneme, getStress) => {
   /**
    * Rewrites:
    *  'UW' => 'UX' if alveolar flag set on previous phoneme.
@@ -1339,7 +1342,7 @@ var Parser2 = ((insertPhoneme, setPhoneme, getPhoneme, getStress) => {
   let pos = -1;
   let phoneme;
 
-  while ((phoneme = getPhoneme(++pos)) !== END) {
+  while ((phoneme = getPhoneme(++pos)) !== null) {
     // Is phoneme pause?
     if (phoneme === 0) {
       continue;
@@ -1386,11 +1389,11 @@ var Parser2 = ((insertPhoneme, setPhoneme, getPhoneme, getStress) => {
       // RULE:
       //       <STRESSED VOWEL> <SILENCE> <STRESSED VOWEL> -> <STRESSED VOWEL> <SILENCE> Q <VOWEL>
       // EXAMPLE: AWAY EIGHT
-      if (!getPhoneme(pos + 1)) {
+      if (getPhoneme(pos + 1) === 0) {
         // If following phoneme is a pause, get next
         phoneme = getPhoneme(pos + 2);
 
-        if (phoneme !== END && phonemeHasFlag(phoneme, FLAG_VOWEL) && getStress(pos + 2)) {
+        if (phoneme !== null && phonemeHasFlag(phoneme, FLAG_VOWEL) && getStress(pos + 2)) {
           {
             console.log("".concat(pos + 2, " RULE: Insert glottal stop between two stressed vowels with space between them"));
           }
@@ -1402,7 +1405,7 @@ var Parser2 = ((insertPhoneme, setPhoneme, getPhoneme, getStress) => {
       continue;
     }
 
-    let priorPhoneme = pos === 0 ? END : getPhoneme(pos - 1);
+    let priorPhoneme = pos === 0 ? null : getPhoneme(pos - 1);
 
     if (phoneme === pR) {
       // RULES FOR PHONEMES BEFORE R
@@ -1478,7 +1481,7 @@ var Parser2 = ((insertPhoneme, setPhoneme, getPhoneme, getStress) => {
       // Example: GO
       let phoneme = getPhoneme(pos + 1); // If diphthong ending with YX, move continue processing next phoneme
 
-      if (!phonemeHasFlag(phoneme, FLAG_DIP_YX) && phoneme !== END) {
+      if (!phonemeHasFlag(phoneme, FLAG_DIP_YX) && phoneme !== null) {
         // replace G with GX and continue processing next phoneme
         {
           console.log("".concat(pos, " RULE: G <VOWEL OR DIPTHONG NOT ENDING WITH IY> -> GX <VOWEL OR DIPTHONG NOT ENDING WITH IY>"));
@@ -1496,7 +1499,7 @@ var Parser2 = ((insertPhoneme, setPhoneme, getPhoneme, getStress) => {
       // Example: COW
       let Y = getPhoneme(pos + 1); // If at end, replace current phoneme with KX
 
-      if (!phonemeHasFlag(Y, FLAG_DIP_YX) || Y === END) {
+      if (!phonemeHasFlag(Y, FLAG_DIP_YX) || Y === null) {
         // VOWELS AND DIPHTHONGS ENDING WITH IY SOUND flag set?
         {
           console.log("".concat(pos, " K <VOWEL OR DIPTHONG NOT ENDING WITH IY> -> KX <VOWEL OR DIPTHONG NOT ENDING WITH IY>"));
@@ -1537,7 +1540,7 @@ var Parser2 = ((insertPhoneme, setPhoneme, getPhoneme, getStress) => {
       if (pos > 0 && phonemeHasFlag(getPhoneme(pos - 1), FLAG_VOWEL)) {
         phoneme = getPhoneme(pos + 1);
 
-        if (!phoneme) {
+        if (phoneme === 0) {
           phoneme = getPhoneme(pos + 2);
         }
 
@@ -1558,7 +1561,7 @@ var Parser2 = ((insertPhoneme, setPhoneme, getPhoneme, getStress) => {
     }
   } // while
 
-});
+};
 
 /**
  * Applies various rules that adjust the lengths of phonemes
@@ -1578,7 +1581,7 @@ var Parser2 = ((insertPhoneme, setPhoneme, getPhoneme, getStress) => {
  * @return undefined
  */
 
-var AdjustLengths = ((getPhoneme, setLength, getLength) => {
+let AdjustLengths = (getPhoneme, setLength, getLength) => {
   {
     console.log("AdjustLengths()");
   } // LENGTHEN VOWELS PRECEDING PUNCTUATION
@@ -1590,7 +1593,7 @@ var AdjustLengths = ((getPhoneme, setLength, getLength) => {
   // loop index
 
 
-  for (let position = 0; getPhoneme(position) !== END; position++) {
+  for (let position = 0; getPhoneme(position) !== null; position++) {
     // not punctuation?
     if (!phonemeHasFlag(getPhoneme(position), FLAG_PUNCT)) {
       continue;
@@ -1608,7 +1611,9 @@ var AdjustLengths = ((getPhoneme, setLength, getLength) => {
     } // Now handle everything between position and loopIndex
 
 
-    for (let vowel = position; position < loopIndex; position++) {
+    let vowel = position;
+
+    for (; position < loopIndex; position++) {
       // test for not fricative/unvoiced or not voiced
       if (!phonemeHasFlag(getPhoneme(position), FLAG_FRICATIVE) || phonemeHasFlag(getPhoneme(position), FLAG_VOICED)) {
         let A = getLength(position); // change phoneme length to (length * 1.5) + 1
@@ -1627,7 +1632,7 @@ var AdjustLengths = ((getPhoneme, setLength, getLength) => {
   let loopIndex = -1;
   let phoneme;
 
-  while ((phoneme = getPhoneme(++loopIndex)) !== END) {
+  while ((phoneme = getPhoneme(++loopIndex)) !== null) {
     let position = loopIndex; // vowel?
 
     if (phonemeHasFlag(phoneme, FLAG_VOWEL)) {
@@ -1651,7 +1656,7 @@ var AdjustLengths = ((getPhoneme, setLength, getLength) => {
       // FIXME: the case when phoneme === END is taken over by !phonemeHasFlag(phoneme, FLAG_CONSONANT)
 
 
-      let flags = phoneme === END ? FLAG_CONSONANT | FLAG_UNVOICED_STOPCONS : phonemeFlags[phoneme]; // Unvoiced
+      let flags = phoneme === null ? FLAG_CONSONANT | FLAG_UNVOICED_STOPCONS : phonemeFlags[phoneme]; // Unvoiced
 
       if (!matchesBitmask(flags, FLAG_VOICED)) {
         // *, .*, ?*, ,*, -*, DX, S*, SH, F*, TH, /H, /X, CH, P*, T*, K*, KX
@@ -1694,7 +1699,7 @@ var AdjustLengths = ((getPhoneme, setLength, getLength) => {
       // M*, N*, NX,
       phoneme = getPhoneme(++position); // is next phoneme a stop consonant?
 
-      if (phoneme !== END && phonemeHasFlag(phoneme, FLAG_STOPCONS)) {
+      if (phoneme !== null && phonemeHasFlag(phoneme, FLAG_STOPCONS)) {
         // B*, D*, G*, GX, P*, T*, K*, KX
         {
           console.log("".concat(position, " RULE: <NASAL> <STOP CONSONANT> - set nasal = 5, consonant = 6"));
@@ -1720,7 +1725,7 @@ var AdjustLengths = ((getPhoneme, setLength, getLength) => {
       } // if another stop consonant, process.
 
 
-      if (phoneme !== END && phonemeHasFlag(phoneme, FLAG_STOPCONS)) {
+      if (phoneme !== null && phonemeHasFlag(phoneme, FLAG_STOPCONS)) {
         // RULE: <STOP CONSONANT> {optional silence} <STOP CONSONANT>
         {
           console.log("".concat(position, " RULE: <STOP CONSONANT> {optional silence} <STOP CONSONANT> - shorten both to 1/2 + 1"));
@@ -1749,7 +1754,7 @@ var AdjustLengths = ((getPhoneme, setLength, getLength) => {
       setLength(position, getLength(position) - 2);
     }
   }
-});
+};
 
 /**
  * Iterates through the phoneme buffer, copying the stress value from
@@ -1771,17 +1776,17 @@ var AdjustLengths = ((getPhoneme, setLength, getLength) => {
  * @return undefined
  */
 
-var CopyStress = ((getPhoneme, getStress, setStress) => {
+let CopyStress = (getPhoneme, getStress, setStress) => {
   // loop through all the phonemes to be output
   let position = 0;
   let phoneme;
 
-  while ((phoneme = getPhoneme(position)) !== END) {
+  while ((phoneme = getPhoneme(position)) !== null) {
     // if CONSONANT_FLAG set, skip - only vowels get stress
     if (phonemeHasFlag(phoneme, FLAG_CONSONANT)) {
       phoneme = getPhoneme(position + 1); // if the following phoneme is the end, or a vowel, skip
 
-      if (phoneme !== END && phonemeHasFlag(phoneme, FLAG_VOWEL)) {
+      if (phoneme !== null && phonemeHasFlag(phoneme, FLAG_VOWEL)) {
         // get the stress value at the next position
         let stress = getStress(position + 1);
 
@@ -1795,7 +1800,7 @@ var CopyStress = ((getPhoneme, getStress, setStress) => {
 
     ++position;
   }
-});
+};
 
 /**
  * change phoneme length dependent on stress
@@ -1807,11 +1812,11 @@ var CopyStress = ((getPhoneme, getStress, setStress) => {
  * @return undefined
  */
 
-var SetPhonemeLength = ((getPhoneme, getStress, setLength) => {
+let SetPhonemeLength = (getPhoneme, getStress, setLength) => {
   let position = 0;
   let phoneme;
 
-  while ((phoneme = getPhoneme(position)) !== END) {
+  while ((phoneme = getPhoneme(position)) !== null) {
     let stress = getStress(position);
 
     if (stress === 0 || stress > 0x7F) {
@@ -1822,54 +1827,7 @@ var SetPhonemeLength = ((getPhoneme, getStress, setLength) => {
 
     position++;
   }
-});
-
-/**
- *
- * @param {getPhoneme}       getPhoneme    Callback for retrieving phonemes.
- * @param {setPhoneme}       setPhoneme    Callback for setting phonemes.
- * @param {insertPhoneme}    insertPhoneme Callback for inserting phonemes.
- * @param {setPhonemeStress} setStress     Callback for setting phoneme stress.
- * @param {getPhonemeLength} getLength     Callback for getting phoneme length.
- * @param {setPhonemeLength} setLength     Callback for setting phoneme length.
- *
- * @return undefined
- */
-
-var InsertBreath = ((getPhoneme, setPhoneme, insertPhoneme, setStress, getLength, setLength) => {
-  let mem54 = 255;
-  let len = 0; // mem55
-
-  let index; //variable Y
-
-  let pos = -1;
-
-  while ((index = getPhoneme(++pos)) !== END) {
-    len += getLength(pos);
-
-    if (len < 232) {
-      if (phonemeHasFlag(index, FLAG_PUNCT)) {
-        len = 0;
-        insertPhoneme(pos + 1, BREAK, 0, 0);
-        continue;
-      }
-
-      if (index === 0) {
-        mem54 = pos;
-      }
-
-      continue;
-    }
-
-    pos = mem54;
-    setPhoneme(pos, 31); // 'Q*' glottal stop
-
-    setLength(pos, 4);
-    setStress(pos, 0);
-    len = 0;
-    insertPhoneme(pos + 1, BREAK, 0, 0);
-  }
-});
+};
 
 /**
  * Makes plosive stop consonants longer by inserting the next two following
@@ -1882,11 +1840,11 @@ var InsertBreath = ((getPhoneme, setPhoneme, insertPhoneme, setStress, getLength
  * @return undefined
  */
 
-var ProlongPlosiveStopConsonantsCode41240 = ((getPhoneme, insertPhoneme, getStress) => {
+let ProlongPlosiveStopConsonantsCode41240 = (getPhoneme, insertPhoneme, getStress) => {
   let pos = -1;
   let index;
 
-  while ((index = getPhoneme(++pos)) !== END) {
+  while ((index = getPhoneme(++pos)) !== null) {
     // Not a stop consonant, move to next one.
     if (!phonemeHasFlag(index, FLAG_STOPCONS)) {
       continue;
@@ -1902,7 +1860,7 @@ var ProlongPlosiveStopConsonantsCode41240 = ((getPhoneme, insertPhoneme, getStre
       } while (nextNonEmpty === 0); // If not END and either flag 0x0008 or '/H' or '/X'
 
 
-      if (nextNonEmpty !== END && (phonemeHasFlag(nextNonEmpty, FLAG_0008) || nextNonEmpty === 36 || nextNonEmpty === 37)) {
+      if (nextNonEmpty !== null && (phonemeHasFlag(nextNonEmpty, FLAG_0008) || nextNonEmpty === 36 || nextNonEmpty === 37)) {
         continue;
       }
     }
@@ -1911,7 +1869,7 @@ var ProlongPlosiveStopConsonantsCode41240 = ((getPhoneme, insertPhoneme, getStre
     insertPhoneme(pos + 2, index + 2, getStress(pos), combinedPhonemeLengthTable[index + 2] & 0xFF);
     pos += 2;
   }
-});
+};
 
 /**
  * Parses speech data.
@@ -1923,7 +1881,7 @@ var ProlongPlosiveStopConsonantsCode41240 = ((getPhoneme, insertPhoneme, getStre
  * @return {Array|Boolean} The parsed data.
  */
 
-var Parser = (input => {
+let Parser = input => {
   if (!input) {
     return false;
   }
@@ -1935,7 +1893,7 @@ var Parser = (input => {
       }
     }
 
-    return pos === phonemeindex.length - 1 ? END : phonemeindex[pos];
+    return pos === phonemeindex.length ? null : phonemeindex[pos];
   };
 
   let setPhoneme = (pos, value) => {
@@ -2018,7 +1976,6 @@ var Parser = (input => {
     stress[pos - 1] = value;
     /* Set stress for prior phoneme */
   });
-  phonemeindex[pos] = END;
 
   {
     PrintPhonemes(phonemeindex, phonemeLength, stress);
@@ -2030,22 +1987,12 @@ var Parser = (input => {
   AdjustLengths(getPhoneme, setLength, getLength);
   ProlongPlosiveStopConsonantsCode41240(getPhoneme, insertPhoneme, getStress);
 
-  for (let i = 0; i < phonemeindex.length; i++) {
-    if (phonemeindex[i] > 80) {
-      phonemeindex[i] = END; // FIXME: When will this ever be anything else than END?
-
-      break; // error: delete all behind it
-    }
-  }
-
-  InsertBreath(getPhoneme, setPhoneme, insertPhoneme, getStress, getLength, setLength);
-
   {
     PrintPhonemes(phonemeindex, phonemeLength, stress);
   }
 
-  return phonemeindex.map((v, i) => [v, phonemeLength[i] | 0, stress[i] | 0]);
-});
+  return phonemeindex.map((v, i) => v ? [v, phonemeLength[i] | 0, stress[i] | 0] : null).filter(v => v);
+};
 /**
  * Debug printing.
  *
@@ -2068,13 +2015,9 @@ let PrintPhonemes = (phonemeindex, phonemeLength, stress) => {
   console.log('----------------------------------');
 
   for (let i = 0; i < phonemeindex.length; i++) {
-    let name = phoneme => {
+    let name = () => {
       if (phonemeindex[i] < 81) {
         return PhonemeNameTable[phonemeindex[i]];
-      }
-
-      if (phoneme === BREAK) {
-        return '  ';
       }
 
       return '??';
@@ -2350,7 +2293,7 @@ let sampleTable = [//00  T', S, Z  (coronal)
  * @return {Array}
  */
 
-var SetMouthThroat = ((mouth, throat) => {
+let SetMouthThroat = (mouth, throat) => {
   let trans = (factor, initialFrequency) => {
     return (factor * initialFrequency >> 8 & 0xFF) << 1;
   };
@@ -2378,7 +2321,7 @@ var SetMouthThroat = ((mouth, throat) => {
   }
 
   return freqdata;
-});
+};
 
 /**
  * CREATE TRANSITIONS.
@@ -2423,7 +2366,7 @@ var SetMouthThroat = ((mouth, throat) => {
  * @return {Number}
  */
 
-var CreateTransitions = ((pitches, frequency, amplitude, tuples) => {
+let CreateTransitions = (pitches, frequency, amplitude, tuples) => {
   // 0=pitches
   // 1=frequency1
   // 2=frequency2
@@ -2537,8 +2480,8 @@ var CreateTransitions = ((pitches, frequency, amplitude, tuples) => {
   } // add the length of last phoneme
 
 
-  return boundary + tuples[tuples.length - 1][1] & 0xFF;
-});
+  return boundary + tuples[tuples.length - 1][1];
+};
 
 let RISING_INFLECTION = 255;
 let FALLING_INFLECTION = 1;
@@ -2566,7 +2509,7 @@ let FALLING_INFLECTION = 1;
  * @return Array
  */
 
-var CreateFrames = ((pitch, tuples, frequencyData) => {
+let CreateFrames = (pitch, tuples, frequencyData) => {
   /**
    * Create a rising or falling inflection 30 frames prior to index X.
    * A rising inflection is used for questions, and a falling inflection is used for statements.
@@ -2642,9 +2585,62 @@ var CreateFrames = ((pitch, tuples, frequencyData) => {
   }
 
   return [pitches, frequency, amplitude, sampledConsonantFlag];
-});
+};
 
-var CreateOutputBuffer = (buffersize => {
+let PrepareFrames = (phonemes, pitch, mouth, throat, singmode) => {
+  let freqdata = SetMouthThroat(mouth, throat);
+  /**
+   * RENDER THE PHONEMES IN THE LIST
+   *
+   * The phoneme list is converted into sound through the steps:
+   *
+   * 1. Copy each phoneme <length> number of times into the frames list.
+   *
+   * 2. Determine the transitions lengths between phonemes, and linearly
+   *    interpolate the values across the frames.
+   *
+   * 3. Offset the pitches by the fundamental frequency.
+   *
+   * 4. Render the each frame.
+   */
+
+  const [pitches, frequency, amplitude, sampledConsonantFlag] = CreateFrames(pitch, phonemes, freqdata);
+  let t = CreateTransitions(pitches, frequency, amplitude, phonemes);
+
+  if (!singmode) {
+    /* ASSIGN PITCH CONTOUR
+     *
+     * This subtracts the F1 frequency from the pitch to create a
+     * pitch contour. Without this, the output would be at a single
+     * pitch level (monotone).
+     */
+    for (let i = 0; i < pitches.length; i++) {
+      // subtract half the frequency of the formant 1.
+      // this adds variety to the voice
+      pitches[i] -= frequency[0][i] >> 1;
+    }
+  }
+  /*
+   * RESCALE AMPLITUDE
+   *
+   * Rescale volume from decibels to the linear scale.
+   */
+
+
+  let amplitudeRescale = [0x00, 0x01, 0x02, 0x02, 0x02, 0x03, 0x03, 0x04, 0x04, 0x05, 0x06, 0x08, 0x09, 0x0B, 0x0D, 0x0F];
+
+  for (let i = amplitude[0].length - 1; i >= 0; i--) {
+    amplitude[0][i] = amplitudeRescale[amplitude[0][i]];
+    amplitude[1][i] = amplitudeRescale[amplitude[1][i]];
+    amplitude[2][i] = amplitudeRescale[amplitude[2][i]];
+  }
+
+  let result = [t, frequency, pitches, amplitude, sampledConsonantFlag];
+
+  return result;
+};
+
+let CreateOutputBuffer = buffersize => {
   let buffer = new Uint8Array(buffersize);
   let bufferpos = 0;
   let oldTimeTableIndex = 0; // Scale by 16 and write five times.
@@ -2684,7 +2680,205 @@ var CreateOutputBuffer = (buffersize => {
   };
 
   return writer;
-});
+};
+
+let RenderSample = (Output, lastSampleOffset, consonantFlag, pitch) => {
+  // mask low three bits and subtract 1 get value to
+  // convert 0 bits on unvoiced samples.
+  let kind = (consonantFlag & 7) - 1; // determine which value to use from table { 0x18, 0x1A, 0x17, 0x17, 0x17 }
+  // T', S, Z               0          0x18   coronal
+  // CH', J', SH, ZH        1          0x1A   palato-alveolar
+  // P', F, V, TH, DH       2          0x17   [labio]dental
+  // /H                     3          0x17   palatal
+  // /X                     4          0x17   glottal
+
+  let samplePage = kind * 256 & 0xFFFF; // unsigned short
+
+  let off = consonantFlag & 248; // unsigned char
+
+  let renderSample = (index1, value1, index0, value0) => {
+    let bit = 8;
+    let sample = sampleTable[samplePage + off];
+
+    do {
+      if ((sample & 128) !== 0) {
+        Output(index1, value1);
+      } else {
+        Output(index0, value0);
+      }
+
+      sample <<= 1;
+    } while (--bit);
+  };
+
+  if (off === 0) {
+    // voiced phoneme: Z*, ZH, V*, DH
+    let phase1 = pitch >> 4 ^ 255 & 0xFF; // unsigned char
+
+    off = lastSampleOffset & 0xFF; // unsigned char
+
+    do {
+      renderSample(3, 26, 4, 6);
+      off++;
+      off &= 0xFF;
+    } while (++phase1 & 0xFF);
+
+    return off;
+  } // unvoiced
+
+
+  off = off ^ 255 & 0xFF; // unsigned char
+
+  let value0 = sampledConsonantValues0[kind] & 0xFF; // unsigned char
+
+  do {
+    renderSample(2, 5, 1, value0);
+  } while (++off & 0xFF);
+
+  return lastSampleOffset;
+}; // Removed sine table stored a pre calculated sine wave but in modern CPU, we can calculate inline.
+
+
+let sinus = x => Math.sin(2 * Math.PI * (x / 256)) * 127 | 0;
+/**
+ * PROCESS THE FRAMES
+ *
+ * In traditional vocal synthesis, the glottal pulse drives filters, which
+ * are attenuated to the frequencies of the formants.
+ *
+ * SAM generates these formants directly with sine and rectangular waves.
+ * To simulate them being driven by the glottal pulse, the waveforms are
+ * reset at the beginning of each glottal pulse.
+ */
+
+
+let ProcessFrames = (Output, frameCount, speed, frequency, pitches, amplitude, sampledConsonantFlag) => {
+  let speedcounter = speed;
+  let phase1 = 0;
+  let phase2 = 0;
+  let phase3 = 0;
+  let lastSampleOffset = 0;
+  let pos = 0;
+  let glottal_pulse = pitches[0];
+  let mem38 = glottal_pulse * .75 | 0;
+
+  while (frameCount) {
+    let flags = sampledConsonantFlag[pos]; // unvoiced sampled phoneme?
+
+    if ((flags & 248) !== 0) {
+      lastSampleOffset = RenderSample(Output, lastSampleOffset, flags, pitches[pos & 0xFF]); // skip ahead two in the phoneme buffer
+
+      pos += 2;
+      frameCount -= 2;
+      speedcounter = speed;
+    } else {
+      {
+        // Rectangle wave consisting of:
+        //   0-128 = 0x90
+        // 128-255 = 0x70
+        // simulate the glottal pulse and formants
+        let ary = [];
+        let
+        /* unsigned int */
+        p1 = phase1 * 256; // Fixed point integers because we need to divide later on
+
+        let
+        /* unsigned int */
+        p2 = phase2 * 256;
+        let
+        /* unsigned int */
+        p3 = phase3 * 256;
+
+        for (let k = 0; k < 5; k++) {
+          const
+          /* signed char */
+          sp1 = sinus(0xff & p1 >> 8);
+          const
+          /* signed char */
+          sp2 = sinus(0xff & p2 >> 8);
+          const
+          /* signed char */
+          rp3 = (0xff & p3 >> 8) < 129 ? -0x70 : 0x70;
+          const
+          /* signed int */
+          sin1 = sp1 * (
+          /* (unsigned char) */
+          amplitude[0][pos] & 0x0F);
+          const
+          /* signed int */
+          sin2 = sp2 * (
+          /* (unsigned char) */
+          amplitude[1][pos] & 0x0F);
+          const
+          /* signed int */
+          rect = rp3 * (
+          /* (unsigned char) */
+          amplitude[2][pos] & 0x0F);
+          let
+          /* signed int */
+          mux = sin1 + sin2 + rect;
+          mux /= 32;
+          mux += 128; // Go from signed to unsigned amplitude
+
+          ary[k] = mux | 0;
+          p1 += frequency[0][pos] * 256 / 4; // Compromise, this becomes a shift and works well
+
+          p2 += frequency[1][pos] * 256 / 4;
+          p3 += frequency[2][pos] * 256 / 4;
+        }
+
+        Output.ary(0, ary);
+      }
+      speedcounter--;
+
+      if (speedcounter === 0) {
+        pos++; //go to next amplitude
+        // decrement the frame count
+
+        frameCount--;
+
+        if (frameCount === 0) {
+          return;
+        }
+
+        speedcounter = speed;
+      }
+
+      glottal_pulse--;
+
+      if (glottal_pulse !== 0) {
+        // not finished with a glottal pulse
+        mem38--; // within the first 75% of the glottal pulse?
+        // is the count non-zero and the sampled flag is zero?
+
+        if (mem38 !== 0 || flags === 0) {
+          // update the phase of the formants
+          // TODO: we should have a switch to disable this, it causes a pretty nice voice without the masking!
+          phase1 = phase1 + frequency[0][pos]; // & 0xFF;
+
+          phase2 = phase2 + frequency[1][pos]; // & 0xFF;
+
+          phase3 = phase3 + frequency[2][pos]; // & 0xFF;
+
+          continue;
+        } // voiced sampled phonemes interleave the sample with the
+        // glottal pulse. The sample flag is non-zero, so render
+        // the sample for the phoneme.
+
+
+        lastSampleOffset = RenderSample(Output, lastSampleOffset, flags, pitches[pos & 0xFF]);
+      }
+    }
+
+    glottal_pulse = pitches[pos];
+    mem38 = glottal_pulse * .75 | 0; // reset the formant wave generators to keep them in
+    // sync with the glottal pulse
+
+    phase1 = 0;
+    phase2 = 0;
+    phase3 = 0;
+  }
+};
 
 /**
  * @param {Array} phonemes
@@ -2697,303 +2891,26 @@ var CreateOutputBuffer = (buffersize => {
  * @return Uint8Array
  */
 
-var Renderer = ((phonemes, pitch, mouth, throat, speed, singmode) => {
+let Renderer = (phonemes, pitch, mouth, throat, speed, singmode) => {
   pitch = pitch === undefined ? 64 : pitch & 0xFF;
   mouth = mouth === undefined ? 128 : mouth & 0xFF;
   throat = throat === undefined ? 128 : throat & 0xFF;
   speed = (speed || 72) & 0xFF;
-  singmode = singmode || false; // Reserve 176.4*speed samples (=8*speed ms) for each frame.
+  singmode = singmode || false;
+  let sentences = PrepareFrames(phonemes, pitch, mouth, throat, singmode); // Reserve 176.4*speed samples (=8*speed ms) for each frame.
 
   let Output = CreateOutputBuffer(176.4 // = (22050/125)
   * phonemes.reduce((pre, v) => pre + v[1], 0) // Combined phoneme length in frames.
   * speed | 0);
-  /**
-   * PROCESS THE FRAMES
-   *
-   * In traditional vocal synthesis, the glottal pulse drives filters, which
-   * are attenuated to the frequencies of the formants.
-   *
-   * SAM generates these formants directly with sine and rectangular waves.
-   * To simulate them being driven by the glottal pulse, the waveforms are
-   * reset at the beginning of each glottal pulse.
-   */
+  const [t, frequency, pitches, amplitude, sampledConsonantFlag] = sentences;
 
-  let ProcessFrames = (frameCount, speed, frequency, pitches, amplitude, sampledConsonantFlag) => {
-    let RenderSample = (lastSampleOffset, consonantFlag, mem49) => {
-      // mem49 == current phoneme's index - unsigned char
-      // mask low three bits and subtract 1 get value to
-      // convert 0 bits on unvoiced samples.
-      let kind = (consonantFlag & 7) - 1; // determine which value to use from table { 0x18, 0x1A, 0x17, 0x17, 0x17 }
-      // T', S, Z               0          0x18
-      // CH', J', SH, ZH        1          0x1A
-      // P', F, V, TH, DH       2          0x17
-      // /H                     3          0x17
-      // /X                     4          0x17
-
-      let samplePage = kind * 256 & 0xFFFF; // unsigned short
-
-      let off = consonantFlag & 248; // unsigned char
-
-      let renderSample = (index1, value1, index0, value0) => {
-        let bit = 8;
-        let sample = sampleTable[samplePage + off];
-
-        do {
-          if ((sample & 128) !== 0) {
-            Output(index1, value1);
-          } else {
-            Output(index0, value0);
-          }
-
-          sample <<= 1;
-        } while (--bit);
-      };
-
-      if (off === 0) {
-        // voiced phoneme: Z*, ZH, V*, DH
-        let phase1 = pitches[mem49 & 0xFF] >> 4 ^ 255 & 0xFF; // unsigned char
-
-        off = lastSampleOffset & 0xFF; // unsigned char
-
-        do {
-          renderSample(3, 26, 4, 6);
-          off++;
-          off &= 0xFF;
-        } while (++phase1 & 0xFF);
-
-        return off;
-      } // unvoiced
-
-
-      off = off ^ 255 & 0xFF; // unsigned char
-
-      let value0 = sampledConsonantValues0[kind] & 0xFF; // unsigned char
-
-      do {
-        renderSample(2, 5, 1, value0);
-      } while (++off & 0xFF);
-
-      return lastSampleOffset;
-    }; // Removed sine table stored a pre calculated sine wave but in modern CPU, we can calculate inline.
-
-
-    let sinus = x => Math.sin(2 * Math.PI * (x / 256)) * 127 | 0;
-
-    let speedcounter = speed;
-    let phase1 = 0;
-    let phase2 = 0;
-    let phase3 = 0;
-    let lastSampleOffset = 0;
-    let pos = 0;
-    let glottal_pulse = pitches[0];
-    let mem38 = glottal_pulse * .75 | 0;
-
-    while (frameCount) {
-      let flags = sampledConsonantFlag[pos]; // unvoiced sampled phoneme?
-
-      if ((flags & 248) !== 0) {
-        lastSampleOffset = RenderSample(lastSampleOffset, flags, pos); // skip ahead two in the phoneme buffer
-
-        pos += 2;
-        frameCount -= 2;
-        speedcounter = speed;
-      } else {
-        {
-          // Rectangle wave consisting of:
-          //   0-128 = 0x90
-          // 128-255 = 0x70
-          // simulate the glottal pulse and formants
-          let ary = [];
-          let
-          /* unsigned int */
-          p1 = phase1 * 256; // Fixed point integers because we need to divide later on
-
-          let
-          /* unsigned int */
-          p2 = phase2 * 256;
-          let
-          /* unsigned int */
-          p3 = phase3 * 256;
-
-          for (let k = 0; k < 5; k++) {
-            const
-            /* signed char */
-            sp1 = sinus(0xff & p1 >> 8);
-            const
-            /* signed char */
-            sp2 = sinus(0xff & p2 >> 8);
-            const
-            /* signed char */
-            rp3 = (0xff & p3 >> 8) < 129 ? -0x70 : 0x70;
-            const
-            /* signed int */
-            sin1 = sp1 * (
-            /* (unsigned char) */
-            amplitude[0][pos] & 0x0F);
-            const
-            /* signed int */
-            sin2 = sp2 * (
-            /* (unsigned char) */
-            amplitude[1][pos] & 0x0F);
-            const
-            /* signed int */
-            rect = rp3 * (
-            /* (unsigned char) */
-            amplitude[2][pos] & 0x0F);
-            let
-            /* signed int */
-            mux = sin1 + sin2 + rect;
-            mux /= 32;
-            mux += 128; // Go from signed to unsigned amplitude
-
-            ary[k] = mux | 0;
-            p1 += frequency[0][pos] * 256 / 4; // Compromise, this becomes a shift and works well
-
-            p2 += frequency[1][pos] * 256 / 4;
-            p3 += frequency[2][pos] * 256 / 4;
-          }
-
-          Output.ary(0, ary);
-        }
-        speedcounter--;
-
-        if (speedcounter === 0) {
-          pos++; //go to next amplitude
-          // decrement the frame count
-
-          frameCount--;
-
-          if (frameCount === 0) {
-            return;
-          }
-
-          speedcounter = speed;
-        }
-
-        glottal_pulse--;
-
-        if (glottal_pulse !== 0) {
-          // not finished with a glottal pulse
-          mem38--; // within the first 75% of the glottal pulse?
-          // is the count non-zero and the sampled flag is zero?
-
-          if (mem38 !== 0 || flags === 0) {
-            // update the phase of the formants
-            // TODO: we should have a switch to disable this, it causes a pretty nice voice without the masking!
-            phase1 = phase1 + frequency[0][pos]; // & 0xFF;
-
-            phase2 = phase2 + frequency[1][pos]; // & 0xFF;
-
-            phase3 = phase3 + frequency[2][pos]; // & 0xFF;
-
-            continue;
-          } // voiced sampled phonemes interleave the sample with the
-          // glottal pulse. The sample flag is non-zero, so render
-          // the sample for the phoneme.
-
-
-          lastSampleOffset = RenderSample(lastSampleOffset, flags, pos);
-        }
-      }
-
-      glottal_pulse = pitches[pos];
-      mem38 = glottal_pulse * .75 | 0; // reset the formant wave generators to keep them in
-      // sync with the glottal pulse
-
-      phase1 = 0;
-      phase2 = 0;
-      phase3 = 0;
-    }
-  };
-  /**
-   * RENDER THE PHONEMES IN THE LIST
-   *
-   * The phoneme list is converted into sound through the steps:
-   *
-   * 1. Copy each phoneme <length> number of times into the frames list.
-   *
-   * 2. Determine the transitions lengths between phonemes, and linearly
-   *    interpolate the values across the frames.
-   *
-   * 3. Offset the pitches by the fundamental frequency.
-   *
-   * 4. Render the each frame.
-   *
-   * @param {Array} tuples
-   */
-
-
-  let Render = tuples => {
-    if (tuples.length === 0) {
-      return; //exit if no data
-    }
-
-    const [pitches, frequency, amplitude, sampledConsonantFlag] = CreateFrames(pitch, tuples, freqdata);
-    let t = CreateTransitions(pitches, frequency, amplitude, tuples);
-
-    if (!singmode) {
-      /* ASSIGN PITCH CONTOUR
-       *
-       * This subtracts the F1 frequency from the pitch to create a
-       * pitch contour. Without this, the output would be at a single
-       * pitch level (monotone).
-       */
-      for (let i = 0; i < pitches.length; i++) {
-        // subtract half the frequency of the formant 1.
-        // this adds variety to the voice
-        pitches[i] -= frequency[0][i] >> 1;
-      }
-    }
-    /*
-     * RESCALE AMPLITUDE
-     *
-     * Rescale volume from decibels to the linear scale.
-     */
-
-
-    let amplitudeRescale = [0x00, 0x01, 0x02, 0x02, 0x02, 0x03, 0x03, 0x04, 0x04, 0x05, 0x06, 0x08, 0x09, 0x0B, 0x0D, 0x0F];
-
-    for (let i = amplitude[0].length - 1; i >= 0; i--) {
-      amplitude[0][i] = amplitudeRescale[amplitude[0][i]];
-      amplitude[1][i] = amplitudeRescale[amplitude[1][i]];
-      amplitude[2][i] = amplitudeRescale[amplitude[2][i]];
-    }
-
-    {
-      PrintOutput(pitches, frequency, amplitude, sampledConsonantFlag);
-    }
-
-    ProcessFrames(t, speed, frequency, pitches, amplitude, sampledConsonantFlag);
-  };
-
-  let freqdata = SetMouthThroat(mouth, throat); // Main render loop.
-
-  let srcpos = 0; // Position in source
-  // FIXME: should be tuple buffer as well.
-
-  let tuples = [];
-
-  while (1) {
-    let A = phonemes[srcpos];
-    let A0 = A[0];
-
-    if (A0) {
-      if (A0 === END) {
-        Render(tuples);
-        return Output.get();
-      }
-
-      if (A0 === BREAK) {
-        Render(tuples);
-        tuples = [];
-      } else {
-        tuples.push(A);
-      }
-    }
-
-    ++srcpos;
+  {
+    PrintOutput(pitches, frequency, amplitude, sampledConsonantFlag);
   }
-});
+
+  ProcessFrames(Output, t, speed, frequency, pitches, amplitude, sampledConsonantFlag);
+  return Output.get();
+};
 
 let PrintOutput = (pitches, frequency, amplitude, sampledConsonantFlag) => {
   let pad = num => {
@@ -3036,7 +2953,7 @@ let SamBuffer = (input, options) => {
     return false;
   }
 
-  return UInt8ArrayToFloat32Array(buffer);
+  return Uint8ArrayToFloat32Array(buffer);
 };
 /**
  * Process the input and return the audiobuffer.
@@ -3100,9 +3017,7 @@ function SamJs(options) {
    */
 
 
-  this.buf8 = (text, phonetic) => {
-    return buf8(ensurePhonetic(text, phonetic), opts);
-  };
+  this.buf8 = (text, phonetic) => buf8(ensurePhonetic(text, phonetic), opts);
   /**
    * Render the passed text as 32bit wave buffer array.
    *
@@ -3113,9 +3028,7 @@ function SamJs(options) {
    */
 
 
-  this.buf32 = (text, phonetic) => {
-    return buf32(ensurePhonetic(text, phonetic), opts);
-  };
+  this.buf32 = (text, phonetic) => buf32(ensurePhonetic(text, phonetic), opts);
   /**
    * Render the passed text as wave buffer and play it over the speakers.
    *
@@ -3126,9 +3039,7 @@ function SamJs(options) {
    */
 
 
-  this.speak = (text, phonetic) => {
-    return PlayBuffer(this.buf32(text, phonetic));
-  };
+  this.speak = (text, phonetic) => PlayBuffer(this.buf32(text, phonetic));
   /**
    * Render the passed text as wave buffer and download it via URL API.
    *
