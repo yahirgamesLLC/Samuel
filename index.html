@@ -61,10 +61,13 @@ and the refactored versions by
         e.value = opts[name];
       }
     );
+    var speech;
     document.getElementById('playground').addEventListener('submit', function (e) {
       e.preventDefault();
-      var s = new SamJs(opts);
-      s.speak(this.textfield.value);
+      var sam = new SamJs(opts);
+      if (speech) speech.abort();
+      speech = sam.speak(this.textfield.value);
+      speech.catch(() => {});
     });
   });
 </script>

@@ -8,7 +8,8 @@ import {text2Uint8Array, Uint32ToUint8Array, Uint16ToUint8Array} from '../util/u
  * @return {Promise}
  */
 const Play = (context, audiobuffer) => {
-  return new Promise((resolve) => {
+  let abort;
+  let promise = new Promise((resolve, reject) => {
     let source = context.createBufferSource();
     let soundBuffer = context.createBuffer(1, audiobuffer.length, 22050);
     let buffer = soundBuffer.getChannelData(0);
@@ -20,8 +21,14 @@ const Play = (context, audiobuffer) => {
     source.onended = () => {
       resolve(true);
     };
+    abort = reason => {
+      source.disconnect();
+      reject(reason);
+    };
     source.start(0);
   });
+  promise.abort = abort;
+  return promise;
 }
 
 let context = null;
