@@ -4,8 +4,8 @@
   "description": "SAM - The Software Automatic Mouth",
   "author": "Christian Schiffler <c.schiffler@cyberspectrum.de>",
   "private": false,
-  "main": "dist/samjs.js",
-  "module": "dist/samjs.esm.js",
+  "main": "dist/samjs.min.js",
+  "module": "dist/samjs.esm.min.js",
   "scripts": {
     "dev": "rollup -w -c build/config.js --environment TARGET:dev",
     "dev:cjs": "rollup -w -c build/config.js --environment TARGET:cjs",
