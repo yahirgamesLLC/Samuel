@@ -1,6 +1,6 @@
 import { assert } from 'chai'
 import loadFixture from '../fixture-reader.js';
-import Renderer from '../../src/renderer/renderer.es6';
+import {Renderer} from '../../src/renderer/renderer.es6';
 import {karmaOutput as output} from '../../src/renderer/renderer.es6';
 
 process.env.NODE_ENV = 'karma-test';

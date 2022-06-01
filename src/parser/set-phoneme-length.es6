@@ -9,7 +9,7 @@ import {combinedPhonemeLengthTable} from './tables.es6';
  *
  * @return undefined
  */
-export default (getPhoneme, getStress, setLength) => {
+export const SetPhonemeLength = (getPhoneme, getStress, setLength) => {
   let position = 0;
   let phoneme;
   while((phoneme = getPhoneme(position)) !== null) {

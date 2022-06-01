@@ -59,14 +59,14 @@ export default (e) => {
     hide(input);
     button.type='button';
     button.innerText = 'Start game';
-    button.addEventListener('click', function() {
+    button.addEventListener('click', () => {
       output.textContent = '';
       number = Math.floor((Math.random() * 99) + 1);
       say(GUESS_A_NUMBER_BETWEEN_0_AND_ONE_HUNDRED);
       hide(button);
       show(input);
     });
-    function say(phonemes, raw) {
+    const say = (phonemes, raw) => {
       let text = phonemes;
       while (text.length < 256) {
         text += ' '
@@ -93,7 +93,7 @@ export default (e) => {
    *
    * @param {Number} guess The guess
    */
-  function guess(guess) {
+  const guess = (guess) => {
     if (guess > 100) {
       say(THATS_MORE_THAN_100);
       return false;

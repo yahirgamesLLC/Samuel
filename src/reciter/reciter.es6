@@ -299,67 +299,63 @@ const rules2 = tables.rules2.split('|').map(reciterRule);
  * @return {boolean|string}
  */
 export const TextToPhonemes = (input) => {
-  return (() => {
-    const text = ' ' + input.toUpperCase();
+  const text = ' ' + input.toUpperCase();
 
-    let inputPos = 0, output = '';
-    /**
-     * The input callback (successCallback) used from the rules.
-     *
-     * @param {string} append    The string to append.
-     * @param {Number} inputSkip The amount or chars to move ahead in the input.
-     */
-    const successCallback = (append, inputSkip) => {
-      inputPos += inputSkip;
-      output += append;
-    };
+  let inputPos = 0, output = '';
+  /**
+   * The input callback (successCallback) used from the rules.
+   *
+   * @param {string} append    The string to append.
+   * @param {Number} inputSkip The amount or chars to move ahead in the input.
+   */
+  const successCallback = (append, inputSkip) => {
+    inputPos += inputSkip;
+    output += append;
+  };
 
-    let c = 0;
-    while ((inputPos < text.length) && (c++ < 10000)) {
-      if (process.env.DEBUG_SAM === true) {
-        const tmp = text.toLowerCase();
-        console.log(
-          `processing "${tmp.substr(0, inputPos)}%c${tmp[inputPos].toUpperCase()}%c${tmp.substr(inputPos + 1)}"`,
-          'color: red;',
-          'color:normal;'
-        );
-      }
-      const currentChar = text[inputPos];
+  let c = 0;
+  while ((inputPos < text.length) && (c++ < 10000)) {
+    if (process.env.DEBUG_SAM === true) {
+      const tmp = text.toLowerCase();
+      console.log(
+        `processing "${tmp.substr(0, inputPos)}%c${tmp[inputPos].toUpperCase()}%c${tmp.substr(inputPos + 1)}"`,
+        'color: red;',
+        'color:normal;'
+      );
+    }
+    const currentChar = text[inputPos];
 
-      // NOT '.' or '.' followed by number.
-      if ((currentChar !== '.')
-        || (flagsAt(text, inputPos + 1, FLAG_NUMERIC))) {
-        //pos36607:
-        if (flags(currentChar, FLAG_RULESET2)) {
-          rules2.some((rule) => {
-            return rule(text, inputPos, successCallback);
-          });
+    // NOT '.' or '.' followed by number.
+    if ((currentChar !== '.')
+      || (flagsAt(text, inputPos + 1, FLAG_NUMERIC))) {
+      //pos36607:
+      if (flags(currentChar, FLAG_RULESET2)) {
+        rules2.some((rule) => {
+          return rule(text, inputPos, successCallback);
+        });
 
-          continue;
-        }
-        //pos36630:
-        if (tables.charFlags[currentChar] !== 0) {
-          // pos36677:
-          if (!flags(currentChar, FLAG_ALPHA_OR_QUOT)) {
-            //36683: BRK
-            return false;
-          }
-          // go to the right rules for this character.
-          rules[currentChar].some((rule) => {
-            return rule(text, inputPos, successCallback);
-          });
-          continue;
-        }
-
-        output += ' ';
-        inputPos++;
         continue;
       }
-      output += '.';
-      inputPos++;
-    }
-    return output;
-  })();
-}
+      //pos36630:
+      if (tables.charFlags[currentChar] !== 0) {
+        // pos36677:
+        if (!flags(currentChar, FLAG_ALPHA_OR_QUOT)) {
+          //36683: BRK
+          return false;
+        }
+        // go to the right rules for this character.
+        rules[currentChar].some((rule) => {
+          return rule(text, inputPos, successCallback);
+        });
+        continue;
+      }
 
-export default TextToPhonemes;
+      output += ' ';
+      inputPos++;
+      continue;
+    }
+    output += '.';
+    inputPos++;
+  }
+  return output;
+};

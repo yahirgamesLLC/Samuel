@@ -1,10 +1,10 @@
 import {PhonemeNameTable} from './tables.es6';
-import Parser1 from './parse1.es6';
-import Parser2 from './parse2.es6';
-import AdjustLengths from './adjust-lengths.es6';
-import CopyStress from './copy-stress.es6';
-import SetPhonemeLength from './set-phoneme-length.es6';
-import ProlongPlosiveStopConsonantsCode41240 from './prolong-plosive-stop-consonants.es6';
+import {Parser1} from './parse1.es6';
+import {Parser2} from './parse2.es6';
+import {AdjustLengths} from './adjust-lengths.es6';
+import {CopyStress} from './copy-stress.es6';
+import {SetPhonemeLength} from './set-phoneme-length.es6';
+import {ProlongPlosiveStopConsonantsCode41240} from './prolong-plosive-stop-consonants.es6';
 
 /**
  * Parses speech data.
@@ -15,7 +15,7 @@ import ProlongPlosiveStopConsonantsCode41240 from './prolong-plosive-stop-conson
  *
  * @return {Array|Boolean} The parsed data.
  */
-export default (input) => {
+export const Parser = (input) => {
   if (!input) {
     return false;
   }
@@ -139,7 +139,7 @@ const PrintPhonemes = (phonemeindex, phonemeLength, stress) => {
   console.log(' pos  idx  phoneme  length  stress');
   console.log('----------------------------------');
   for (let i=0;i<phonemeindex.length;i++) {
-    const name = (phoneme) => {
+    const name = () => {
       if (phonemeindex[i] < 81) {
         return PhonemeNameTable[phonemeindex[i]];
       }

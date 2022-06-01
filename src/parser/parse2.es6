@@ -44,7 +44,7 @@ import {
  *
  * @return undefined
  */
-export default (insertPhoneme, setPhoneme, getPhoneme, getStress) => {
+export const Parser2 = (insertPhoneme, setPhoneme, getPhoneme, getStress) => {
   /**
    * Rewrites:
    *  'UW' => 'UX' if alveolar flag set on previous phoneme.

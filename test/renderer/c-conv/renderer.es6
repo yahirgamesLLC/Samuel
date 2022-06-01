@@ -29,8 +29,8 @@ import {
 
 const END = 255;
 
-import Uint8 from '../../../src/types/Uint8.es6';
-import Uint16 from '../../../src/types/Uint16.es6';
+import {Uint8} from '../../../src/types/Uint8.es6';
+import {Uint16} from '../../../src/types/Uint16.es6';
 
 const PHONEME_PERIOD = 1;
 const PHONEME_QUESTION = 2;

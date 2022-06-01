@@ -37,7 +37,7 @@ import { matchesBitmask } from "../util/util.es6";
  *
  * @return undefined
  */
-export default (getPhoneme, setLength, getLength) => {
+export const AdjustLengths = (getPhoneme, setLength, getLength) => {
   if (process.env.DEBUG_SAM === true) {
     console.log(`AdjustLengths()`);
   }
@@ -63,7 +63,8 @@ export default (getPhoneme, setLength, getLength) => {
     }
 
     // Now handle everything between position and loopIndex
-    for (let vowel=position;position<loopIndex;position++) {
+    let vowel=position;
+    for (;position<loopIndex;position++) {
       // test for not fricative/unvoiced or not voiced
       if(!phonemeHasFlag(getPhoneme(position), FLAG_FRICATIVE) || phonemeHasFlag(getPhoneme(position), FLAG_VOICED)) {
         let A = getLength(position);

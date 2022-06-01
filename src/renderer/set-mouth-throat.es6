@@ -12,7 +12,7 @@ import {frequencyData} from './tables.es6';
  *
  * @return {Array}
  */
-export default (mouth, throat) => {
+export const SetMouthThroat = (mouth, throat) => {
   const trans = (factor, initialFrequency) => {
     return (((factor * initialFrequency) >> 8) & 0xFF) << 1;
   }

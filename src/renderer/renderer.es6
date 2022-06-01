@@ -1,6 +1,6 @@
-import PrepareFrames from './prepare-frames.es6';
-import CreateOutputBuffer from './output-buffer.es6';
-import ProcessFrames from './process-frames.es6';
+import {PrepareFrames} from './prepare-frames.es6';
+import {CreateOutputBuffer} from './output-buffer.es6';
+import {ProcessFrames} from './process-frames.es6';
 
 export let karmaOutput;
 
@@ -14,7 +14,7 @@ export let karmaOutput;
  *
  * @return Uint8Array
  */
-export default (phonemes, pitch, mouth, throat, speed, singmode) => {
+export const Renderer = (phonemes, pitch, mouth, throat, speed, singmode) => {
   pitch = (pitch === undefined) ? 64 : pitch & 0xFF;
   mouth = (mouth === undefined) ? 128 : mouth & 0xFF;
   throat = (throat === undefined) ? 128 : throat & 0xFF;

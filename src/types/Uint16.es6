@@ -1,4 +1,4 @@
-export default class Uint16 {
+export class Uint16 {
   constructor(value) {
     this.set(value || 0);
   }

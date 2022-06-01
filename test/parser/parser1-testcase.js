@@ -1,5 +1,5 @@
 import { assert } from 'chai'
-import Parser from "../../src/parser/parse1.es6";
+import {Parser1} from "../../src/parser/parse1.es6";
 import loadFixture from '../fixture-reader.js';
 
 export default function (files) {
@@ -10,7 +10,7 @@ export default function (files) {
           it(`should parse: "${test.input}".` , () => {
             const output = [];
             const stress = [];
-            const result = Parser(
+            const result = Parser1(
               test.input,
               (value) => { output.push(value); stress.push(0); },
               (value) => { stress[stress.length - 1] = value; }

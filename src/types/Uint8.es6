@@ -1,4 +1,4 @@
-export default class Uint8 {
+export class Uint8 {
   constructor(value) {
     this.set(value || 0);
   }

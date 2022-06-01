@@ -12,7 +12,7 @@ import { phonemeHasFlag } from './util.es6';
  *
  * @return undefined
  */
-export default (getPhoneme, insertPhoneme, getStress) => {
+export const ProlongPlosiveStopConsonantsCode41240 = (getPhoneme, insertPhoneme, getStress) => {
   let pos=-1;
   let index;
   while ((index = getPhoneme(++pos)) !== null) {

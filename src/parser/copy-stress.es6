@@ -21,7 +21,7 @@ import { phonemeHasFlag } from './util.es6';
  *
  * @return undefined
  */
-export default (getPhoneme, getStress, setStress) => {
+export const CopyStress = (getPhoneme, getStress, setStress) => {
   // loop through all the phonemes to be output
   let position = 0;
   let phoneme;

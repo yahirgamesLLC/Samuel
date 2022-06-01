@@ -66,7 +66,7 @@ const sinus = (x) => Math.sin(2*Math.PI*(x/256)) * 127 | 0;
  * To simulate them being driven by the glottal pulse, the waveforms are
  * reset at the beginning of each glottal pulse.
  */
-export default function ProcessFrames(Output, frameCount, speed, frequency, pitches, amplitude, sampledConsonantFlag) {
+export const ProcessFrames = (Output, frameCount, speed, frequency, pitches, amplitude, sampledConsonantFlag) => {
   let speedcounter = speed;
   let phase1 = 0;
   let phase2 = 0;

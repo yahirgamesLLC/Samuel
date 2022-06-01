@@ -1,7 +1,7 @@
 import {PlayBuffer, Uint8ArrayToFloat32Array} from '../util/player.es6';
 
-import Parser from '../parser/parser.es6';
-import Renderer from '../renderer/renderer.es6';
+import {Parser} from '../parser/parser.es6';
+import {Renderer} from '../renderer/renderer.es6';
 
 /**
  * Process the input and play the audio buffer.

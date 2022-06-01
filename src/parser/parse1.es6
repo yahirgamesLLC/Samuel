@@ -80,7 +80,7 @@ const wild_match = (sign1) => {
  *
  * @return {undefined}
  */
-export default (input, addPhoneme, addStress) => {
+export const Parser1 = (input, addPhoneme, addStress) => {
   for (let srcPos=0;srcPos<input.length;srcPos++) {
     if (process.env.DEBUG_SAM === true) {
       let tmp = input.toLowerCase();

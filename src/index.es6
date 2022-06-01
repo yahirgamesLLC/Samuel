@@ -1,5 +1,5 @@
 import {PlayBuffer, RenderBuffer} from './util/player.es6'
-import TextToPhonemes from './reciter/reciter.es6';
+import {TextToPhonemes} from './reciter/reciter.es6';
 import {SamProcess, SamBuffer} from './sam/sam.es6';
 
 const convert = TextToPhonemes;
@@ -36,9 +36,7 @@ function SamJs (options) {
    *
    * @return {Uint8Array|Boolean}
    */
-  this.buf8 = (text, phonetic) => {
-    return buf8(ensurePhonetic(text, phonetic), opts);
-  }
+  this.buf8 = (text, phonetic) => buf8(ensurePhonetic(text, phonetic), opts);
 
   /**
    * Render the passed text as 32bit wave buffer array.
@@ -48,9 +46,7 @@ function SamJs (options) {
    *
    * @return {Float32Array|Boolean}
    */
-  this.buf32 = (text, phonetic) => {
-    return buf32(ensurePhonetic(text, phonetic), opts);
-  }
+  this.buf32 = (text, phonetic) => buf32(ensurePhonetic(text, phonetic), opts);
 
   /**
    * Render the passed text as wave buffer and play it over the speakers.
@@ -60,9 +56,7 @@ function SamJs (options) {
    *
    * @return {Promise}
    */
-  this.speak = (text, phonetic) => {
-    return PlayBuffer(this.buf32(text, phonetic));
-  }
+  this.speak = (text, phonetic) => PlayBuffer(this.buf32(text, phonetic));
 
   /**
    * Render the passed text as wave buffer and download it via URL API.

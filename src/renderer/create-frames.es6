@@ -31,7 +31,7 @@ const FALLING_INFLECTION = 1;
  *
  * @return Array
  */
-export default (
+export const CreateFrames = (
   pitch,
   tuples,
   frequencyData) => {

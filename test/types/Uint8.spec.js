@@ -1,6 +1,6 @@
 import { assert } from 'chai'
 
-import Uint8 from '../../src/types/Uint8.es6';
+import {Uint8} from '../../src/types/Uint8.es6';
 
 describe('util.es6', () => {
   describe('Uint8', () => {
