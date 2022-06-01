@@ -14,15 +14,6 @@ export default function (files) {
           describe(`#Renderer()`, () => {
             it(`should render: "${value.input}".`, () => {
               const parsed = value.output.map((v, i) => [v, value.length[i], value.stress[i]]);
-
-              const phonemeindex = new Uint8Array(256);
-              const phonemeLength = new Uint8Array(256);
-              const stress = new Uint8Array(256);
-              for (let i=0;i<value.output.length;i++) {
-                phonemeindex[i] = value.output[i];
-                phonemeLength[i] = value.length[i];
-                stress[i] = value.stress[i];
-              }
               parsed.push([END, 0, 0]);
 
               const result = Renderer(parsed);
