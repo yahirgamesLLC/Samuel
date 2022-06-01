@@ -3,6 +3,8 @@ GLOBAL_DEPS=Makefile $(wildcard src/**.es6) build/build.js build/config.js
 PROJECT_DIR=$(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 GH_PAGES_PATH=$(PROJECT_DIR)/gh-pages
 
+.PHONY: test build
+
 all: test build
 
 test: $(GLOBAL_DEPS)
