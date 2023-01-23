@@ -1,4 +1,4 @@
-# SAM Software Automatic Mouth
+# THE ROBOTIC TEXT
 
 ## What is SAM?
 
